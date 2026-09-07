@@ -1,0 +1,569 @@
+:root {
+  /* Typography */
+  --font-family-body: Aptos, "Segoe UI", Arial, sans-serif;
+  --font-family-display: Georgia, "Times New Roman", serif;
+  --font-size-page-title: clamp(36px, 5vw, 64px);
+  --font-size-person-name: 27px;
+  --font-size-person-surname-scale: 0.82em;
+  --font-size-maiden-name-scale: 0.58em;
+  --font-size-group-title: 21px;
+  --font-size-generation-number: 23px;
+  --font-size-generation-label: 11px;
+  --font-size-eyebrow: 12px;
+  --font-size-subtitle: 15px;
+  --font-size-avatar-initials: 24px;
+  --font-size-card-fact: 13px;
+  --font-size-card-label: 9px;
+  --font-size-relationship-label: 10px;
+  --font-weight-regular: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 800;
+
+  /* Core colors */
+  --ink: #26313a;
+  --muted: #7e6f60;
+  --paper: #fffdf8;
+  --canvas: #f3efe7;
+  --canvas-top: #faf8f3;
+  --copper: #b8733f;
+  --copper-dark: #83502c;
+  --direct-ancestor-accent: #315f78;
+  --direct-ancestor-soft: #edf5f8;
+  --non-blood-spouse-accent: #727980;
+  --non-blood-spouse-soft: #eef0f2;
+  --non-blood-spouse-border: #9aa0a6;
+  --line: #ba8b5e;
+  --guardianship-line: #725b91;
+  --border: #ded1bf;
+  --light-on-accent: #fffaf1;
+  --photo-placeholder: #e7ddd0;
+  --canvas-glow: rgba(184, 115, 63, 0.12);
+  --generation-divider: rgba(184, 115, 63, 0.35);
+  --portrait-highlight: rgba(255, 255, 255, 0.16);
+  --portrait-divider: rgba(88, 53, 30, 0.16);
+  --avatar-border: rgba(255, 250, 241, 0.72);
+  --missing-highlight: #fff2a8;
+  --missing-highlight-border: #c99b00;
+  --missing-highlight-ink: #594400;
+
+  /* Shadows */
+  --card-shadow: 0 18px 45px rgba(77, 57, 38, 0.11);
+  --relationship-shadow: 0 5px 15px rgba(75, 44, 24, 0.18);
+
+  /* Tree spacing */
+  --site-header-padding: 54px 32px 24px;
+  --tree-viewport-padding: 18px 36px 80px;
+  --generation-padding: 24px 36px 38px;
+  --generation-vertical-gap: 116px;
+  --generation-item-gap: 30px;
+  --generation-divider-inset: 36px;
+  --generation-label-gap: 8px;
+  --generation-label-bottom-space: 22px;
+
+  /* Sibling groups */
+  --sibling-group-padding: 52px 24px 24px;
+  --sibling-group-radius: 28px;
+  --sibling-group-border-width: 2px;
+  --sibling-group-title-top: 14px;
+  --sibling-group-title-left: 24px;
+
+  /* Person cards */
+  --person-card-width: 500px;
+  --person-card-height: 354px;
+  --person-card-radius: 22px;
+  --person-card-border-width: 1px;
+  --direct-ancestor-border-width: 5px;
+  --non-blood-spouse-border-width: 3px;
+  --portrait-width: 200px;
+  --card-details-min-width: 253px;
+  --card-details-max-width: 314px;
+  --person-details-padding: 24px 26px 22px;
+  --avatar-size: 82px;
+  --person-name-bottom-space: 16px;
+  --person-name-divider-space: 14px;
+  --person-surname-top-space: 3px;
+  --card-fact-row-gap: 12px;
+  --card-fact-column-gap: 16px;
+  --card-label-bottom-space: 3px;
+
+  /* Relationship markers and lines */
+  --relationship-min-width: 84px;
+  --relationship-min-height: 34px;
+  --relationship-padding: 7px 14px;
+  --relationship-radius: 999px;
+  --family-line-width: 2.5;
+  --family-junction-radius: 4px;
+
+  /* Miscellaneous spacing */
+  --eyebrow-bottom-space: 8px;
+  --subtitle-top-space: 10px;
+  --standalone-page-padding: 40px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-family-body);
+  background:
+    radial-gradient(circle at 15% 0%, var(--canvas-glow), transparent 32rem),
+    linear-gradient(180deg, var(--canvas-top) 0%, var(--canvas) 100%);
+}
+
+.site-header {
+  padding: var(--site-header-padding);
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0 0 var(--eyebrow-bottom-space);
+  color: var(--copper);
+  font-size: var(--font-size-eyebrow);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: -0.04em;
+}
+
+.subtitle {
+  margin: var(--subtitle-top-space) 0 0;
+  color: var(--muted);
+  font-size: var(--font-size-subtitle);
+}
+
+.preview-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-family: var(--font-family-display);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.preview-date::before,
+.preview-date::after {
+  width: 28px;
+  height: 1px;
+  content: "";
+  background: var(--copper);
+  opacity: 0.55;
+}
+
+.preview-date[hidden] {
+  display: none;
+}
+
+.tree-viewport {
+  width: 100%;
+  overflow: auto;
+  padding: var(--tree-viewport-padding);
+}
+
+.tree-canvas {
+  position: relative;
+  isolation: isolate;
+  width: max-content;
+  min-width: 100%;
+  margin: 0 auto;
+}
+
+.connections {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.generation {
+  position: relative;
+  min-width: max-content;
+  padding: var(--generation-padding);
+}
+
+.generation + .generation {
+  margin-top: var(--generation-vertical-gap);
+}
+
+.generation::before {
+  position: absolute;
+  top: 0;
+  right: var(--generation-divider-inset);
+  left: var(--generation-divider-inset);
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, var(--generation-divider), transparent);
+}
+
+.generation-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--generation-label-gap);
+  margin-bottom: var(--generation-label-bottom-space);
+  color: var(--muted);
+  font-size: var(--font-size-generation-label);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.generation-label strong {
+  color: var(--copper);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-generation-number);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0;
+}
+
+.generation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--generation-item-gap);
+  min-width: max-content;
+}
+
+.sibling-group {
+  --card-accent: var(--group-accent);
+  position: relative;
+  flex: 0 0 auto;
+  padding: var(--sibling-group-padding);
+  background: linear-gradient(180deg, var(--group-soft), transparent 72%);
+  border: var(--sibling-group-border-width) solid var(--group-accent);
+  border-radius: var(--sibling-group-radius);
+}
+
+/* Sibling-group palettes: designers can update these colors directly. */
+.sibling-group[data-palette="0"] {
+  --group-accent: #397a78;
+  --group-dark: #245755;
+  --group-soft: #e8f2f1;
+}
+
+.sibling-group[data-palette="1"] {
+  --group-accent: #6c6fa3;
+  --group-dark: #494d7d;
+  --group-soft: #eeeef7;
+}
+
+.sibling-group[data-palette="2"] {
+  --group-accent: #a45f73;
+  --group-dark: #793f51;
+  --group-soft: #f7e9ed;
+}
+
+.sibling-group[data-palette="3"] {
+  --group-accent: #56805b;
+  --group-dark: #395d3e;
+  --group-soft: #eaf2e9;
+}
+
+.sibling-group[data-palette="4"] {
+  --group-accent: #a06f32;
+  --group-dark: #745022;
+  --group-soft: #f6eddf;
+}
+
+.sibling-group[data-palette="5"] {
+  --group-accent: #647c9a;
+  --group-dark: #425b78;
+  --group-soft: #eaf0f6;
+}
+
+.sibling-group[data-palette="6"] {
+  --group-accent: #8a6855;
+  --group-dark: #654939;
+  --group-soft: #f3ece7;
+}
+
+.sibling-group[data-appearance="unconnected"] {
+  --group-accent: #d47428;
+  --group-dark: #93460f;
+  --group-soft: #fff0df;
+}
+
+.sibling-group h2 {
+  position: absolute;
+  top: var(--sibling-group-title-top);
+  left: var(--sibling-group-title-left);
+  margin: 0;
+  color: var(--group-dark);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-group-title);
+  font-weight: var(--font-weight-regular);
+}
+
+.sibling-group-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--generation-item-gap);
+}
+
+.sibling-group-row > .relationship {
+  align-self: center;
+}
+
+.person-card {
+  --card-accent: var(--copper);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--portrait-width) minmax(var(--card-details-min-width), var(--card-details-max-width));
+  width: var(--person-card-width);
+  height: var(--person-card-height);
+  overflow: hidden;
+  background: var(--paper);
+  border: var(--person-card-border-width) solid var(--border);
+  border-radius: var(--person-card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.ancestry-page .person-card.ancestry-focus,
+.ancestry-page .person-card.direct-ancestor,
+.ancestry-page .person-card.direct-descendant {
+  --card-accent: var(--direct-ancestor-accent);
+  background: linear-gradient(
+    135deg,
+    var(--direct-ancestor-soft),
+    var(--paper) 48%
+  );
+  border-color: var(--direct-ancestor-accent);
+  border-width: var(--direct-ancestor-border-width);
+}
+
+.ancestry-page .person-card.blood-relative-spouse {
+  --card-accent: var(--non-blood-spouse-accent);
+  background: linear-gradient(
+    135deg,
+    var(--non-blood-spouse-soft),
+    var(--paper) 48%
+  );
+  border-color: var(--non-blood-spouse-border);
+  border-width: var(--non-blood-spouse-border-width);
+}
+
+.portrait {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  color: var(--light-on-accent);
+  background:
+    linear-gradient(145deg, var(--portrait-highlight), transparent 45%),
+    var(--card-accent);
+  border-right: 1px solid var(--portrait-divider);
+}
+
+.portrait span {
+  display: grid;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  place-items: center;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-avatar-initials);
+  letter-spacing: 0.04em;
+  border: 2px solid var(--avatar-border);
+  border-radius: 50%;
+}
+
+.portrait.has-photo {
+  background: var(--photo-placeholder);
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.person-details {
+  padding: var(--person-details-padding);
+}
+
+.person-details h3 {
+  margin: 0 0 var(--person-name-bottom-space);
+  padding-bottom: var(--person-name-divider-space);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-person-name);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  border-bottom: 2px solid var(--card-accent);
+}
+
+.person-details h3 span {
+  display: block;
+}
+
+.person-details h3 .given-names {
+  font-size: 1em;
+  font-weight: var(--font-weight-semibold);
+}
+
+.person-details h3 .surnames {
+  margin-top: var(--person-surname-top-space);
+  font-size: var(--font-size-person-surname-scale);
+  font-weight: var(--font-weight-regular);
+}
+
+.person-details h3 small {
+  font-size: var(--font-size-maiden-name-scale);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0;
+}
+
+.person-details dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--card-fact-row-gap) var(--card-fact-column-gap);
+  margin: 0;
+}
+
+.person-details dl div:first-child {
+  grid-column: 1 / -1;
+}
+
+.person-details dl .family-fact {
+  grid-column: 1 / -1;
+}
+
+.person-details dl .alternate-name {
+  grid-column: 1 / -1;
+}
+
+.person-details dt {
+  margin-bottom: var(--card-label-bottom-space);
+  color: var(--muted);
+  font-size: var(--font-size-card-label);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.person-details dd {
+  margin: 0;
+  font-size: var(--font-size-card-fact);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+}
+
+.person-details .missing-information dd {
+  display: inline-block;
+  padding: 2px 7px;
+  color: var(--missing-highlight-ink);
+  background: var(--missing-highlight);
+  border: 1px solid var(--missing-highlight-border);
+  border-radius: 6px;
+}
+
+.relationship {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+}
+
+.relationship span {
+  display: inline-flex;
+  min-width: var(--relationship-min-width);
+  min-height: var(--relationship-min-height);
+  align-items: center;
+  justify-content: center;
+  padding: var(--relationship-padding);
+  color: var(--light-on-accent);
+  background: var(--copper-dark);
+  border: 2px solid var(--light-on-accent);
+  border-radius: var(--relationship-radius);
+  box-shadow: var(--relationship-shadow);
+  font-size: var(--font-size-relationship-label);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.family-line {
+  fill: none;
+  stroke: var(--line);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: var(--family-line-width);
+}
+
+.family-junction {
+  r: var(--family-junction-radius);
+  fill: var(--copper-dark);
+}
+
+.guardianship-line {
+  fill: none;
+  stroke: var(--guardianship-line);
+  stroke-dasharray: 10 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.guardianship-label {
+  fill: var(--guardianship-line);
+  font-family: var(--font-family-body);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.08em;
+  paint-order: stroke;
+  stroke: var(--canvas);
+  stroke-linejoin: round;
+  stroke-width: 6px;
+  text-transform: uppercase;
+}
+
+.standalone-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: var(--standalone-page-padding);
+}
+
+@media (max-width: 700px) {
+  :root {
+    --tree-viewport-padding: 18px 18px 80px;
+    --person-card-width: 419px;
+    --portrait-width: 144px;
+    --card-details-min-width: 275px;
+    --card-details-max-width: 275px;
+    --person-details-padding: 20px;
+    --font-size-person-name: 23px;
+  }
+
+  .tree-viewport {
+    padding: var(--tree-viewport-padding);
+  }
+
+  .person-card {
+    grid-template-columns: var(--portrait-width) var(--card-details-min-width);
+    width: var(--person-card-width);
+  }
+
+  .person-details {
+    padding: var(--person-details-padding);
+  }
+
+  .person-details h3 {
+    font-size: var(--font-size-person-name);
+  }
+}

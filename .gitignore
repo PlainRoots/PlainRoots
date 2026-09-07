@@ -1,0 +1,10 @@
+node_modules/
+*.png
+print-report*.html
+index.ancestry*.html
+index.descendants*.html
+index.blood-relatives*.html
+index.ancestors*.html
+index*.highlight-missing*.html
+people/*/card.highlight-missing*.html
+*.log

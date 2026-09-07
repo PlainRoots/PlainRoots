@@ -1,0 +1,14 @@
+{
+  "id": "emma-brown",
+  "name": "Emma Brown",
+  "givenNames": "Emma",
+  "surnames": "Brown",
+  "maidenName": null,
+  "initials": "EB",
+  "occupation": "Software engineer",
+  "birthDate": "1999-03-09",
+  "birthPlace": "Seattle, Washington, USA",
+  "deathDate": null,
+  "lifeStatus": "living",
+  "photo": null
+}

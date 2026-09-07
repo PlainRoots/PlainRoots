@@ -1,0 +1,14 @@
+{
+  "mx-ES": {
+    "fictional-reference-data": {
+      "title": "Todos los datos familiares incluidos son ficticios",
+      "note": "Los nombres son ejemplos comunes y las fechas, relaciones, historias y descripciones de fuentes se inventaron para este repositorio público de referencia.",
+      "implications": [
+        "No trates ningún registro incluido como evidencia acerca de una persona real.",
+        "Reemplaza por completo la familia de ejemplo al iniciar un archivo familiar privado.",
+        "Mantén los nuevos ejemplos públicos como datos ficticios, sin documentos ni fotografías privadas."
+      ],
+      "provenance": "Política del repositorio de referencia de PlainRoots."
+    }
+  }
+}

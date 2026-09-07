@@ -1,0 +1,16 @@
+{
+  "notes": [
+    {
+      "id": "fictional-reference-data",
+      "status": "confirmed-guidance",
+      "title": "All bundled family data is fictional",
+      "note": "The names are common examples and the dates, relationships, stories, and source descriptions were invented for this public reference repository.",
+      "implications": [
+        "Do not treat any bundled record as evidence about a real person.",
+        "Replace the sample family completely when starting a private family archive.",
+        "Keep new public examples fictional and free of private documents or photographs."
+      ],
+      "provenance": "PlainRoots reference-repository policy."
+    }
+  ]
+}

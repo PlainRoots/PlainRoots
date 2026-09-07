@@ -1,0 +1,14 @@
+{
+  "id": "robert-smith",
+  "name": "Robert Smith",
+  "givenNames": "Robert",
+  "surnames": "Smith",
+  "maidenName": null,
+  "initials": "RS",
+  "occupation": "Mechanical engineer",
+  "birthDate": "1942-06-21",
+  "birthPlace": "San Antonio, Texas, USA",
+  "deathDate": "2015-10-04",
+  "lifeStatus": "deceased",
+  "photo": null
+}
