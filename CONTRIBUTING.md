@@ -30,6 +30,8 @@ plain text. Keep contributions focused, evidence-aware, and safe to publish.
    npm run check:mx-ES
    npm run check:translations
    npm run check:notes
+   npm run check:lfs
+   npm run test:recordings
    git diff --check
    ```
 
@@ -52,6 +54,9 @@ plain text. Keep contributions focused, evidence-aware, and safe to publish.
 - Keep research provenance in `researchNotes`, not in visual cards.
 - Preserve existing photos and add improved versions with numbered filenames.
 - Prefer non-AI-edited photos showing people in their 20s or 30s.
+- Preserve approved recordings and matching non-empty Markdown transcripts.
+  Store supported audio formats with Git LFS, keep files at or below 5 MiB
+  where practical, and never exceed 10 MiB.
 
 ## Pull-request description
 

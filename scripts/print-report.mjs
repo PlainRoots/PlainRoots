@@ -16,6 +16,8 @@ import {
   localizeResearchNoteStatus
 } from "./narrative-translations.mjs";
 import { resolvePersonPhoto } from "./person-photo.mjs";
+import { resolvePersonRecordings } from "./person-recordings.mjs";
+import { renderPrintRecordings } from "../templates/print-recordings-html.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -44,14 +46,25 @@ for (const person of people.values()) {
   if (resolvedPhotoPath) {
     person.photo = path.basename(resolvedPhotoPath);
   }
+  person.recordings = await resolvePersonRecordings(
+    person,
+    personDirectory,
+    projectRoot
+  );
 }
 const tree = selectViewTree(view, completeTree, personId);
 const localizedSuffix = localeId === "us-EN" ? "" : `.${localeId}`;
 const modeSuffix = highlightMissing ? ".highlight-missing" : "";
 const viewSuffix = view.id === "full" ? "" : `.${view.id}`;
+const outputStem = view.requiresPerson
+  ? `${personId}.print-report.${view.id}`
+  : `print-report${viewSuffix}`;
+const outputLocaleSuffix = view.requiresPerson
+  ? `.${localeId}`
+  : localizedSuffix;
 const outputPath = path.join(
   projectRoot,
-  `print-report${viewSuffix}${modeSuffix}${localizedSuffix}.html`
+  `${outputStem}${modeSuffix}${outputLocaleSuffix}.html`
 );
 
 await emit(
@@ -323,6 +336,7 @@ ${facts}
             </div>
           </div>
 ${renderRelationships(relationships, peopleById, localeData)}
+${renderPrintRecordings(person, localeData, formatDate)}
 ${renderNarrative(strings.printRemarks, person.remarks)}
 ${renderNarrative(strings.printResearchNotes, person.researchNotes)}
         </article>`;
@@ -695,9 +709,25 @@ function printStyles() {
       margin: 0;
     }
     .relationships ul,
+    .recordings ul,
     .project-notes ul {
       margin: 0.03in 0 0.08in;
       padding-left: 0.2in;
+    }
+    .recordings li {
+      margin-bottom: 0.06in;
+    }
+    .recording-details,
+    .recording-file {
+      display: block;
+    }
+    .recording-details {
+      color: #58636d;
+      font: 8.5pt Arial, sans-serif;
+    }
+    .recording-file code {
+      overflow-wrap: anywhere;
+      font-size: 8pt;
     }
     .narrative p {
       margin-bottom: 0.08in;

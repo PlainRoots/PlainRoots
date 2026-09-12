@@ -1,6 +1,7 @@
 node_modules/
 *.png
 print-report*.html
+*.print-report*.html
 index.ancestry*.html
 index.descendants*.html
 index.blood-relatives*.html

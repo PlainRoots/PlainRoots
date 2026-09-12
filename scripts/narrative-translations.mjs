@@ -2,6 +2,7 @@ import { access, readFile, readdir } from "node:fs/promises";
 import { constants } from "node:fs";
 import path from "node:path";
 import { validatePerson } from "../templates/person-card-html.mjs";
+import { validatePersonRecordings } from "./person-recordings.mjs";
 import {
   RESEARCH_NOTE_STATUSES,
   validateResearchNotes
@@ -47,6 +48,7 @@ export async function loadLocalizedPeople(projectRoot, localeId) {
 
     const person = await readJson(personPath, projectRoot);
     validatePerson(person, relative(projectRoot, personPath));
+    validatePersonRecordings(person, relative(projectRoot, personPath));
     if (person.id !== entry.name) {
       throw new Error(
         `${relative(projectRoot, personPath)}: person ID "${person.id}" does not match directory "${entry.name}"`

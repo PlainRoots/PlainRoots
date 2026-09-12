@@ -50,6 +50,7 @@ afirmaciones acerca de personas reales.
 ## Requisitos
 
 - Git
+- Git LFS
 - Node.js 20 o posterior
 - Microsoft Edge o Google Chrome para capturar vistas previas PNG
 
@@ -82,6 +83,8 @@ PlainRoots/
 |   `-- person-id/
 |       |-- person.json
 |       |-- translations.json
+|       |-- recording-*.m4a
+|       |-- recording-*.md
 |       `-- card*.html
 |-- scripts/
 |-- templates/
@@ -109,6 +112,21 @@ predeterminado solo cuando todas las fechas posibles de ese año hagan que la
 persona sea mayor de 110 años. Los reportes muestran el estado almacenado sin
 reemplazarlo.
 
+Los registros también pueden incluir un arreglo `recordings`. Cada entrada
+contiene un título, el nombre del archivo de audio, el nombre de una
+transcripción Markdown con la misma base, una etiqueta del idioma hablado y un
+`recordedDate` opcional en formato `YYYY` o `YYYY-MM-DD`. Conserva ambos
+archivos en la carpeta de la persona y usa nombres ASCII en minúsculas,
+separados por guiones y con la misma base.
+
+Los archivos de audio se almacenan con Git LFS. Los formatos admitidos son AAC,
+FLAC, M4A, MP3, OGG, WAV y WebM. Procura mantener las grabaciones en 5 MiB o
+menos; los archivos mayores de 10 MiB no pasan la validación. Nunca sobrescribas
+una grabación existente. Los reportes imprimibles incluyen enlaces localizados
+y rutas relativas visibles. Los archivos faltantes se reportan como vacíos
+recuperables del archivo, mientras que las transcripciones vacías no son
+válidas.
+
 Cuando no hay retrato, las fichas muestran como máximo cuatro iniciales: las
 primeras dos de `givenNames`, seguidas de las primeras dos de `surnames`. Nunca
 sobrescribas ni elimines un retrato existente al agregar uno mejor; consérvalo
@@ -134,6 +152,8 @@ npm run generate:mx-ES
 npm run check
 npm run check:mx-ES
 npm run check:translations
+npm run check:lfs
+npm run test:recordings
 npm run report
 npm run report:mx-ES
 npm run view:ascii -- --view ancestry --person sofia-garcia-smith

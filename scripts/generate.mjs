@@ -11,6 +11,7 @@ import {
 import { calculateLevels } from "./tree-layout.mjs";
 import { parseViewArguments, selectViewTree } from "./views.mjs";
 import { resolvePersonPhoto } from "./person-photo.mjs";
+import { resolvePersonRecordings } from "./person-recordings.mjs";
 import { validateResearchNotes } from "./research-notes-data.mjs";
 
 const projectRoot = path.resolve(
@@ -116,6 +117,11 @@ async function loadPeople() {
       throw new Error(`Duplicate person id: ${person.id}`);
     }
 
+    person.recordings = await resolvePersonRecordings(
+      person,
+      path.dirname(personPath),
+      projectRoot
+    );
     const resolvedPhotoPath = await resolvePersonPhoto(
       person,
       path.dirname(personPath),

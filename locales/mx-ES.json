@@ -91,7 +91,13 @@
     "printResearchNotes": "Notas de investigación y procedencia",
     "printProjectResearch": "Guía de investigación del proyecto",
     "printImplications": "Implicaciones",
-    "printProvenance": "Procedencia"
+    "printProvenance": "Procedencia",
+    "printFamilyRecordings": "Grabaciones familiares",
+    "printRecorded": "Grabado",
+    "printSpokenLanguage": "Idioma hablado",
+    "printAudioRecording": "Grabación de audio",
+    "printTranscript": "Transcripción",
+    "printFileUnavailable": "Archivo no disponible:"
   },
   "familyRelationships": {
     "married": "Casado/a",

@@ -47,6 +47,7 @@ about real people.
 ## Prerequisites
 
 - Git
+- Git LFS
 - Node.js 20 or later
 - Microsoft Edge or Google Chrome to capture PNG previews
 
@@ -79,6 +80,8 @@ PlainRoots/
 |   `-- person-id/
 |       |-- person.json
 |       |-- translations.json
+|       |-- recording-*.m4a
+|       |-- recording-*.md
 |       `-- card*.html
 |-- scripts/
 |-- templates/
@@ -104,6 +107,19 @@ birth, apply this default only when every possible birthday in that year makes
 the person older than 110. Generated reports render the stored status without
 overriding it.
 
+Person records may also include a `recordings` array. Each entry contains a
+title, an audio filename, a matching Markdown transcript filename, a spoken
+language tag, and an optional `recordedDate` in `YYYY` or `YYYY-MM-DD` format.
+Keep both files in the person's directory and use matching lowercase ASCII,
+hyphenated filename stems.
+
+Audio files are stored with Git LFS. Supported formats are AAC, FLAC, M4A, MP3,
+OGG, WAV, and WebM. Keep recordings at or below 5 MiB when practical; files
+larger than 10 MiB fail validation. Never overwrite an existing recording.
+Printable reports include localized links and visible repository-relative
+paths. Missing files are reported as recoverable archive gaps, while empty
+transcripts are invalid.
+
 When no portrait is available, tree cards show at most four initials: the first
 two from `givenNames`, followed by the first two from `surnames`. Never overwrite
 or delete an existing portrait when adding a better one; preserve it and use the
@@ -127,6 +143,8 @@ npm run generate:mx-ES
 npm run check
 npm run check:mx-ES
 npm run check:translations
+npm run check:lfs
+npm run test:recordings
 npm run report
 npm run report:mx-ES
 npm run view:ascii -- --view ancestry --person sofia-garcia-smith

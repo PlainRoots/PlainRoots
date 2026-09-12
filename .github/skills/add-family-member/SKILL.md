@@ -100,6 +100,15 @@ HTML.
   },
   "remarks": null,
   "researchNotes": null,
+  "recordings": [
+    {
+      "title": "A family story",
+      "audio": "recording-2026-09-08-family-story.m4a",
+      "transcript": "recording-2026-09-08-family-story.md",
+      "recordedDate": "2026-09-08",
+      "language": "es-MX"
+    }
+  ],
   "photo": null
 }
 ```
@@ -115,6 +124,9 @@ future display. `researchNotes` follows the same optional format and stores
 source provenance, documentary citations, uncertainty, evidence conflicts,
 reasoning, portrait provenance, and curation guidance. It is source-only and
 must never be added to cards or tree views.
+`recordings` is optional. Use the separate `add-family-recording` skill to
+preserve approved audio, create its matching Markdown transcript, and add
+metadata. Recording links render only in printable reports.
 
 ## Privacy
 
