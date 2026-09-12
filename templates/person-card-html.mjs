@@ -31,6 +31,14 @@ export function validatePerson(person, source) {
   ) {
     throw new Error(`${source}: "deathDate" must be a non-empty string or null`);
   }
+  if (
+    person.deathPlace !== undefined &&
+    person.deathPlace !== null &&
+    (typeof person.deathPlace !== "string" ||
+      person.deathPlace.trim() === "")
+  ) {
+    throw new Error(`${source}: "deathPlace" must be a non-empty string or null`);
+  }
   for (const field of ["remarks", "researchNotes"]) {
     if (
       person[field] !== undefined &&
@@ -109,7 +117,6 @@ export function renderPersonCard(person, options = {}) {
   const indent = options.indent ?? "";
   const photoPath = options.photoPath;
   const locale = options.locale;
-  const dateStyle = options.compactDates ? "medium" : "long";
   const highlightMissing = options.highlightMissing === true;
   const className = options.className ? ` ${options.className}` : "";
   const strings = locale.strings;
@@ -120,9 +127,15 @@ export function renderPersonCard(person, options = {}) {
     `${indent}      `
   );
   const displayName = formatDisplayName(person);
+  const portraitInitials = formatPortraitInitials(person);
   const avatar = photoPath
     ? `<img src="${escapeAttribute(photoPath)}" alt="${escapeAttribute(displayName)}" />`
-    : `<span aria-hidden="true">${escapeHtml(person.initials)}</span>`;
+    : `<span class="portrait-initials" aria-hidden="true">${portraitInitials
+        .map(
+          (initial) =>
+            `<span class="portrait-initial">${escapeHtml(initial)}</span>`
+        )
+        .join("")}</span>`;
   const portraitClass = photoPath ? " has-photo" : "";
 
   return `${indent}<article class="person-card${escapeAttribute(className)}" id="person-${escapeAttribute(person.id)}" data-person-id="${escapeAttribute(person.id)}">
@@ -136,9 +149,8 @@ ${indent}      <span class="surnames">${escapeHtml(person.surnames)}${person.mai
 ${indent}    </h3>
 ${indent}    <dl>
 ${alternateNames ? `${alternateNames}\n` : ""}${indent}      ${renderFact(strings.occupation, localizeValue(locale.occupations, person.occupation, strings.unknown), "", highlightMissing && person.occupation === "Unknown")}
-${indent}      ${renderFact(strings.born, formatBirthDate(person, locale, dateStyle), "", highlightMissing && person.birthDate === "Unknown")}
-${indent}      ${renderFact(strings.birthplace, localizeValue(locale.birthPlaces, person.birthPlace, strings.unknown), "", highlightMissing && person.birthPlace === "Unknown")}
-${indent}      ${renderLifeStatus(person, locale, dateStyle, highlightMissing)}
+${indent}      ${renderFact(strings.born, formatLifeEvent(person.birthDate, person.birthPlace, locale.birthPlaces, locale, person.birthDateEstimated), "life-event", highlightMissing && (person.birthDate === "Unknown" || person.birthPlace === "Unknown"))}
+${indent}      ${renderLifeStatus(person, locale, highlightMissing)}
 ${familyStatus ? `${indent}      ${familyStatus}\n` : ""}${indent}    </dl>
 ${indent}  </div>
 ${indent}</article>`;
@@ -185,23 +197,27 @@ function renderAlternateNames(person, locale, indent) {
     .join("\n");
 }
 
-function renderLifeStatus(person, locale, dateStyle, highlightMissing) {
+function renderLifeStatus(person, locale, highlightMissing) {
   const strings = locale.strings;
-  if (person.deathDate) {
+  if (
+    person.deathDate ||
+    person.deathPlace ||
+    person.lifeStatus === "deceased"
+  ) {
+    const deathDate = person.deathDate ?? "Unknown";
+    const deathPlace = person.deathPlace ?? "Unknown";
     return renderFact(
       strings.died,
-      formatDate(
-        person.deathDate,
-        locale.languageTag,
-        strings.unknown,
-        dateStyle
+      formatLifeEvent(
+        deathDate,
+        deathPlace,
+        locale.deathPlaces,
+        locale
       ),
-      "",
-      highlightMissing && person.deathDate === "Unknown"
+      "life-event",
+      highlightMissing &&
+        (deathDate === "Unknown" || deathPlace === "Unknown")
     );
-  }
-  if (highlightMissing && person.lifeStatus === "deceased") {
-    return renderFact(strings.died, strings.unknown, "", true);
   }
 
   const status = {
@@ -245,34 +261,73 @@ function localizeValue(dictionary, value, unknown) {
   return dictionary[value] ?? value;
 }
 
-function formatDate(value, languageTag, unknown, dateStyle = "long") {
-  if (value === "Unknown") {
+function formatCardDate(value, languageTag, unknown) {
+  if (!value || value === "Unknown") {
     return unknown;
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return value;
   }
-  return new Intl.DateTimeFormat(languageTag, {
-    dateStyle,
+  const date = new Date(`${value}T00:00:00Z`);
+  const month = new Intl.DateTimeFormat(languageTag, {
+    month: "short",
     timeZone: "UTC"
-  }).format(new Date(`${value}T00:00:00Z`));
+  })
+    .format(date)
+    .replace(/\.$/, "")
+    .slice(0, 3);
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
 }
 
-function formatBirthDate(person, locale, dateStyle) {
-  const date = formatDate(
-    person.birthDate,
+function formatLifeEvent(
+  dateValue,
+  placeValue,
+  places,
+  locale,
+  estimated = false
+) {
+  const dateUnknown = !dateValue || dateValue === "Unknown";
+  const placeUnknown = !placeValue || placeValue === "Unknown";
+  if (dateUnknown && placeUnknown) {
+    return locale.strings.unknown;
+  }
+
+  const date = formatCardDate(
+    dateValue,
     locale.languageTag,
-    locale.strings.unknown,
-    dateStyle
+    locale.strings.unknownDate
   );
-  return person.birthDateEstimated
+  const displayedDate = estimated && !dateUnknown
     ? `${date} (${locale.strings.estimated})`
     : date;
+  const place = localizeValue(
+    places,
+    placeValue ?? "Unknown",
+    locale.strings.unknownLocation
+  );
+  return locale.strings.lifeEventFormat
+    .replace("{date}", displayedDate)
+    .replace("{place}", place);
 }
 
 function formatDisplayName(person) {
   const maidenName = person.maidenName ? ` (${person.maidenName})` : "";
   return `${person.givenNames} ${person.surnames}${maidenName}`;
+}
+
+function formatPortraitInitials(person) {
+  return [
+    ...firstInitials(person.givenNames, 2),
+    ...firstInitials(person.surnames, 2)
+  ];
+}
+
+function firstInitials(value, limit) {
+  return value
+    .trim()
+    .split(/\s+/u)
+    .slice(0, limit)
+    .map((namePart) => [...namePart][0]);
 }
 
 export function escapeHtml(value) {

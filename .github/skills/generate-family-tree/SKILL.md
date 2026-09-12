@@ -113,17 +113,21 @@ npm run check:blood-relatives -- <person-id> --locale mx-ES
 - `index.ancestry.html`: local ancestry view with the selected person's
   siblings and spouse(s), plus direct ancestors and their siblings.
 - `index.ancestry.mx-ES.html`: Mexican Spanish ancestry view.
-- `family-tree.ancestry.png`: English ancestry preview.
-- `family-tree.ancestry.mx-ES.png`: Mexican Spanish ancestry preview.
-- `index.ancestry-maternal*.html` and `family-tree.ancestry-maternal*.png`:
+- `<person-id>.ancestry.us-EN.png`: English ancestry preview.
+- `<person-id>.ancestry.mx-ES.png`: Mexican Spanish ancestry preview.
+- `index.ancestry-maternal*.html` and
+  `<person-id>.ancestry-maternal.<locale>.png`:
   maternal-only ancestry using the second parent recorded in the family.
-- `index.ancestry-paternal*.html` and `family-tree.ancestry-paternal*.png`:
+- `index.ancestry-paternal*.html` and
+  `<person-id>.ancestry-paternal.<locale>.png`:
   paternal-only ancestry using the first parent recorded in the family.
-- `index.ancestry-strict*.html` and `family-tree.ancestry-strict*.png`:
+- `index.ancestry-strict*.html` and
+  `<person-id>.ancestry-strict.<locale>.png`:
   direct-ancestor-only outputs.
-- `index.descendants*.html` and `family-tree.descendants*.png`:
+- `index.descendants*.html` and `<person-id>.descendants.<locale>.png`:
   descendant outputs with spouse context and descendant spouses.
-- `index.blood-relatives*.html` and `family-tree.blood-relatives*.png`:
+- `index.blood-relatives*.html` and
+  `<person-id>.blood-relatives.<locale>.png`:
   extended blood-relative outputs.
 
 ## Procedure

@@ -91,7 +91,8 @@ function validateLocale(value, expectedId) {
     !value.familyRelationships ||
     !value.familyChildren ||
     !value.occupations ||
-    !value.birthPlaces
+    !value.birthPlaces ||
+    !value.deathPlaces
   ) {
     throw new Error(`locales/${expectedId}.json is invalid`);
   }
@@ -173,6 +174,14 @@ function validateTree(value) {
     if (family.partners.length < 1 || family.partners.length > 2) {
       throw new Error(
         `tree.json: family "${family.id}" must have one or two partners`
+      );
+    }
+    if (
+      family.relationship !== undefined &&
+      !["married", "divorced"].includes(family.relationship)
+    ) {
+      throw new Error(
+        `tree.json: family "${family.id}" has invalid relationship "${family.relationship}"`
       );
     }
     if (new Set(family.partners).size !== family.partners.length) {
@@ -302,7 +311,10 @@ function renderTree(
       })
     : strings.treeTitle ?? treeData.title;
   const levels = calculateLevels(treeData);
-  const rows = buildRows(treeData, levels);
+  const rows = flattenLoneSiblingGroup(buildRows(treeData, levels));
+  const ancestryChartClass = view.id.startsWith("ancestry")
+    ? " ancestry-chart-page"
+    : "";
   const generations = rows
     .map((row, level) => {
       return `      <section class="generation" data-generation="${level}">
@@ -332,7 +344,7 @@ ${renderRow(
   <title>${escapeHtml(title)}</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="tree-page${treeData.focusPersonId ? " ancestry-page" : ""}${options.highlightMissing ? " highlight-missing" : ""}">
+<body class="tree-page${treeData.focusPersonId ? " ancestry-page" : ""}${ancestryChartClass}${options.highlightMissing ? " highlight-missing" : ""}">
   <header class="site-header">
     <p class="eyebrow">${escapeHtml(strings.familyArchive)}</p>
     <h1>${escapeHtml(title)}</h1>
@@ -407,9 +419,12 @@ function renderRow(
             );
           })
           .join("\n");
-        const groupTitle = token.family.titleKey
-          ? localeData.strings[token.family.titleKey]
-          : formatFamilyName(token.family.id);
+        const groupTitle = formatSiblingGroupTitle(
+          token.family,
+          treeData,
+          peopleById,
+          localeData
+        );
         const appearance = token.family.appearance
           ? ` data-appearance="${escapeAttribute(token.family.appearance)}"`
           : "";
@@ -430,11 +445,30 @@ ${cards}
 function renderRelationship(family, localeData, indent) {
   const label =
     family.partners.length === 2
-      ? localeData.strings.married
+      ? localeData.strings[family.relationship ?? "married"]
       : localeData.strings.parent;
-  return `${indent}<div class="relationship" data-family-id="${escapeAttribute(family.id)}">
+  const childClass = family.children.length > 0 ? " has-children" : "";
+  return `${indent}<div class="relationship${childClass}" data-family-id="${escapeAttribute(family.id)}">
 ${indent}  <span>${label}</span>
 ${indent}</div>`;
+}
+
+function flattenLoneSiblingGroup(rows) {
+  const siblingGroupIds = new Set(
+    rows
+      .flat()
+      .filter((token) => token.type === "sibling-group")
+      .map((token) => token.family.id)
+  );
+  if (siblingGroupIds.size !== 1) {
+    return rows;
+  }
+
+  return rows.map((row) =>
+    row.flatMap((token) =>
+      token.type === "sibling-group" ? token.items : token
+    )
+  );
 }
 
 function renderTreePerson(
@@ -453,10 +487,7 @@ function renderTreePerson(
       : sourcePerson;
   const person =
     treeData.hideFamilyStatusForVisibleParents &&
-    treeData.families.some(
-      (family) =>
-        family.partners.includes(personId) && family.children.length > 0
-    )
+    shouldHideFamilyStatus(personWithFamilyStatus, personId, treeData)
       ? withoutFamilyStatus(personWithFamilyStatus)
       : personWithFamilyStatus;
   const photoPath = person.photo
@@ -480,6 +511,24 @@ function renderTreePerson(
     compactDates: true,
     className: classNames.join(" "),
     highlightMissing: options.highlightMissing
+  });
+}
+
+function shouldHideFamilyStatus(person, personId, treeData) {
+  const visiblePeople = new Set(treeData.people);
+  return treeData.families.some((family) => {
+    if (!family.partners.includes(personId)) {
+      return false;
+    }
+
+    const hasVisibleChildren = family.children.some((childId) =>
+      visiblePeople.has(childId)
+    );
+    const hasVisibleSpouse =
+      person.familyStatus?.relationship === "married" &&
+      family.partners.length === 2 &&
+      family.partners.every((partnerId) => visiblePeople.has(partnerId));
+    return hasVisibleChildren || hasVisibleSpouse;
   });
 }
 
@@ -542,8 +591,44 @@ function formatMessage(message, values) {
   );
 }
 
-function formatFamilyName(familyId) {
-  return familyId.replace(/\b\w/g, (letter) => letter.toUpperCase());
+function formatSiblingGroupTitle(
+  family,
+  treeData,
+  peopleById,
+  localeData
+) {
+  if (family.titleKey) {
+    return localeData.strings[family.titleKey];
+  }
+
+  const visiblePeople = new Set(treeData.people);
+  const surnames = [
+    ...new Set(
+      family.children
+        .filter((personId) => visiblePeople.has(personId))
+        .map((personId) => peopleById.get(personId)?.surnames)
+        .filter(Boolean)
+    )
+  ];
+  const sharedSurname = findSharedSurname(surnames);
+  return formatMessage(localeData.strings.siblingGroupTitle, {
+    surnames: sharedSurname ?? surnames.join(" / ")
+  });
+}
+
+function findSharedSurname(surnames) {
+  if (surnames.length === 0) {
+    return null;
+  }
+  if (surnames.length === 1) {
+    return surnames[0];
+  }
+
+  const surnameParts = surnames.map((surname) => surname.split(/[\s-]+/u));
+  const sharedParts = surnameParts[0].filter((part) =>
+    surnameParts.slice(1).every((parts) => parts.includes(part))
+  );
+  return sharedParts.length > 0 ? sharedParts.join(" ") : null;
 }
 
 function buildRows(treeData, levels) {

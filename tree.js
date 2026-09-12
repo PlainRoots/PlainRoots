@@ -25,11 +25,22 @@ function drawConnections() {
     return;
   }
 
+  for (const relationship of tree.querySelectorAll(
+    ".relationship.has-children"
+  )) {
+    if (relationship.parentElement !== tree) {
+      relationship.style.left = "0px";
+      relationship.style.top = "0px";
+      tree.append(relationship);
+    }
+  }
+
   const treeRect = tree.getBoundingClientRect();
   svg.setAttribute("width", tree.scrollWidth);
   svg.setAttribute("height", tree.scrollHeight);
   svg.setAttribute("viewBox", `0 0 ${tree.scrollWidth} ${tree.scrollHeight}`);
   svg.replaceChildren();
+  const placedRelationshipLabels = [];
 
   for (const family of families) {
     const relationship = tree.querySelector(
@@ -39,8 +50,6 @@ function drawConnections() {
       continue;
     }
 
-    const relationshipRect = relativeRect(relationship, treeRect);
-    const relationshipCenter = center(relationshipRect);
     const partners = family.partners
       .map((id) =>
         tree.querySelector(`[data-person-id="${CSS.escape(id)}"]`)
@@ -48,14 +57,8 @@ function drawConnections() {
       .filter(Boolean)
       .map((element) => relativeRect(element, treeRect));
 
-    for (const partner of partners) {
-      const partnerCenter = center(partner);
-      const startX =
-        partnerCenter.x < relationshipCenter.x ? partner.right : partner.left;
-      drawPath(
-        `M ${startX} ${partnerCenter.y} H ${relationshipCenter.x}`,
-        "family-line"
-      );
+    if (partners.length === 0) {
+      continue;
     }
 
     const children = family.children
@@ -66,30 +69,88 @@ function drawConnections() {
       .map((element) => relativeRect(element, treeRect));
 
     if (children.length === 0) {
+      const relationshipRect = relativeRect(relationship, treeRect);
+      const relationshipCenter = center(relationshipRect);
+      drawPartnerLines(partners, relationshipCenter);
       continue;
     }
 
-    const sourceX = relationshipCenter.x;
-    const sourceY = relationshipRect.bottom;
+    const partnerCenters = partners.map(center);
+    const sourceX =
+      partnerCenters.reduce((sum, partner) => sum + partner.x, 0) /
+      partnerCenters.length;
+    const sourceY =
+      partnerCenters.reduce((sum, partner) => sum + partner.y, 0) /
+      partnerCenters.length;
     const childCenters = children.map((child) => ({
       x: center(child).x,
       y: child.top
     }));
     const firstChildY = Math.min(...childCenters.map((child) => child.y));
-    const branchY = sourceY + Math.max(34, (firstChildY - sourceY) * 0.45);
+    const lastPartnerY = Math.max(
+      sourceY,
+      ...partners.map((partner) => partner.bottom)
+    );
+    const branchY = lastPartnerY + (firstChildY - lastPartnerY) * 0.45;
     const minX = Math.min(sourceX, ...childCenters.map((child) => child.x));
     const maxX = Math.max(sourceX, ...childCenters.map((child) => child.x));
+    placeRelationshipLabel(relationship, sourceX, branchY, minX, maxX);
 
+    drawPartnerLines(partners, { x: sourceX, y: sourceY });
     drawPath(`M ${sourceX} ${sourceY} V ${branchY}`, "family-line");
     drawPath(`M ${minX} ${branchY} H ${maxX}`, "family-line");
     for (const child of childCenters) {
       drawPath(`M ${child.x} ${branchY} V ${child.y}`, "family-line");
     }
-    drawCircle(sourceX, branchY);
   }
 
   for (const guardianship of guardianshipData.guardianships) {
     drawGuardianship(guardianship, treeRect);
+  }
+
+  function drawPartnerLines(partners, relationshipCenter) {
+    for (const partner of partners) {
+      const partnerCenter = center(partner);
+      const startX =
+        partnerCenter.x < relationshipCenter.x ? partner.right : partner.left;
+      drawPath(
+        `M ${startX} ${partnerCenter.y} H ${relationshipCenter.x}`,
+        "family-line"
+      );
+    }
+  }
+
+  function placeRelationshipLabel(
+    relationship,
+    preferredX,
+    y,
+    branchMinX,
+    branchMaxX
+  ) {
+    const width = relationship.offsetWidth;
+    const height = relationship.offsetHeight;
+    const step = width + 8;
+    const candidates = [preferredX];
+
+    for (let offset = step; offset <= branchMaxX - branchMinX; offset += step) {
+      candidates.push(preferredX + offset, preferredX - offset);
+    }
+
+    const x =
+      candidates.find(
+        (candidate) =>
+          candidate >= branchMinX &&
+          candidate <= branchMaxX &&
+          !placedRelationshipLabels.some(
+            (placed) =>
+              Math.abs(candidate - placed.x) < (width + placed.width) / 2 + 8 &&
+              Math.abs(y - placed.y) < (height + placed.height) / 2 + 8
+          )
+      ) ?? preferredX;
+
+    relationship.style.left = `${x}px`;
+    relationship.style.top = `${y}px`;
+    placedRelationshipLabels.push({ x, y, width, height });
   }
 }
 
@@ -175,14 +236,6 @@ function drawPath(pathData, className) {
   path.setAttribute("d", pathData);
   path.setAttribute("class", className);
   svg.append(path);
-}
-
-function drawCircle(cx, cy) {
-  const circle = document.createElementNS(SVG_NS, "circle");
-  circle.setAttribute("cx", cx);
-  circle.setAttribute("cy", cy);
-  circle.setAttribute("class", "family-junction");
-  svg.append(circle);
 }
 
 function drawText(x, y, textContent, className) {

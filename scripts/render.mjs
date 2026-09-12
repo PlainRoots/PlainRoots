@@ -42,9 +42,15 @@ if (highlightMissing) {
 await run(process.execPath, generateArguments);
 
 const browser = await findBrowser();
+const outputStem = view.requiresPerson
+  ? `${personId}.${view.id}`
+  : view.pngStem;
+const outputLocaleSuffix = view.requiresPerson
+  ? `.${localeId}`
+  : localizedSuffix;
 const outputPath = path.join(
   projectRoot,
-  `${view.pngStem}${modeSuffix}${localizedSuffix}.png`
+  `${outputStem}${modeSuffix}${outputLocaleSuffix}.png`
 );
 const previewDate = new Intl.DateTimeFormat(locale.languageTag, {
   dateStyle: "long"
@@ -84,39 +90,60 @@ function argumentValue(name) {
 function calculateViewport(treeData, layoutData) {
   const levels = calculateLevels(treeData);
   const generationCount = Math.max(...levels.values()) + 1;
+  const groupingFamilies = treeData.groupingFamilies ?? treeData.families;
+  const visibleSiblingGroupIds = new Set(
+    groupingFamilies
+      .filter((family) =>
+        Array.from({ length: generationCount }, (_, level) => level).some(
+          (level) =>
+            family.children.filter(
+              (personId) => levels.get(personId) === level
+            ).length >= 2
+        )
+      )
+      .map((family) => family.id)
+  );
   let widestRow = 0;
 
   for (let level = 0; level < generationCount; level += 1) {
     const people = treeData.people.filter(
       (personId) => levels.get(personId) === level
     );
-    const couples = treeData.families.filter(
+    const inlineCouples = treeData.families.filter(
       (family) =>
         family.partners.length === 2 &&
+        family.children.length === 0 &&
         family.partners.every((personId) => levels.get(personId) === level)
     ).length;
-    const siblingGroups = treeData.families.filter(
-      (family) =>
-        family.children.filter((personId) => levels.get(personId) === level)
-          .length >= 2
-    ).length;
-    const tokenCount = people.length + couples;
+    const siblingGroups =
+      visibleSiblingGroupIds.size >= 2
+        ? groupingFamilies.filter(
+            (family) =>
+              family.children.filter(
+                (personId) => levels.get(personId) === level
+              ).length >= 2
+          ).length
+        : 0;
+    const tokenCount = people.length + inlineCouples;
     const rowWidth =
       people.length * layoutData.cardWidth +
-      couples * 112 +
+      inlineCouples * 112 +
       siblingGroups * 50 +
       Math.max(0, tokenCount - 1) * layoutData.itemGap;
     widestRow = Math.max(widestRow, rowWidth);
   }
 
-  const generationChromeHeight = 179;
+  const generationChromeHeight = 102;
+  const pageChromeHeight = 335;
   return {
     width: Math.max(1800, widestRow + 220),
-    height: Math.max(
-      1800,
-      generationCount * (layoutData.cardHeight + generationChromeHeight) +
-        (generationCount - 1) * layoutData.generationGap +
-        400
+    height: Math.ceil(
+      Math.max(
+        900,
+        generationCount * (layoutData.cardHeight + generationChromeHeight) +
+          (generationCount - 1) * layoutData.generationGap +
+          pageChromeHeight
+      )
     )
   };
 }

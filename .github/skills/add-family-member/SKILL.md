@@ -19,9 +19,14 @@ HTML.
 6. Store complete dates as ISO `YYYY-MM-DD`; use `YYYY` when only the year is
    known.
 7. Use:
-   - `"Unknown"` for unknown occupation, birth date, or birthplace.
+   - `"Unknown"` for unknown occupation, birth date, birthplace, or death place.
    - `null` for an unavailable death date or photo.
    - `"unknown"` for an unconfirmed life status.
+   - `"deceased"` as the default for anyone older than 110 unless the user or a
+     reliable source explicitly confirms that the person is living. A confirmed
+     `"living"` status always wins. For a year-only birth, apply the default
+     only when every possible birthday in that year makes the person older than
+     110.
    - Optional `remarks` for non-private stories, lore, and general comments
      suitable for future display.
    - Optional `researchNotes` for provenance, evidence analysis, uncertainty,
@@ -31,16 +36,37 @@ HTML.
    add each replacement using the next numbered name (`photo-2.jpg`,
    `photo-3.jpg`, and so on); generated cards automatically select the highest
    available version. Keep `person.json` pointing to the original base photo.
+   If `photo.jpg` already exists, ask whether the user wants to extract another
+   card portrait or preserve the entire image as a supplemental photo. Offer a
+   third option to replace the existing destination image only when that image
+   is uncommitted, meaning it does not exist in `HEAD`. Verify this with Git;
+   do not infer it from the working-tree status alone. Never offer replacement
+   for an image that exists in `HEAD`. Do not infer the user's choice from the
+   source file name or composition. For a portrait, use the next available
+   numbered `photo-N.jpg` name. For a supplemental image, preserve the complete
+   image without cropping and use the next available
+   `photo-supplemental-N.<extension>` name.
    Prefer a centered 400 x 708 pixel portrait image, matching twice the rendered
    200 x 354 pixel photo area. When preparing a card crop, remove approximately
    6% of the image height from the top, preserve the 400:708 aspect ratio, and
    center the remaining horizontal crop. This places faces higher in the card,
    matching the user's preferred composition. Inspect the result and reduce the
-   top trim if it would clip hair, hats, or other important details. Whenever
-   the user says they added a photo, measure its actual pixel dimensions and
-   report how they compare with the 400 x 708 pixel recommendation so the user
-   can adjust it immediately.
-9. Add new occupation or birthplace values to every file under `locales/`.
+   top trim if it would clip hair, hats, or other important details. Use 1 MB
+   as the soft maximum file size for each photo. Before ingesting a photo over
+   1 MB, report its size and require the user to confirm an exception. For a
+   photo over 3 MB, require a second, separate confirmation even if the user
+   already approved the exception above 1 MB. Whenever an image is imported,
+   measure and report both its actual pixel dimensions and file size. For card
+   portraits, compare the dimensions with the 400 x 708 pixel recommendation
+   so the user can adjust them immediately. Report these details for both the
+   supplied source and the final repository image when they differ.
+   Whenever a user provides photos to add to the repository, show this best
+   practice: "Include non-AI-edited photos, preferably of people in their 20s
+   or 30s." After every photo-ingestion operation, provide clickable local
+   `file:///` links to each ingested repository image so the user can review
+   the exact results.
+9. Add new occupation, birthplace, or death-place values to every file under
+   `locales/`.
 10. Add the person to `tree.json` only when they belong in the published tree.
 
 ## Person schema
@@ -66,6 +92,7 @@ HTML.
   "birthDate": "Unknown",
   "birthPlace": "Unknown",
   "deathDate": null,
+  "deathPlace": "Unknown",
   "lifeStatus": "unknown",
   "familyStatus": {
     "relationship": "unknown",

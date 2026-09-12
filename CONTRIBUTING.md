@@ -42,13 +42,16 @@ plain text. Keep contributions focused, evidence-aware, and safe to publish.
 - Use permanent lowercase ASCII IDs with hyphens.
 - Preserve preferred spelling and UTF-8 diacritics in names.
 - Store complete dates as ISO `YYYY-MM-DD`; use `YYYY` for year-only dates.
-- Use `Unknown` for unknown occupation, birth date, or birthplace.
+- Use `Unknown` for unknown occupation, birth date, birthplace, or death place.
+- Presume people older than 110 are deceased unless a reliable source
+  explicitly confirms they are living; handle year-only births conservatively.
 - Keep canonical English narratives in `person.json`.
 - Put localized narratives in `translations.json`.
-- Update every locale when adding an occupation, birthplace, or interface
-  string.
+- Update every locale when adding an occupation, birthplace, death place, or
+  interface string.
 - Keep research provenance in `researchNotes`, not in visual cards.
 - Preserve existing photos and add improved versions with numbered filenames.
+- Prefer non-AI-edited photos showing people in their 20s or 30s.
 
 ## Pull-request description
 

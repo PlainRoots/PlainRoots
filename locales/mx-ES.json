@@ -42,25 +42,30 @@
     "asciiWith": "Con",
     "asciiGuardianshipTitle": "Crianza",
     "asciiRaisedByFromAge": "Criado por desde los {age} años (relato familiar)",
-    "torresRiveraSiblingGroupTitle": "Hermanos Torres Rivera",
+    "siblingGroupTitle": "Hermanos {surnames}",
     "unconnectedGroupTitle": "Actualmente sin conexión con el árbol genealógico",
     "familyArchive": "Archivo ficticio de referencia",
     "peopleAcrossGenerations": "{people} personas a lo largo de {generations} generaciones",
     "generation": "Generación",
     "married": "Casados",
+    "divorced": "Divorciados",
     "parent": "Progenitor",
     "raisedBy": "Criado por",
     "occupation": "Ocupación",
-    "born": "Fecha de nacimiento",
+    "born": "Nacimiento",
     "birthplace": "Lugar de nacimiento",
     "likelyArabicName": "Nombre probable en árabe",
     "died": "Fallecimiento",
+    "deathplace": "Lugar de fallecimiento",
+    "lifeEventFormat": "{date} en {place}",
     "status": "Estado",
     "family": "Familia",
-    "familyStatusFormat": "{relationship}; {children}",
+    "familyStatusFormat": "{relationship}, {children}",
     "living": "Con vida",
     "deceased": "Fallecido/a",
     "unknown": "Desconocido",
+    "unknownDate": "Fecha desconocida",
+    "unknownLocation": "lugar desconocido",
     "estimated": "est.",
     "printReport": "Reporte de texto imprimible",
     "printPeople": "personas",
@@ -97,8 +102,8 @@
     "unknown": "No disponible"
   },
   "familyChildren": {
-    "has-children": "tiene hijos",
-    "no-children": "no tiene hijos",
+    "has-children": "con hijos",
+    "no-children": "sin hijos",
     "unknown": "información de hijos no disponible"
   },
   "researchNoteStatuses": {
@@ -121,6 +126,10 @@
     "Software engineer": "Ingeniero/a de software",
     "Student": "Estudiante",
     "Unknown": "Desconocido"
+  },
+  "deathPlaces": {
+    "Guadalajara, Jalisco, Mexico": "Guadalajara, Jalisco, México",
+    "Seattle, Washington, USA": "Seattle, Washington, EE. UU."
   },
   "birthPlaces": {
     "Austin, Texas, USA": "Austin, Texas, EE. UU.",

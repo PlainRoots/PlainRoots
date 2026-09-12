@@ -2,19 +2,20 @@
   /* Typography */
   --font-family-body: Aptos, "Segoe UI", Arial, sans-serif;
   --font-family-display: Georgia, "Times New Roman", serif;
+  --font-family-avatar-initials: "Kunstler Script", "Segoe Script", cursive;
   --font-size-page-title: clamp(36px, 5vw, 64px);
-  --font-size-person-name: 27px;
-  --font-size-person-surname-scale: 0.82em;
-  --font-size-maiden-name-scale: 0.58em;
-  --font-size-group-title: 21px;
-  --font-size-generation-number: 23px;
-  --font-size-generation-label: 11px;
-  --font-size-eyebrow: 12px;
-  --font-size-subtitle: 15px;
-  --font-size-avatar-initials: 24px;
-  --font-size-card-fact: 13px;
-  --font-size-card-label: 9px;
-  --font-size-relationship-label: 10px;
+  --font-size-person-name: 32.4px;
+  --font-size-person-surname: 28.8px;
+  --font-size-maiden-name-scale: 1em;
+  --font-size-group-title: 25.2px;
+  --font-size-generation-number: 19.2px;
+  --font-size-generation-label: 14.4px;
+  --font-size-eyebrow: 14.4px;
+  --font-size-subtitle: 25.92px;
+  --font-size-avatar-initials: 80px;
+  --font-size-card-fact: 20.4px;
+  --font-size-card-label: 14.4px;
+  --font-size-relationship-label: 14.4px;
   --font-weight-regular: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 800;
@@ -54,8 +55,8 @@
   --site-header-padding: 54px 32px 24px;
   --tree-viewport-padding: 18px 36px 80px;
   --generation-padding: 24px 36px 38px;
-  --generation-vertical-gap: 116px;
-  --generation-item-gap: 30px;
+  --generation-vertical-gap: 48.2px;
+  --generation-item-gap: 35px;
   --generation-divider-inset: 36px;
   --generation-label-gap: 8px;
   --generation-label-bottom-space: 22px;
@@ -68,31 +69,30 @@
   --sibling-group-title-left: 24px;
 
   /* Person cards */
-  --person-card-width: 500px;
+  --person-card-width: 555px;
   --person-card-height: 354px;
   --person-card-radius: 22px;
   --person-card-border-width: 1px;
   --direct-ancestor-border-width: 5px;
   --non-blood-spouse-border-width: 3px;
   --portrait-width: 200px;
-  --card-details-min-width: 253px;
-  --card-details-max-width: 314px;
-  --person-details-padding: 24px 26px 22px;
+  --card-details-min-width: 308px;
+  --card-details-max-width: 369px;
+  --person-details-padding: 12px 16px 8px;
   --avatar-size: 82px;
-  --person-name-bottom-space: 16px;
-  --person-name-divider-space: 14px;
+  --person-name-bottom-space: 8px;
+  --person-name-divider-space: 8px;
   --person-surname-top-space: 3px;
-  --card-fact-row-gap: 12px;
+  --card-fact-row-gap: 2px;
   --card-fact-column-gap: 16px;
-  --card-label-bottom-space: 3px;
+  --card-label-bottom-space: 1px;
 
   /* Relationship markers and lines */
-  --relationship-min-width: 84px;
-  --relationship-min-height: 34px;
-  --relationship-padding: 7px 14px;
+  --relationship-min-width: 100.8px;
+  --relationship-min-height: 40.8px;
+  --relationship-padding: 8.4px 16.8px;
   --relationship-radius: 999px;
   --family-line-width: 2.5;
-  --family-junction-radius: 4px;
 
   /* Miscellaneous spacing */
   --eyebrow-bottom-space: 8px;
@@ -116,6 +116,10 @@ body {
   background:
     radial-gradient(circle at 15% 0%, var(--canvas-glow), transparent 32rem),
     linear-gradient(180deg, var(--canvas-top) 0%, var(--canvas) 100%);
+}
+
+.ancestry-chart-page {
+  background: #fff;
 }
 
 .site-header {
@@ -153,7 +157,7 @@ h1 {
   margin: 9px 0 0;
   color: var(--muted);
   font-family: var(--font-family-display);
-  font-size: 14px;
+  font-size: 25.92px;
   font-style: italic;
 }
 
@@ -371,16 +375,22 @@ h1 {
   border-right: 1px solid var(--portrait-divider);
 }
 
-.portrait span {
-  display: grid;
-  width: var(--avatar-size);
-  height: var(--avatar-size);
-  place-items: center;
-  font-family: var(--font-family-display);
+.portrait-initials {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-avatar-initials);
   font-size: var(--font-size-avatar-initials);
-  letter-spacing: 0.04em;
-  border: 2px solid var(--avatar-border);
-  border-radius: 50%;
+  line-height: 0.82;
+  text-align: center;
+}
+
+.portrait-initial {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 .portrait.has-photo {
@@ -409,7 +419,7 @@ h1 {
 }
 
 .person-details h3 span {
-  display: block;
+  display: inline;
 }
 
 .person-details h3 .given-names {
@@ -418,8 +428,7 @@ h1 {
 }
 
 .person-details h3 .surnames {
-  margin-top: var(--person-surname-top-space);
-  font-size: var(--font-size-person-surname-scale);
+  font-size: var(--font-size-person-surname);
   font-weight: var(--font-weight-regular);
 }
 
@@ -431,7 +440,7 @@ h1 {
 
 .person-details dl {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--card-fact-row-gap) var(--card-fact-column-gap);
   margin: 0;
 }
@@ -440,11 +449,11 @@ h1 {
   grid-column: 1 / -1;
 }
 
-.person-details dl .family-fact {
+.person-details dl .alternate-name {
   grid-column: 1 / -1;
 }
 
-.person-details dl .alternate-name {
+.person-details dl .life-event {
   grid-column: 1 / -1;
 }
 
@@ -461,7 +470,7 @@ h1 {
   margin: 0;
   font-size: var(--font-size-card-fact);
   font-weight: var(--font-weight-semibold);
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 .person-details .missing-information dd {
@@ -477,6 +486,11 @@ h1 {
   position: relative;
   z-index: 2;
   flex: 0 0 auto;
+}
+
+.relationship.has-children {
+  position: absolute;
+  transform: translate(-50%, -50%);
 }
 
 .relationship span {
@@ -505,11 +519,6 @@ h1 {
   stroke-width: var(--family-line-width);
 }
 
-.family-junction {
-  r: var(--family-junction-radius);
-  fill: var(--copper-dark);
-}
-
 .guardianship-line {
   fill: none;
   stroke: var(--guardianship-line);
@@ -522,7 +531,7 @@ h1 {
 .guardianship-label {
   fill: var(--guardianship-line);
   font-family: var(--font-family-body);
-  font-size: 12px;
+  font-size: 14.4px;
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.08em;
   paint-order: stroke;
@@ -546,8 +555,8 @@ h1 {
     --portrait-width: 144px;
     --card-details-min-width: 275px;
     --card-details-max-width: 275px;
-    --person-details-padding: 20px;
-    --font-size-person-name: 23px;
+    --person-details-padding: 20px 16px;
+    --font-size-person-name: 27.6px;
   }
 
   .tree-viewport {

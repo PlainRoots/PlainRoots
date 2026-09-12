@@ -276,6 +276,19 @@ function renderPersonRecord(
           options
         )
       : "",
+    person.deathDate || person.deathPlace || person.lifeStatus === "deceased"
+      ? renderFact(
+          strings.deathplace,
+          localizeValue(
+            localeData.deathPlaces,
+            person.deathPlace ?? "Unknown",
+            strings.unknown
+          ),
+          !person.deathPlace || person.deathPlace === "Unknown",
+          localeData,
+          options
+        )
+      : "",
     person.familyStatus
       ? renderFact(
           strings.family,

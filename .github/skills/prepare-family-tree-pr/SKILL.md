@@ -12,12 +12,15 @@ description: Prepare and review a family-tree contribution before commit or pull
 3. Verify IDs are stable, ASCII, correctly formatted, and referenced.
 4. Confirm names preserve preferred spelling and diacritics.
 5. Confirm dates use ISO `YYYY-MM-DD`.
-6. Ensure every new occupation and birthplace exists in every locale resource.
-7. Check that optional `familyStatus` summaries are confirmed, localized, and
+6. Confirm everyone older than 110 defaults to `deceased` unless explicitly
+   confirmed living; treat year-only births conservatively using the latest
+   possible birthday.
+7. Ensure every new occupation and birthplace exists in every locale resource.
+8. Check that optional `familyStatus` summaries are confirmed, localized, and
    do not contradict exact relationships in `tree.json`.
-8. Ensure generated HTML matches source data.
-9. Inspect both localized trees after visual changes.
-10. Do not include credentials, private documents, logs, or unrelated files.
+9. Ensure generated HTML matches source data.
+10. Inspect both localized trees after visual changes.
+11. Do not include credentials, private documents, logs, or unrelated files.
 
 ## Required commands
 

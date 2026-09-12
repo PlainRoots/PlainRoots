@@ -27,7 +27,6 @@ export const views = [
     requiresPerson: true,
     titleKey: "personTreeTitle",
     htmlStem: "index.person",
-    pngStem: "family-tree.person",
     selectTree: selectPerson
   },
   {
@@ -37,7 +36,6 @@ export const views = [
     requiresPerson: true,
     titleKey: "ancestryTreeTitle",
     htmlStem: "index.ancestry",
-    pngStem: "family-tree.ancestry",
     selectTree: selectAncestry
   },
   {
@@ -47,7 +45,6 @@ export const views = [
     requiresPerson: true,
     titleKey: "maternalAncestryTreeTitle",
     htmlStem: "index.ancestry-maternal",
-    pngStem: "family-tree.ancestry-maternal",
     selectTree: selectMaternalAncestry
   },
   {
@@ -57,7 +54,6 @@ export const views = [
     requiresPerson: true,
     titleKey: "paternalAncestryTreeTitle",
     htmlStem: "index.ancestry-paternal",
-    pngStem: "family-tree.ancestry-paternal",
     selectTree: selectPaternalAncestry
   },
   {
@@ -67,7 +63,6 @@ export const views = [
     requiresPerson: true,
     titleKey: "strictAncestryTreeTitle",
     htmlStem: "index.ancestry-strict",
-    pngStem: "family-tree.ancestry-strict",
     selectTree: selectStrictAncestry
   },
   {
@@ -77,7 +72,6 @@ export const views = [
     requiresPerson: true,
     titleKey: "descendantsTreeTitle",
     htmlStem: "index.descendants",
-    pngStem: "family-tree.descendants",
     selectTree: selectDescendants
   },
   {
@@ -87,7 +81,6 @@ export const views = [
     requiresPerson: true,
     titleKey: "bloodRelativesTreeTitle",
     htmlStem: "index.blood-relatives",
-    pngStem: "family-tree.blood-relatives",
     selectTree: selectBloodRelatives
   }
 ];

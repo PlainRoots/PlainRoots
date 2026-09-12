@@ -46,6 +46,8 @@ guardianship:
 ## Rules
 
 - Use one or two partners and any number of children.
+- Add `"relationship": "divorced"` to the family when the partners divorced;
+  two-partner families otherwise default to `married`.
 - For two-parent families with children, list the paternal parent first and the
   maternal parent second; ancestry branch ordering depends on this convention.
 - Use only person IDs already listed in `tree.json.people`.

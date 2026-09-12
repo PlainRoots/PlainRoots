@@ -90,6 +90,34 @@ PlainRoots/
 translations, and optional media are source data. Generated HTML files should
 not be edited manually.
 
+## Person records and photos
+
+Person records may include `deathPlace` alongside `deathDate`. Use `"Unknown"`
+when a death place is unknown, and add every known value to the `deathPlaces`
+dictionary in each locale. Tree cards combine each birth or death date with its
+place in a single localized life-event row.
+
+Set `lifeStatus` to `"living"`, `"deceased"`, or `"unknown"`. When adding or
+reviewing source data, presume anyone older than 110 is deceased unless a
+reliable source explicitly confirms that the person is living. For a year-only
+birth, apply this default only when every possible birthday in that year makes
+the person older than 110. Generated reports render the stored status without
+overriding it.
+
+When no portrait is available, tree cards show at most four initials: the first
+two from `givenNames`, followed by the first two from `surnames`. Never overwrite
+or delete an existing portrait when adding a better one; preserve it and use the
+next numbered name, such as `photo-2.jpg`. Include non-AI-edited photos,
+preferably showing people in their 20s or 30s.
+
+Families with two partners default to `married`; set
+`"relationship": "divorced"` when the connector should communicate a divorce.
+Sibling-group labels are derived from the siblings' recorded surnames rather
+than internal family IDs. A lone visible sibling group is flattened into its
+generation row. Person-focused PNG previews use
+`<person-id>.<view>.<locale>.png`, which prevents previews for different people
+from overwriting one another.
+
 ## Useful commands
 
 ```powershell

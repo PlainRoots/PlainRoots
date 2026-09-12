@@ -93,6 +93,38 @@ PlainRoots/
 personas, las traducciones narrativas y los medios opcionales son datos fuente.
 No edites manualmente los archivos HTML generados.
 
+## Registros de personas y fotografías
+
+Los registros de personas pueden incluir `deathPlace` junto con `deathDate`.
+Usa `"Unknown"` cuando se desconozca el lugar de fallecimiento y agrega cada
+valor conocido al diccionario `deathPlaces` de todos los recursos regionales.
+Las fichas combinan cada fecha de nacimiento o fallecimiento con su lugar en
+una sola fila localizada de evento de vida.
+
+Establece `lifeStatus` como `"living"`, `"deceased"` o `"unknown"`. Al agregar o
+revisar los datos fuente, presume que toda persona mayor de 110 años está
+fallecida, salvo que una fuente confiable confirme explícitamente que sigue
+viva. Para un año de nacimiento sin fecha completa, aplica este valor
+predeterminado solo cuando todas las fechas posibles de ese año hagan que la
+persona sea mayor de 110 años. Los reportes muestran el estado almacenado sin
+reemplazarlo.
+
+Cuando no hay retrato, las fichas muestran como máximo cuatro iniciales: las
+primeras dos de `givenNames`, seguidas de las primeras dos de `surnames`. Nunca
+sobrescribas ni elimines un retrato existente al agregar uno mejor; consérvalo
+y usa el siguiente nombre numerado, como `photo-2.jpg`. Incluye fotografías sin
+edición mediante IA, preferentemente de las personas cuando tenían entre 20 y
+39 años.
+
+Las familias con dos integrantes usan `married` de manera predeterminada;
+establece `"relationship": "divorced"` cuando el conector deba comunicar un
+divorcio. Las etiquetas de grupos de hermanos se derivan de los apellidos
+registrados, no de los IDs internos de familia. Un único grupo de hermanos
+visible se incorpora directamente a la fila de su generación. Las vistas
+previas PNG enfocadas en una persona usan
+`<person-id>.<view>.<locale>.png`, lo que evita sobrescribir las vistas de otras
+personas.
+
 ## Comandos útiles
 
 ```powershell

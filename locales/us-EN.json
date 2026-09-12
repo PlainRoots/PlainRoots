@@ -42,25 +42,30 @@
     "asciiWith": "With",
     "asciiGuardianshipTitle": "Guardianship",
     "asciiRaisedByFromAge": "Raised by from age {age} (family account)",
-    "torresRiveraSiblingGroupTitle": "Torres Rivera siblings",
+    "siblingGroupTitle": "{surnames} siblings",
     "unconnectedGroupTitle": "Currently unconnected to family tree",
     "familyArchive": "Fictional reference archive",
     "peopleAcrossGenerations": "{people} people across {generations} generations",
     "generation": "Generation",
     "married": "Married",
+    "divorced": "Divorced",
     "parent": "Parent",
     "raisedBy": "Raised by",
     "occupation": "Occupation",
-    "born": "Born",
+    "born": "Birth",
     "birthplace": "Birthplace",
     "likelyArabicName": "Likely Arabic name",
-    "died": "Died",
+    "died": "Death",
+    "deathplace": "Place of death",
+    "lifeEventFormat": "{date} in {place}",
     "status": "Status",
     "family": "Family",
-    "familyStatusFormat": "{relationship}; {children}",
+    "familyStatusFormat": "{relationship}, {children}",
     "living": "Living",
     "deceased": "Deceased",
     "unknown": "Unknown",
+    "unknownDate": "Unknown date",
+    "unknownLocation": "unknown location",
     "estimated": "est.",
     "printReport": "Printable text report",
     "printPeople": "people",
@@ -97,8 +102,8 @@
     "unknown": "Unknown"
   },
   "familyChildren": {
-    "has-children": "has children",
-    "no-children": "no children",
+    "has-children": "with children",
+    "no-children": "with no children",
     "unknown": "children unknown"
   },
   "researchNoteStatuses": {
@@ -121,6 +126,10 @@
     "Software engineer": "Software engineer",
     "Student": "Student",
     "Unknown": "Unknown"
+  },
+  "deathPlaces": {
+    "Guadalajara, Jalisco, Mexico": "Guadalajara, Jalisco, Mexico",
+    "Seattle, Washington, USA": "Seattle, Washington, USA"
   },
   "birthPlaces": {
     "Austin, Texas, USA": "Austin, Texas, USA",
