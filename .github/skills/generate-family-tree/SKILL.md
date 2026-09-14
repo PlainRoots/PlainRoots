@@ -156,6 +156,16 @@ URL-encode spaces and other characters that are not safe in a URI. Confirm
 each output exists before presenting its link. If rendering fails or an output
 is missing, report that explicitly instead of emitting a broken link.
 
+## Printable report links
+
+After generating any printable report, include a direct clickable link to every
+generated HTML report in the final response. Use an absolute `file:///` URI,
+resolve the repository root dynamically, clearly label each locale, URL-encode
+unsafe characters, and confirm each file exists before presenting its link.
+On Windows, convert path separators to `/`, following the same URI conventions
+as rendered chart links. If report generation fails or an output is missing,
+report that explicitly instead of emitting a broken link.
+
 ## Procedure
 
 1. Always generate every locale registered by `supported-locales.json`;
