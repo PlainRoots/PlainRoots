@@ -1,4 +1,5 @@
 import { access, readFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -162,11 +163,26 @@ function cssPixelValue(css, propertyName) {
 }
 
 async function findBrowser() {
-  const candidates = [
-    "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-    "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-  ];
+  const candidates =
+    process.platform === "darwin"
+      ? [
+          "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+          "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+          path.join(
+            os.homedir(),
+            "Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"
+          ),
+          path.join(
+            os.homedir(),
+            "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+          )
+        ]
+      : [
+          "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+        ];
 
   for (const candidate of candidates) {
     try {

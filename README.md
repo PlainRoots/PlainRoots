@@ -4,6 +4,9 @@
 
 **PlainRoots is a Git-native, human-readable family-history format.**
 
+New to GitHub and command-line tools? Follow the
+[Getting started guide](GETTING-STARTED.md).
+
 Family records are stored in clear JSON, while HTML, images, printable reports,
 and text reports are generated views. The source remains understandable without
 the generator and is organized to produce meaningful diffs and reviewable pull
@@ -20,8 +23,8 @@ requests.
 - Review corrections as focused Git diffs instead of replacing an opaque
   database export.
 - Use branches and pull requests to discuss evidence before publishing it.
-- Generate English and Mexican Spanish trees, cards, reports, and prompts from
-  the same canonical records.
+- Generate trees, cards, reports, and prompts in canonical English and every
+  additional locale configured in `supported-locales.json`.
 - Keep research notes and provenance alongside the facts they explain.
 - Produce full-tree, ancestry, descendant, blood-relative, printable, and
   terminal-friendly views.
@@ -43,28 +46,6 @@ The fictional García-Smith family demonstrates:
 
 The examples are intentionally ordinary and must not be interpreted as claims
 about real people.
-
-## Prerequisites
-
-- Git
-- Git LFS
-- Node.js 20 or later
-- Microsoft Edge or Google Chrome to capture PNG previews
-
-No third-party npm packages are required.
-
-## Get started
-
-```powershell
-git clone <repository-url>
-cd PlainRoots
-npm run check
-npm run check:es-MX
-npm run check:translations
-```
-
-Open `index.html` for the English tree or `index.es-MX.html` for Mexican
-Spanish.
 
 ## Language support
 
@@ -149,36 +130,12 @@ generation row. Person-focused PNG previews use
 `<person-id>.<view>.<locale>.png`, which prevents previews for different people
 from overwriting one another.
 
-## Useful commands
-
-```powershell
-npm start
-npm run generate
-npm run generate:es-MX
-npm run check
-npm run check:es-MX
-npm run check:translations
-npm run check:lfs
-npm run test
-npm run report
-npm run report:es-MX
-npm run view:ascii -- --view ancestry --person sofia-garcia-smith
-npm run render
-npm run render:es-MX
-```
-
-Person-focused views accept stable IDs such as `sofia-garcia-smith`,
-`daniel-garcia-smith`, and `diego-garcia`.
-
-Add `--highlight-missing` to generation, check, report, or render commands to
-create a separate research-gap view.
-
 ## Contribution model
 
 1. Create a descriptive branch.
 2. Change the smallest possible source files.
 3. Explain the evidence and any remaining uncertainty.
-4. Generate and inspect both languages.
+4. Generate and inspect every configured locale.
 5. Run all checks.
 6. Open a pull request whose diff tells the story of the proposed correction.
 
