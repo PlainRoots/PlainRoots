@@ -16,14 +16,14 @@
     {
       "id": "ice-cream-in-the-park",
       "original": {
-        "title": "Ice cream in the park",
-        "content": "story-ice-cream-in-the-park-en-us.md",
-        "language": "en-US"
+        "title": "Helado en el parque",
+        "content": "story-ice-cream-in-the-park-es-mx.md",
+        "language": "es-MX"
       },
       "translations": {
-        "es-MX": {
-          "title": "Helado en el parque",
-          "content": "story-ice-cream-in-the-park-es-mx.md"
+        "en-US": {
+          "title": "Ice cream in the park",
+          "content": "story-ice-cream-in-the-park-en-us.md"
         }
       }
     }

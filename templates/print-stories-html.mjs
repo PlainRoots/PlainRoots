@@ -148,5 +148,5 @@ function renderFileLink(personId, fileName, available, label, strings) {
   if (!available) {
     return `                <span class="story-file"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(strings.printFileUnavailable)} <code>${escapeHtml(relativePath)}</code></span>`;
   }
-  return `                <span class="story-file"><strong>${escapeHtml(label)}:</strong> <a href="${escapeAttribute(relativePath)}">${escapeHtml(label)}</a> <code>${escapeHtml(relativePath)}</code></span>`;
+  return `                <span class="story-file"><a href="${escapeAttribute(relativePath)}">${escapeHtml(label)}</a> <code>${escapeHtml(relativePath)}</code></span>`;
 }

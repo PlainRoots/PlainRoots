@@ -9,6 +9,7 @@
   "birthDate": "1972-10-03",
   "birthPlace": "Guadalajara, Jalisco, Mexico",
   "deathDate": null,
-  "lifeStatus": "living",
+  "deathPlace": "Unknown",
+  "lifeStatus": "deceased",
   "photo": null
 }

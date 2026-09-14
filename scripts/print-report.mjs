@@ -340,9 +340,9 @@ ${facts}
             </div>
           </div>
 ${renderRelationships(relationships, peopleById, localeData)}
-${renderPrintStories(person, localeData, formatDate)}
 ${renderNarrative(strings.printRemarks, person.remarks)}
 ${renderNarrative(strings.printResearchNotes, person.researchNotes)}
+${renderPrintStories(person, localeData, formatDate)}
         </article>`;
 }
 
@@ -719,11 +719,27 @@ function printStyles() {
       padding-left: 0.2in;
     }
     .stories > ul {
+      margin-bottom: 0;
       list-style: none;
       padding-left: 0;
     }
+    .stories {
+      margin-top: 0.12in;
+      padding: 0.12in 0.14in;
+      border: 1px solid #c98a4b;
+      border-left: 4px solid #855022;
+      border-radius: 0.1in;
+      background: #fff6e8;
+    }
+    .stories > h5 {
+      margin-top: 0;
+      color: #855022;
+    }
     .story {
       margin-bottom: 0.06in;
+    }
+    .story:last-child {
+      margin-bottom: 0;
     }
     .story h6 {
       margin: 0 0 0.02in;

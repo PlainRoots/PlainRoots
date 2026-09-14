@@ -373,7 +373,11 @@ test("renders localized content and optional story media", () => {
   assert.match(html, /href="people\/example\/story-family\.ogg"/);
   assert.match(html, /src="people\/example\/story-family-1\.jpg"/);
   assert.match(html, /File unavailable:/);
-  assert.equal([...html.matchAll(/Story audio:<\/strong>/g)].length, 1);
+  assert.doesNotMatch(html, /Story audio:<\/strong>/);
+  assert.match(
+    html,
+    /<a href="people\/example\/story-family\.ogg">Story audio<\/a>/
+  );
 });
 
 test("renders a safe printable subset of Markdown", () => {
