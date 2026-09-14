@@ -1,5 +1,5 @@
 {
-  "id": "mx-ES",
+  "id": "es-MX",
   "languageTag": "es-MX",
   "strings": {
     "treeTitle": "Familia de referencia de PlainRoots",
@@ -92,11 +92,12 @@
     "printProjectResearch": "Guía de investigación del proyecto",
     "printImplications": "Implicaciones",
     "printProvenance": "Procedencia",
-    "printFamilyRecordings": "Grabaciones familiares",
-    "printRecorded": "Grabado",
-    "printSpokenLanguage": "Idioma hablado",
-    "printAudioRecording": "Grabación de audio",
-    "printTranscript": "Transcripción",
+    "printStories": "Historias",
+    "printStoryDate": "Fecha",
+    "printStoryOriginalLanguage": "Idioma original",
+    "printStoryImage": "Imagen de la historia",
+    "printStoryAudio": "Audio de la historia",
+    "printStoryText": "Texto de la historia",
     "printFileUnavailable": "Archivo no disponible:"
   },
   "familyRelationships": {

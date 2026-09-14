@@ -12,5 +12,21 @@
   "lifeStatus": "living",
   "remarks": "The fictional sample models Diego as living with his uncle and aunt from age nine.",
   "researchNotes": "Fictional example: the raised-by relationship is attributed to a mock family account and remains separate from biological parentage.",
+  "stories": [
+    {
+      "id": "ice-cream-in-the-park",
+      "original": {
+        "title": "Ice cream in the park",
+        "content": "story-ice-cream-in-the-park-en-us.md",
+        "language": "en-US"
+      },
+      "translations": {
+        "es-MX": {
+          "title": "Helado en el parque",
+          "content": "story-ice-cream-in-the-park-es-mx.md"
+        }
+      }
+    }
+  ],
   "photo": null
 }

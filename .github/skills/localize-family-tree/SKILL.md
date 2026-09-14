@@ -5,10 +5,12 @@ description: Add or update translations, localized occupations and places, local
 
 # Localize the family tree
 
-Locale resources live under `locales/`. The current resources are:
+English (`en-US`) is the repository lingua franca and is always supported.
+Additional active locales are listed in `supported-locales.json`; locale
+resources live under `locales/`. The current resources are:
 
-- `locales/us-EN.json` using `en-US`
-- `locales/mx-ES.json` using `es-MX`
+- `locales/en-US.json` using `en-US`
+- `locales/es-MX.json` using `es-MX`
 
 ## Rules
 
@@ -25,13 +27,18 @@ Locale resources live under `locales/`. The current resources are:
 - Add every new occupation and birthplace to every locale.
 - Use natural, region-appropriate translations rather than literal word swaps.
 - Keep placeholders such as `{people}` and `{generations}` unchanged.
+- Use canonical BCP 47 locale IDs everywhere.
+- Do not add `en-US` to `supported-locales.json`; it is implicit.
+- Do not delete translation data or generated files when removing a locale
+  from `supported-locales.json`. Inactive translations remain structurally
+  valid but do not require fields added later to the English source.
 
 ## Procedure
 
 1. Update the source resource and every translated resource.
-2. If adding a locale, copy an existing resource and set:
-   - A repository locale ID used in file names.
-   - A standards-based `languageTag` used by `Intl`.
+2. If adding a locale, add its canonical BCP 47 ID to
+   `supported-locales.json`, copy an existing resource, and use that same ID
+   for the filename, `id`, and `languageTag`.
 3. Add matching npm scripts when the locale should be maintained routinely.
 4. Generate localized HTML and cards.
 5. Render a localized PNG and inspect labels, dates, accents, text wrapping,
@@ -42,6 +49,6 @@ Locale resources live under `locales/`. The current resources are:
 ```powershell
 npm run generate
 npm run check
-npm run render:mx-ES
-npm run check:mx-ES
+npm run render:es-MX
+npm run check:es-MX
 ```

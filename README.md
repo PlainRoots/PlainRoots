@@ -59,12 +59,21 @@ No third-party npm packages are required.
 git clone <repository-url>
 cd PlainRoots
 npm run check
-npm run check:mx-ES
+npm run check:es-MX
 npm run check:translations
 ```
 
-Open `index.html` for the English tree or `index.mx-ES.html` for Mexican
+Open `index.html` for the English tree or `index.es-MX.html` for Mexican
 Spanish.
+
+## Language support
+
+English (`en-US`) is the canonical locale and is always supported. The root
+`supported-locales.json` lists every additional locale whose translations are
+required and whose outputs are generated. Locale IDs, resource filenames, and
+translation keys use canonical BCP 47 casing. Add a locale to the manifest and
+provide its locale resource and complete translations; the standard generate,
+report, render, and check commands discover it automatically.
 
 ## Source structure
 
@@ -73,15 +82,17 @@ PlainRoots/
 |-- tree.json
 |-- research-notes.json
 |-- research-notes.translations.json
+|-- supported-locales.json
 |-- locales/
-|   |-- us-EN.json
-|   `-- mx-ES.json
+|   |-- en-US.json
+|   `-- es-MX.json
 |-- people/
 |   `-- person-id/
 |       |-- person.json
 |       |-- translations.json
-|       |-- recording-*.m4a
-|       |-- recording-*.md
+|       |-- story-*.md
+|       |-- story-*.jpg
+|       |-- story-*.m4a
 |       `-- card*.html
 |-- scripts/
 |-- templates/
@@ -107,18 +118,22 @@ birth, apply this default only when every possible birthday in that year makes
 the person older than 110. Generated reports render the stored status without
 overriding it.
 
-Person records may also include a `recordings` array. Each entry contains a
-title, an audio filename, a matching Markdown transcript filename, a spoken
-language tag, and an optional `recordedDate` in `YYYY` or `YYYY-MM-DD` format.
-Keep both files in the person's directory and use matching lowercase ASCII,
-hyphenated filename stems.
+Person records may also include a `stories` array for narrative accounts
+authored by that person. Each entry needs a stable lowercase ASCII `id` and an
+`original` object with a title, a non-empty Markdown `content` file, and a BCP
+47 language tag. An optional `date` accepts `YYYY` or `YYYY-MM-DD`.
+Language-keyed `translations` may supply localized titles and content files.
+Optional `audio` and `images` attach original media; every image needs
+non-empty alternative text and may include a caption and localized image text.
+Keep all story files in the author's directory and use lowercase ASCII,
+hyphenated filenames.
 
 Audio files are stored with Git LFS. Supported formats are AAC, FLAC, M4A, MP3,
-OGG, WAV, and WebM. Keep recordings at or below 5 MiB when practical; files
-larger than 10 MiB fail validation. Never overwrite an existing recording.
-Printable reports include localized links and visible repository-relative
-paths. Missing files are reported as recoverable archive gaps, while empty
-transcripts are invalid.
+OGG, WAV, and WebM. Keep story audio at or below 5 MiB when practical; files
+larger than 10 MiB fail validation. Never overwrite an existing story file.
+Printable reports render localized story content and images with optional
+audio and story-text links. Missing files are recoverable archive gaps, while
+content files that exist must not be empty.
 
 When no portrait is available, tree cards show at most four initials: the first
 two from `givenNames`, followed by the first two from `surnames`. Never overwrite
@@ -139,17 +154,17 @@ from overwriting one another.
 ```powershell
 npm start
 npm run generate
-npm run generate:mx-ES
+npm run generate:es-MX
 npm run check
-npm run check:mx-ES
+npm run check:es-MX
 npm run check:translations
 npm run check:lfs
-npm run test:recordings
+npm run test
 npm run report
-npm run report:mx-ES
+npm run report:es-MX
 npm run view:ascii -- --view ancestry --person sofia-garcia-smith
 npm run render
-npm run render:mx-ES
+npm run render:es-MX
 ```
 
 Person-focused views accept stable IDs such as `sofia-garcia-smith`,

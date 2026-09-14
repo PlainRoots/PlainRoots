@@ -1,5 +1,5 @@
 {
-  "id": "us-EN",
+  "id": "en-US",
   "languageTag": "en-US",
   "strings": {
     "treeTitle": "PlainRoots Reference Family",
@@ -92,11 +92,12 @@
     "printProjectResearch": "Project-level research guidance",
     "printImplications": "Implications",
     "printProvenance": "Provenance",
-    "printFamilyRecordings": "Family recordings",
-    "printRecorded": "Recorded",
-    "printSpokenLanguage": "Spoken language",
-    "printAudioRecording": "Audio recording",
-    "printTranscript": "Transcript",
+    "printStories": "Stories",
+    "printStoryDate": "Date",
+    "printStoryOriginalLanguage": "Original language",
+    "printStoryImage": "Story image",
+    "printStoryAudio": "Story audio",
+    "printStoryText": "Story text",
     "printFileUnavailable": "File unavailable:"
   },
   "familyRelationships": {

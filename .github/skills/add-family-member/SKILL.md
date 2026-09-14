@@ -27,8 +27,8 @@ HTML.
      `"living"` status always wins. For a year-only birth, apply the default
      only when every possible birthday in that year makes the person older than
      110.
-   - Optional `remarks` for non-private stories, lore, and general comments
-     suitable for future display.
+   - Optional `remarks` for concise facts and biographical details about the
+     person. Store narrative accounts separately in `stories`.
    - Optional `researchNotes` for provenance, evidence analysis, uncertainty,
      and curation guidance that must not render.
 8. Put an approved photo in the person's folder and store only its file name.
@@ -100,13 +100,24 @@ HTML.
   },
   "remarks": null,
   "researchNotes": null,
-  "recordings": [
+  "stories": [
     {
-      "title": "A family story",
-      "audio": "recording-2026-09-08-family-story.m4a",
-      "transcript": "recording-2026-09-08-family-story.md",
-      "recordedDate": "2026-09-08",
-      "language": "es-MX"
+      "id": "a-family-story",
+      "date": "2026-09-08",
+      "original": {
+        "title": "Una historia familiar",
+        "content": "story-family-es-mx.md",
+        "language": "es-MX"
+      },
+      "translations": {
+        "en-US": {
+          "title": "A family story",
+          "content": "story-family-en-us.md"
+        }
+      },
+      "audio": {
+        "file": "story-family.m4a"
+      }
     }
   ],
   "photo": null
@@ -119,14 +130,14 @@ remove it when exact partner or child relationships are added to `tree.json`.
 without replacing the documented name. Keep the tentative
 `likely-arabic-equivalent` type until a historical record confirms actual use.
 `remarks` is optional and may be a non-empty string or `null`. Reserve it for
-family stories, lore, biographical narrative, and general comments suitable for
-future display. `researchNotes` follows the same optional format and stores
+concise facts and biographical details about the person; store narrative
+accounts in `stories`. `researchNotes` follows the same optional format and stores
 source provenance, documentary citations, uncertainty, evidence conflicts,
 reasoning, portrait provenance, and curation guidance. It is source-only and
 must never be added to cards or tree views.
-`recordings` is optional. Use the separate `add-family-recording` skill to
-preserve approved audio, create its matching Markdown transcript, and add
-metadata. Recording links render only in printable reports.
+`stories` is optional. Use the separate `add-family-story` skill to preserve an
+approved text or audio story, create its localized Markdown content, and add metadata.
+Stories render only in printable reports.
 
 ## Privacy
 
@@ -141,7 +152,7 @@ Run all four commands:
 
 ```powershell
 npm run generate
-npm run generate:mx-ES
+npm run generate:es-MX
 npm run check
-npm run check:mx-ES
+npm run check:es-MX
 ```

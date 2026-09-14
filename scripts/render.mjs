@@ -4,20 +4,23 @@ import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { calculateLevels } from "./tree-layout.mjs";
 import { parseViewArguments, selectViewTree } from "./views.mjs";
+import {
+  CANONICAL_LOCALE_ID,
+  loadLocale,
+  localeSuffix
+} from "./locales.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   ".."
 );
-const localeId = argumentValue("--locale") ?? "us-EN";
+const localeId = argumentValue("--locale") ?? CANONICAL_LOCALE_ID;
 const { view, personId, highlightMissing } = parseViewArguments(
   process.argv.slice(2)
 );
-const localizedSuffix = localeId === "us-EN" ? "" : `.${localeId}`;
+const localizedSuffix = localeSuffix(localeId);
 const modeSuffix = highlightMissing ? ".highlight-missing" : "";
-const locale = JSON.parse(
-  await readFile(path.join(projectRoot, "locales", `${localeId}.json`), "utf8")
-);
+const locale = await loadLocale(projectRoot, localeId);
 const styles = await readFile(path.join(projectRoot, "styles.css"), "utf8");
 const layout = {
   cardWidth: cssPixelValue(styles, "--person-card-width"),

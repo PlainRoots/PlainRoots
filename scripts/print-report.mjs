@@ -16,8 +16,13 @@ import {
   localizeResearchNoteStatus
 } from "./narrative-translations.mjs";
 import { resolvePersonPhoto } from "./person-photo.mjs";
-import { resolvePersonRecordings } from "./person-recordings.mjs";
-import { renderPrintRecordings } from "../templates/print-recordings-html.mjs";
+import { resolvePersonStories } from "./person-stories.mjs";
+import { renderPrintStories } from "../templates/print-stories-html.mjs";
+import {
+  CANONICAL_LOCALE_ID,
+  loadLocale,
+  localeSuffix
+} from "./locales.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -25,11 +30,9 @@ const projectRoot = path.resolve(
 );
 const args = process.argv.slice(2);
 const checkOnly = args.includes("--check");
-const localeId = argumentValue(args, "--locale") ?? "us-EN";
+const localeId = argumentValue(args, "--locale") ?? CANONICAL_LOCALE_ID;
 const { view, personId, highlightMissing } = parseViewArguments(args);
-const locale = await readJson(
-  path.join(projectRoot, "locales", `${localeId}.json`)
-);
+const locale = await loadLocale(projectRoot, localeId);
 const completeTree = await readJson(path.join(projectRoot, "tree.json"));
 const projectResearchNotes = await loadLocalizedProjectResearchNotes(
   projectRoot,
@@ -46,14 +49,15 @@ for (const person of people.values()) {
   if (resolvedPhotoPath) {
     person.photo = path.basename(resolvedPhotoPath);
   }
-  person.recordings = await resolvePersonRecordings(
+  person.stories = await resolvePersonStories(
     person,
     personDirectory,
-    projectRoot
+    projectRoot,
+    locale.languageTag
   );
 }
 const tree = selectViewTree(view, completeTree, personId);
-const localizedSuffix = localeId === "us-EN" ? "" : `.${localeId}`;
+const localizedSuffix = localeSuffix(localeId);
 const modeSuffix = highlightMissing ? ".highlight-missing" : "";
 const viewSuffix = view.id === "full" ? "" : `.${view.id}`;
 const outputStem = view.requiresPerson
@@ -336,7 +340,7 @@ ${facts}
             </div>
           </div>
 ${renderRelationships(relationships, peopleById, localeData)}
-${renderPrintRecordings(person, localeData, formatDate)}
+${renderPrintStories(person, localeData, formatDate)}
 ${renderNarrative(strings.printRemarks, person.remarks)}
 ${renderNarrative(strings.printResearchNotes, person.researchNotes)}
         </article>`;
@@ -709,23 +713,51 @@ function printStyles() {
       margin: 0;
     }
     .relationships ul,
-    .recordings ul,
+    .stories ul,
     .project-notes ul {
       margin: 0.03in 0 0.08in;
       padding-left: 0.2in;
     }
-    .recordings li {
+    .stories > ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .story {
       margin-bottom: 0.06in;
     }
-    .recording-details,
-    .recording-file {
+    .story h6 {
+      margin: 0 0 0.02in;
+      font-size: 10pt;
+    }
+    .story-details,
+    .story-file {
       display: block;
     }
-    .recording-details {
+    .story-details {
       color: #58636d;
       font: 8.5pt Arial, sans-serif;
     }
-    .recording-file code {
+    .story-content {
+      margin: 0.05in 0;
+    }
+    .story-content p {
+      margin: 0 0 0.06in;
+    }
+    .story figure {
+      margin: 0.08in 0;
+      break-inside: avoid-page;
+    }
+    .story figure img {
+      display: block;
+      max-width: 100%;
+      max-height: 5.5in;
+    }
+    .story figcaption {
+      margin-top: 0.03in;
+      color: #58636d;
+      font: 8.5pt Arial, sans-serif;
+    }
+    .story-file code {
       overflow-wrap: anywhere;
       font-size: 8pt;
     }

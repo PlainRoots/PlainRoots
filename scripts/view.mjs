@@ -5,16 +5,20 @@ import { createInterface } from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 import { stdin as input, stdout as output } from "node:process";
 import { views } from "./views.mjs";
+import {
+  CANONICAL_LOCALE_ID,
+  loadLocale,
+  loadSupportedLocaleIds
+} from "./locales.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   ".."
 );
-const localeId = argumentValue(process.argv.slice(2), "--locale") ?? "us-EN";
+const localeId =
+  argumentValue(process.argv.slice(2), "--locale") ?? CANONICAL_LOCALE_ID;
 const highlightMissing = process.argv.includes("--highlight-missing");
-const locale = JSON.parse(
-  await readFile(path.join(projectRoot, "locales", `${localeId}.json`), "utf8")
-);
+const locale = await loadLocale(projectRoot, localeId);
 const strings = locale.strings;
 const prompt = createInterface({ input, output });
 
@@ -45,7 +49,7 @@ try {
       view: strings[view.nameKey]
     })}\n`
   );
-  for (const localeId of ["us-EN", "mx-ES"]) {
+  for (const localeId of await loadSupportedLocaleIds(projectRoot)) {
     const args = [
       path.join(projectRoot, "scripts", "render.mjs"),
       "--view",

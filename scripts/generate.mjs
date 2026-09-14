@@ -1,18 +1,23 @@
-import { readFile, readdir, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   escapeAttribute,
   escapeHtml,
   renderPersonCard,
-  renderStandalonePage,
-  validatePerson
+  renderStandalonePage
 } from "../templates/person-card-html.mjs";
 import { calculateLevels } from "./tree-layout.mjs";
 import { parseViewArguments, selectViewTree } from "./views.mjs";
 import { resolvePersonPhoto } from "./person-photo.mjs";
-import { resolvePersonRecordings } from "./person-recordings.mjs";
+import { resolvePersonStories } from "./person-stories.mjs";
 import { validateResearchNotes } from "./research-notes-data.mjs";
+import { loadLocalizedPeople } from "./narrative-translations.mjs";
+import {
+  CANONICAL_LOCALE_ID,
+  loadLocale,
+  localeSuffix
+} from "./locales.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -20,15 +25,12 @@ const projectRoot = path.resolve(
 );
 const peopleRoot = path.join(projectRoot, "people");
 const checkOnly = process.argv.includes("--check");
-const localeId = argumentValue("--locale") ?? "us-EN";
+const localeId = argumentValue("--locale") ?? CANONICAL_LOCALE_ID;
 const { view, personId, highlightMissing } = parseViewArguments(
   process.argv.slice(2)
 );
-const locale = await readJson(
-  path.join(projectRoot, "locales", `${localeId}.json`)
-);
-validateLocale(locale, localeId);
-const localizedSuffix = localeId === "us-EN" ? "" : `.${localeId}`;
+const locale = await loadLocale(projectRoot, localeId);
+const localizedSuffix = localeSuffix(localeId);
 const modeSuffix = highlightMissing ? ".highlight-missing" : "";
 
 const completeTree = await readJson(path.join(projectRoot, "tree.json"));
@@ -38,7 +40,7 @@ const researchNotes = await readJson(
 );
 validateResearchNotes(researchNotes);
 
-const people = await loadPeople();
+const people = await loadPeople(localeId);
 validateReferences(completeTree, people);
 const tree = selectViewTree(view, completeTree, personId);
 
@@ -83,44 +85,15 @@ function argumentValue(name) {
   return index === -1 ? null : process.argv[index + 1];
 }
 
-function validateLocale(value, expectedId) {
-  if (
-    !value ||
-    value.id !== expectedId ||
-    typeof value.languageTag !== "string" ||
-    !value.strings ||
-    !value.familyRelationships ||
-    !value.familyChildren ||
-    !value.occupations ||
-    !value.birthPlaces ||
-    !value.deathPlaces
-  ) {
-    throw new Error(`locales/${expectedId}.json is invalid`);
-  }
-}
-
-async function loadPeople() {
-  const entries = await readdir(peopleRoot, { withFileTypes: true });
-  const people = new Map();
-
-  for (const entry of entries.filter((item) => item.isDirectory())) {
-    const personPath = path.join(peopleRoot, entry.name, "person.json");
-    const person = await readJson(personPath);
-    validatePerson(person, path.relative(projectRoot, personPath));
-
-    if (person.id !== entry.name) {
-      throw new Error(
-        `${path.relative(projectRoot, personPath)}: "id" must match its folder name`
-      );
-    }
-    if (people.has(person.id)) {
-      throw new Error(`Duplicate person id: ${person.id}`);
-    }
-
-    person.recordings = await resolvePersonRecordings(
+async function loadPeople(requestedLocaleId) {
+  const people = await loadLocalizedPeople(projectRoot, requestedLocaleId);
+  for (const person of people.values()) {
+    const personPath = path.join(peopleRoot, person.id, "person.json");
+    person.stories = await resolvePersonStories(
       person,
       path.dirname(personPath),
-      projectRoot
+      projectRoot,
+      locale.languageTag
     );
     const resolvedPhotoPath = await resolvePersonPhoto(
       person,
@@ -130,9 +103,7 @@ async function loadPeople() {
     if (resolvedPhotoPath) {
       person.photo = path.basename(resolvedPhotoPath);
     }
-    people.set(person.id, person);
   }
-
   return people;
 }
 

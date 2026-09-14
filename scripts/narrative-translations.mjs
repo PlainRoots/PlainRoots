@@ -2,14 +2,17 @@ import { access, readFile, readdir } from "node:fs/promises";
 import { constants } from "node:fs";
 import path from "node:path";
 import { validatePerson } from "../templates/person-card-html.mjs";
-import { validatePersonRecordings } from "./person-recordings.mjs";
+import { validatePersonStories } from "./person-stories.mjs";
 import {
   RESEARCH_NOTE_STATUSES,
   validateResearchNotes
 } from "./research-notes-data.mjs";
+import {
+  CANONICAL_LOCALE_ID,
+  loadSupportedLocaleIds,
+  validateLocaleId
+} from "./locales.mjs";
 
-const CANONICAL_LOCALE = "us-EN";
-const TRANSLATED_LOCALES = new Set(["mx-ES"]);
 const PERSON_NARRATIVE_FIELDS = ["remarks", "researchNotes"];
 const PERSON_TRANSLATION_FIELDS = [
   ...PERSON_NARRATIVE_FIELDS,
@@ -18,12 +21,13 @@ const PERSON_TRANSLATION_FIELDS = [
 const PROJECT_NOTE_FIELDS = ["title", "note", "implications", "provenance"];
 
 export async function loadLocalizedPeople(projectRoot, localeId) {
-  validateLocale(localeId);
+  const supportedLocaleIds = await loadSupportedLocaleIds(projectRoot);
+  validateSupportedLocale(localeId, supportedLocaleIds);
 
   const peopleRoot = path.join(projectRoot, "people");
   const entries = await readdir(peopleRoot, { withFileTypes: true });
   const people = new Map();
-  const translationPaths = new Map();
+  const translationsByPerson = new Map();
 
   for (const entry of entries.filter((candidate) => candidate.isDirectory())) {
     const personPath = path.join(peopleRoot, entry.name, "person.json");
@@ -48,7 +52,7 @@ export async function loadLocalizedPeople(projectRoot, localeId) {
 
     const person = await readJson(personPath, projectRoot);
     validatePerson(person, relative(projectRoot, personPath));
-    validatePersonRecordings(person, relative(projectRoot, personPath));
+    validatePersonStories(person, relative(projectRoot, personPath));
     if (person.id !== entry.name) {
       throw new Error(
         `${relative(projectRoot, personPath)}: person ID "${person.id}" does not match directory "${entry.name}"`
@@ -60,51 +64,67 @@ export async function loadLocalizedPeople(projectRoot, localeId) {
 
     people.set(person.id, person);
     if (hasTranslations) {
-      translationPaths.set(person.id, translationPath);
+      const translationSource = relative(projectRoot, translationPath);
+      const translations = await readJson(translationPath, projectRoot);
+      validateTranslationRoot(translations, translationSource);
+      for (const [translationLocaleId, translation] of Object.entries(
+        translations
+      )) {
+        validatePersonTranslationShape(
+          translation,
+          translationLocaleId,
+          translationSource
+        );
+      }
+      translationsByPerson.set(person.id, {
+        source: translationSource,
+        translations
+      });
     }
   }
 
-  if (localeId === CANONICAL_LOCALE) {
+  if (localeId === CANONICAL_LOCALE_ID) {
     return people;
   }
 
   const localizedPeople = new Map();
   for (const [personId, person] of people) {
     const sourceFields = populatedTranslationFields(person);
-    const translationPath = translationPaths.get(personId);
+    const translationData = translationsByPerson.get(personId);
 
     if (sourceFields.length === 0) {
-      if (translationPath) {
+      if (translationData?.translations[localeId]) {
         throw new Error(
-          `${relative(projectRoot, translationPath)}: translations are not allowed because "${personId}" has no populated translatable fields`
+          `${translationData.source}: "${localeId}" translations are not allowed because "${personId}" has no populated translatable fields`
         );
       }
       localizedPeople.set(personId, person);
       continue;
     }
 
-    if (!translationPath) {
+    if (!translationData?.translations[localeId]) {
       throw new Error(
         `people/${personId}/translations.json: missing required ${localeId} translations for ${sourceFields.join(", ")}`
       );
     }
 
-    const translations = await readJson(translationPath, projectRoot);
     validatePersonTranslations(
-      translations,
+      translationData.translations,
       person,
       localeId,
-      relative(projectRoot, translationPath)
+      translationData.source
     );
     const localizedPerson = {
       ...person,
-      ...translations[localeId]
+      ...translationData.translations[localeId]
     };
-    if (translations[localeId].alternateNames) {
+    if (translationData.translations[localeId].alternateNames) {
       localizedPerson.alternateNames = person.alternateNames.map(
         (alternateName, index) => ({
           ...alternateName,
-          evidence: translations[localeId].alternateNames[index].evidence
+          evidence:
+            translationData.translations[localeId].alternateNames[index]
+              .evidence
         })
       );
     }
@@ -118,32 +138,48 @@ export async function loadLocalizedProjectResearchNotes(
   projectRoot,
   localeId
 ) {
-  validateLocale(localeId);
+  const supportedLocaleIds = await loadSupportedLocaleIds(projectRoot);
+  validateSupportedLocale(localeId, supportedLocaleIds);
 
   const sourcePath = path.join(projectRoot, "research-notes.json");
   const source = await readJson(sourcePath, projectRoot);
   validateResearchNotes(source, relative(projectRoot, sourcePath));
-
-  if (localeId === CANONICAL_LOCALE) {
-    return source;
-  }
 
   const translationPath = path.join(
     projectRoot,
     "research-notes.translations.json"
   );
   if (!(await fileExists(translationPath))) {
+    if (localeId === CANONICAL_LOCALE_ID) {
+      return source;
+    }
     throw new Error(
       `${relative(projectRoot, translationPath)}: missing required ${localeId} project-note translations`
     );
   }
 
   const translations = await readJson(translationPath, projectRoot);
+  const translationSource = relative(projectRoot, translationPath);
+  validateTranslationRoot(translations, translationSource);
+  for (const [translationLocaleId, translation] of Object.entries(
+    translations
+  )) {
+    validateProjectNoteTranslationShape(
+      translation,
+      translationLocaleId,
+      translationSource
+    );
+  }
+
+  if (localeId === CANONICAL_LOCALE_ID) {
+    return source;
+  }
+
   validateProjectNoteTranslations(
     translations,
     source,
     localeId,
-    relative(projectRoot, translationPath)
+    translationSource
   );
 
   return {
@@ -208,7 +244,6 @@ function validatePersonTranslations(
   localeId,
   source
 ) {
-  validateTranslationRoot(translations, source);
   const localeTranslations = translations[localeId];
   if (!localeTranslations) {
     throw new Error(
@@ -266,7 +301,6 @@ function validateProjectNoteTranslations(
   localeId,
   source
 ) {
-  validateTranslationRoot(translations, source);
   const localeTranslations = translations[localeId];
   if (
     !localeTranslations ||
@@ -353,15 +387,80 @@ function validateTranslationRoot(translations, source) {
     );
   }
   for (const localeId of Object.keys(translations)) {
-    if (!TRANSLATED_LOCALES.has(localeId)) {
-      throw new Error(`${source}: unsupported translation locale "${localeId}"`);
+    validateLocaleId(localeId, `${source}: translation locale`);
+    if (localeId === CANONICAL_LOCALE_ID) {
+      throw new Error(
+        `${source}: canonical English content belongs in the source record, not "${localeId}" translations`
+      );
     }
   }
 }
 
-function validateLocale(localeId) {
-  if (localeId !== CANONICAL_LOCALE && !TRANSLATED_LOCALES.has(localeId)) {
-    throw new Error(`Unsupported narrative translation locale "${localeId}"`);
+function validateSupportedLocale(localeId, supportedLocaleIds) {
+  if (!supportedLocaleIds.includes(localeId)) {
+    throw new Error(
+      `Unsupported narrative translation locale "${localeId}". Supported locales: ${supportedLocaleIds.join(", ")}`
+    );
+  }
+}
+
+function validatePersonTranslationShape(translation, localeId, source) {
+  if (
+    !translation ||
+    typeof translation !== "object" ||
+    Array.isArray(translation)
+  ) {
+    throw new Error(`${source}: "${localeId}" must be an object`);
+  }
+  for (const [field, value] of Object.entries(translation)) {
+    if (!PERSON_TRANSLATION_FIELDS.includes(field)) {
+      throw new Error(
+        `${source}: unsupported translated person field "${field}"`
+      );
+    }
+    if (field === "alternateNames") {
+      validateAlternateNameTranslationShape(value, localeId, source);
+    } else if (typeof value !== "string" || value.trim() === "") {
+      throw new Error(
+        `${source}: "${localeId}.${field}" must be a non-empty string`
+      );
+    }
+  }
+}
+
+function validateProjectNoteTranslationShape(translation, localeId, source) {
+  if (
+    !translation ||
+    typeof translation !== "object" ||
+    Array.isArray(translation)
+  ) {
+    throw new Error(`${source}: "${localeId}" must be an object`);
+  }
+  for (const [noteId, note] of Object.entries(translation)) {
+    if (!note || typeof note !== "object" || Array.isArray(note)) {
+      throw new Error(`${source}: "${localeId}.${noteId}" must be an object`);
+    }
+    for (const [field, value] of Object.entries(note)) {
+      if (!PROJECT_NOTE_FIELDS.includes(field)) {
+        throw new Error(
+          `${source}: unsupported project-note translation field "${field}" for "${noteId}"`
+        );
+      }
+      if (field === "implications") {
+        if (
+          !Array.isArray(value) ||
+          value.some((item) => typeof item !== "string" || item.trim() === "")
+        ) {
+          throw new Error(
+            `${source}: "${localeId}.${noteId}.implications" must contain non-empty strings`
+          );
+        }
+      } else if (typeof value !== "string" || value.trim() === "") {
+        throw new Error(
+          `${source}: "${localeId}.${noteId}.${field}" must be a non-empty string`
+        );
+      }
+    }
   }
 }
 
@@ -397,18 +496,38 @@ function validateAlternateNameTranslations(
     );
   }
   for (const [index, translation] of translations.entries()) {
-    if (
-      !translation ||
-      typeof translation !== "object" ||
-      Array.isArray(translation) ||
-      Object.keys(translation).some((field) => field !== "evidence") ||
-      typeof translation.evidence !== "string" ||
-      translation.evidence.trim() === ""
-    ) {
-      throw new Error(
-        `${source}: "${localeId}.alternateNames[${index}]" must contain only a non-empty evidence string`
-      );
-    }
+    validateAlternateNameTranslation(translation, localeId, source, index);
+  }
+}
+
+function validateAlternateNameTranslationShape(translations, localeId, source) {
+  if (!Array.isArray(translations)) {
+    throw new Error(
+      `${source}: "${localeId}.alternateNames" must be an array`
+    );
+  }
+  for (const [index, translation] of translations.entries()) {
+    validateAlternateNameTranslation(translation, localeId, source, index);
+  }
+}
+
+function validateAlternateNameTranslation(
+  translation,
+  localeId,
+  source,
+  index
+) {
+  if (
+    !translation ||
+    typeof translation !== "object" ||
+    Array.isArray(translation) ||
+    Object.keys(translation).some((field) => field !== "evidence") ||
+    typeof translation.evidence !== "string" ||
+    translation.evidence.trim() === ""
+  ) {
+    throw new Error(
+      `${source}: "${localeId}.alternateNames[${index}]" must contain only a non-empty evidence string`
+    );
   }
 }
 

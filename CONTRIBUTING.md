@@ -16,22 +16,21 @@ plain text. Keep contributions focused, evidence-aware, and safe to publish.
 1. Pull the latest default branch.
 2. Create a descriptive branch.
 3. Edit source JSON, locale resources, templates, styles, or scripts.
-4. Generate both languages:
+4. Generate every configured locale:
 
    ```powershell
    npm run generate
-   npm run generate:mx-ES
    ```
 
 5. Run:
 
    ```powershell
    npm run check
-   npm run check:mx-ES
+   npm run check:es-MX
    npm run check:translations
    npm run check:notes
    npm run check:lfs
-   npm run test:recordings
+   npm run test
    git diff --check
    ```
 
@@ -54,9 +53,9 @@ plain text. Keep contributions focused, evidence-aware, and safe to publish.
 - Keep research provenance in `researchNotes`, not in visual cards.
 - Preserve existing photos and add improved versions with numbered filenames.
 - Prefer non-AI-edited photos showing people in their 20s or 30s.
-- Preserve approved recordings and matching non-empty Markdown transcripts.
-  Store supported audio formats with Git LFS, keep files at or below 5 MiB
-  where practical, and never exceed 10 MiB.
+- Preserve approved story content and optional media. Keep story Markdown
+  non-empty, store supported audio formats with Git LFS, keep audio at or below
+  5 MiB where practical, and never exceed 10 MiB.
 
 ## Pull-request description
 

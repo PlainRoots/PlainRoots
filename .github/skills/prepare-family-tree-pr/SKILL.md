@@ -26,15 +26,14 @@ description: Prepare and review a family-tree contribution before commit or pull
 
 ```powershell
 npm run generate
-npm run generate:mx-ES
 npm run check
-npm run check:mx-ES
 git diff --check
 git status --short
 ```
 
-Run both render commands when layout, styles, templates, translations, people,
-or relationships changed.
+Run `npm run render` when layout, styles, templates, translations, people, or
+relationships changed. The standard commands cover English and every active
+additional locale.
 
 ## Pull-request description
 

@@ -10,17 +10,16 @@ import {
   renderTextGuardianships,
   renderTextTree
 } from "./text-tree.mjs";
+import { CANONICAL_LOCALE_ID, loadLocale } from "./locales.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   ".."
 );
 const args = process.argv.slice(2);
-const localeId = argumentValue(args, "--locale") ?? "us-EN";
+const localeId = argumentValue(args, "--locale") ?? CANONICAL_LOCALE_ID;
 const minimal = args.includes("--minimal");
-const locale = await readJson(
-  path.join(projectRoot, "locales", `${localeId}.json`)
-);
+const locale = await loadLocale(projectRoot, localeId);
 const completeTree = await readJson(path.join(projectRoot, "tree.json"));
 const people = await loadPeople();
 const { view, personId } = parseViewArguments(args);

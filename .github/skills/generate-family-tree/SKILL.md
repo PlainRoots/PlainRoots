@@ -7,8 +7,8 @@ description: Generate, validate, or render the family tree and its localized car
 
 Source data consists of `tree.json`, `people/*/person.json`, per-person
 `translations.json` files for populated narratives, `research-notes.json`,
-`research-notes.translations.json`, optional photos, optional family recordings
-with matching Markdown transcripts, locale resources, templates, styles, and
+`research-notes.translations.json`, optional photos, optional family stories
+with localized Markdown content, locale resources, templates, styles, and
 scripts.
 
 Generated files must not be edited manually.
@@ -18,13 +18,13 @@ Generated files must not be edited manually.
 ```powershell
 npm start
 npm run generate
-npm run generate:mx-ES
+npm run generate:es-MX
 npm run check
-npm run check:mx-ES
+npm run check:es-MX
 npm run check:lfs
 npm run check:translations
 npm run render
-npm run render:mx-ES
+npm run render:es-MX
 npm run view:ascii -- --view descendants --person <person-id>
 ```
 
@@ -35,16 +35,17 @@ reports; missing portraits retain their standard placeholder styling. It also
 displays an unknown death date for deceased people whose date is missing. Do
 not treat intentionally omitted redundant fields as missing.
 
-Use `node scripts/print-report.mjs --view <view-id>` to generate an image-free,
+Use `node scripts/print-report.mjs --view <view-id>` to generate a
 print-optimized HTML report for any registered view. Person-centered views also
-require `--person <person-id>`. Add `--locale mx-ES` for Mexican Spanish and
+require `--person <person-id>`. Add `--locale es-MX` for Mexican Spanish and
 `--highlight-missing` for yellow unknown-fact markers. The report includes the
 ASCII relationship outline, complete facts, modeled relationships, remarks,
-research notes, family-recording links, and project-level provenance guidance.
+research notes, family stories, and project-level provenance guidance.
 Person records use the complete graph for direct relationships, even when a
-related person is outside the selected view. Recording links include visible
-repository-relative paths. Missing audio or transcript files produce warnings
-and localized unavailable labels without stopping generation.
+related person is outside the selected view. Story-text and optional audio
+links include visible repository-relative paths. Missing content, audio, or
+image files produce warnings and localized unavailable labels without stopping
+generation.
 
 ASCII outlines merge sibling-group members into an overlapping parental branch
 for display instead of printing a separate sibling-group heading. Keep
@@ -58,7 +59,7 @@ English `remarks` and `researchNotes` in `people/<id>/person.json` are
 canonical. When either field is populated, add
 `people/<id>/translations.json`, indexed by locale, and include exactly the
 translated fields corresponding to populated source fields. Do not put
-canonical `us-EN` text in translation files, omit required translations, add
+canonical `en-US` text in translation files, omit required translations, add
 empty translations, or add a narrative field absent from `person.json`.
 Project-note translations are indexed by locale and stable note ID in
 `research-notes.translations.json`; localized status labels belong in each
@@ -69,18 +70,18 @@ For a direct-ancestry view with aunts and uncles:
 
 ```powershell
 npm run render:ancestry -- <person-id>
-npm run render:ancestry -- <person-id> --locale mx-ES
+npm run render:ancestry -- <person-id> --locale es-MX
 npm run check:ancestry -- <person-id>
-npm run check:ancestry -- <person-id> --locale mx-ES
+npm run check:ancestry -- <person-id> --locale es-MX
 ```
 
 For direct ancestors only:
 
 ```powershell
 npm run render:ancestry-strict -- <person-id>
-npm run render:ancestry-strict -- <person-id> --locale mx-ES
+npm run render:ancestry-strict -- <person-id> --locale es-MX
 npm run check:ancestry-strict -- <person-id>
-npm run check:ancestry-strict -- <person-id> --locale mx-ES
+npm run check:ancestry-strict -- <person-id> --locale es-MX
 ```
 
 For descendants with the selected person's spouse(s), plus every descendant's
@@ -88,9 +89,9 @@ spouse:
 
 ```powershell
 npm run render:descendants -- <person-id>
-npm run render:descendants -- <person-id> --locale mx-ES
+npm run render:descendants -- <person-id> --locale es-MX
 npm run check:descendants -- <person-id>
-npm run check:descendants -- <person-id> --locale mx-ES
+npm run check:descendants -- <person-id> --locale es-MX
 ```
 
 For all modeled blood descendants of the direct ancestors, plus every included
@@ -98,19 +99,19 @@ blood relative's spouse:
 
 ```powershell
 npm run render:blood-relatives -- <person-id>
-npm run render:blood-relatives -- <person-id> --locale mx-ES
+npm run render:blood-relatives -- <person-id> --locale es-MX
 npm run check:blood-relatives -- <person-id>
-npm run check:blood-relatives -- <person-id> --locale mx-ES
+npm run check:blood-relatives -- <person-id> --locale es-MX
 ```
 
 ## Outputs
 
 - `index.html`: English tree.
-- `index.mx-ES.html`: Mexican Spanish tree.
+- `index.es-MX.html`: Mexican Spanish tree.
 - `people/*/card.html`: English standalone cards.
-- `people/*/card.mx-ES.html`: Mexican Spanish standalone cards.
+- `people/*/card.es-MX.html`: Mexican Spanish standalone cards.
 - `family-tree.png`: English preview.
-- `family-tree.mx-ES.png`: Mexican Spanish preview.
+- `family-tree.es-MX.png`: Mexican Spanish preview.
 - `index.highlight-missing*.html`, `people/*/card.highlight-missing*.html`,
   and `family-tree.highlight-missing*.png`: ignored research-gap previews.
 - `print-report*.html`: ignored image-free printable full-tree reports.
@@ -118,9 +119,9 @@ npm run check:blood-relatives -- <person-id> --locale mx-ES
   printable reports for person-focused views.
 - `index.ancestry.html`: local ancestry view with the selected person's
   siblings and spouse(s), plus direct ancestors and their siblings.
-- `index.ancestry.mx-ES.html`: Mexican Spanish ancestry view.
-- `<person-id>.ancestry.us-EN.png`: English ancestry preview.
-- `<person-id>.ancestry.mx-ES.png`: Mexican Spanish ancestry preview.
+- `index.ancestry.es-MX.html`: Mexican Spanish ancestry view.
+- `<person-id>.ancestry.en-US.png`: English ancestry preview.
+- `<person-id>.ancestry.es-MX.png`: Mexican Spanish ancestry preview.
 - `index.ancestry-maternal*.html` and
   `<person-id>.ancestry-maternal.<locale>.png`:
   maternal-only ancestry using the second parent recorded in the family.
@@ -136,12 +137,32 @@ npm run check:blood-relatives -- <person-id> --locale mx-ES
   `<person-id>.blood-relatives.<locale>.png`:
   extended blood-relative outputs.
 
+## Rendered chart links
+
+After rendering any chart, include a direct clickable link to every generated
+PNG in the final response. Use an absolute `file:///` URI so the chart opens
+from the local filesystem, and keep the English and Mexican Spanish links
+clearly labeled. Resolve the repository root dynamically rather than assuming
+a fixed checkout location.
+
+On Windows, convert path separators to `/` and format links like:
+
+```markdown
+[Open English chart](file:///C:/absolute/path/to/chart.en-US.png)
+[Open Mexican Spanish chart](file:///C:/absolute/path/to/chart.es-MX.png)
+```
+
+URL-encode spaces and other characters that are not safe in a URI. Confirm
+each output exists before presenting its link. If rendering fails or an output
+is missing, report that explicitly instead of emitting a broken link.
+
 ## Procedure
 
-1. Always generate both English and Mexican Spanish outputs.
-2. Run both locales' check commands and `npm run check:translations` to detect
-   stale, missing, or incomplete localized content.
-3. Render both locales when visual output changed or a preview was requested.
+1. Always generate every locale registered by `supported-locales.json`;
+   English is included implicitly.
+2. Run `npm run check` to detect stale, missing, or incomplete content across
+   all active locales.
+3. Run `npm run render` when visual output changed or a preview was requested.
 4. For ancestry views, confirm the selected person, their siblings and
    spouse(s), direct ancestors, and each direct ancestor's siblings are present.
    Exclude cousins, descendants, siblings' spouses, unrelated spouses, and
@@ -191,15 +212,16 @@ npm run check:blood-relatives -- <person-id> --locale mx-ES
     must reuse the registered view selectors and localization resources rather
     than implement separate inclusion rules. Use `<-->` for spouses or partners
     and include a localized legend explaining the symbols.
-16. When person records contain `recordings`, run `npm run check:lfs` and
-    `npm run test:recordings`, then generate both English and Mexican Spanish
-    printable reports. Confirm each available audio and transcript file is
-    linked and its relative path is visible. Treat a missing file warning as a
-    recoverable archive gap, but do not accept an empty transcript or an
-    available audio file that is not stored with Git LFS.
+16. When person records contain `stories`, run `npm run test:stories`, then
+    generate printable reports for all active locales. Run `npm run check:lfs`
+    only when at least one story has audio. Confirm each available content and
+    optional audio file is linked and its relative path is visible. Treat a
+    missing file warning as a recoverable archive gap, but do not accept an
+    empty content file or an available audio file that is not stored with Git
+    LFS.
 17. Keep each audio file at or below 5 MiB when practical. `check:lfs` warns
     above 5 MiB and fails above the 10 MiB repository maximum. Based on testing
     with WhatsApp recordings (OGG format), these limits represent roughly 30
     minutes and one hour of speech, respectively; other encoders and audio
-    content vary. When a supplied recording exceeds 10 MiB, ask the user how
+    content vary. When supplied story audio exceeds 10 MiB, ask the user how
     to handle it rather than automatically converting or discarding it.

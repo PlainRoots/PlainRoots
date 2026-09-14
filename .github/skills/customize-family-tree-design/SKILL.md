@@ -28,20 +28,18 @@ visual change.
   repeat across generations.
 - Preserve full-width horizontal layout for large generations.
 - Keep standalone cards and complete-tree cards visually consistent.
-- Inspect both English and Mexican Spanish previews after every sizing or
-  typography change because translated labels may wrap differently.
+- Inspect previews for every active locale after each sizing or typography
+  change because translated labels may wrap differently.
 - Do not encode genealogical meaning through color unless explicitly requested.
 - Maintain readable contrast and UTF-8 font support.
 
 ## Validation
 
-Regenerate and visually inspect both previews:
+Regenerate and visually inspect every active locale:
 
 ```powershell
 npm run render
-npm run render:mx-ES
 npm run check
-npm run check:mx-ES
 ```
 
 Check the widest generation, long translated labels, maiden names, photos,

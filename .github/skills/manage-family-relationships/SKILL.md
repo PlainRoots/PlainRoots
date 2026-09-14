@@ -80,7 +80,7 @@ guardianship:
 4. Create a new family for a distinct partnership or single-parent branch.
 5. Keep the order of people and families intentional because it influences
    rendered ordering.
-6. Generate both locales and inspect the complete tree.
+6. Generate every active locale and inspect the complete tree.
 7. When the full tree becomes difficult to inspect, render an ancestry view for
    an affected descendant to verify the direct parent chain independently.
 
@@ -89,6 +89,6 @@ guardianship:
 ```powershell
 npm run render
 npm run check
-npm run render:mx-ES
-npm run check:mx-ES
+npm run render:es-MX
+npm run check:es-MX
 ```

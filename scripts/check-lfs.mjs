@@ -8,8 +8,8 @@ import {
   AUDIO_SIZE_MAXIMUM_MIB,
   AUDIO_SIZE_TARGET_MIB,
   assessAudioFileSize,
-  validatePersonRecordings
-} from "./person-recordings.mjs";
+  validatePersonStories
+} from "./person-stories.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -17,23 +17,11 @@ const projectRoot = path.resolve(
 );
 const failures = [];
 const warnings = [];
-
-runGit(["lfs", "version"]);
-
-for (const extension of AUDIO_EXTENSIONS) {
-  verifyLfsAttribute(`audio-format-check${extension}`);
-}
-
-const lfsFiles = new Set(
-  runGit(["lfs", "ls-files", "--name-only"])
-    .split(/\r?\n/)
-    .filter(Boolean)
-    .map(normalizePath)
-);
 const peopleRoot = path.join(projectRoot, "people");
 const personDirectories = await readdir(peopleRoot, { withFileTypes: true });
-let recordingCount = 0;
+let storyCount = 0;
 let availableAudioCount = 0;
+const audioPaths = [];
 
 for (const directory of personDirectories.filter((entry) =>
   entry.isDirectory()
@@ -45,15 +33,34 @@ for (const directory of personDirectories.filter((entry) =>
 
   const person = JSON.parse(await readFile(personPath, "utf8"));
   const source = normalizePath(path.relative(projectRoot, personPath));
-  validatePersonRecordings(person, source);
+  validatePersonStories(person, source);
 
-  for (const recording of person.recordings ?? []) {
-    recordingCount += 1;
+  for (const story of person.stories ?? []) {
+    storyCount += 1;
+    if (!story.audio) {
+      continue;
+    }
     const relativeAudioPath = normalizePath(
-      path.join("people", directory.name, recording.audio)
+      path.join("people", directory.name, story.audio.file)
     );
-    verifyLfsAttribute(relativeAudioPath);
+    audioPaths.push(relativeAudioPath);
+  }
+}
 
+if (audioPaths.length > 0) {
+  runGit(["lfs", "version"]);
+  for (const extension of AUDIO_EXTENSIONS) {
+    verifyLfsAttribute(`audio-format-check${extension}`);
+  }
+  const lfsFiles = new Set(
+    runGit(["lfs", "ls-files", "--name-only"])
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map(normalizePath)
+  );
+
+  for (const relativeAudioPath of audioPaths) {
+    verifyLfsAttribute(relativeAudioPath);
     const absoluteAudioPath = path.join(projectRoot, relativeAudioPath);
     if (!(await fileExists(absoluteAudioPath))) {
       continue;
@@ -73,7 +80,7 @@ for (const directory of personDirectories.filter((entry) =>
     }
     if (!lfsFiles.has(relativeAudioPath)) {
       failures.push(
-        `${relativeAudioPath}: existing recording is not stored as a Git LFS pointer`
+        `${relativeAudioPath}: existing story audio is not stored as a Git LFS pointer`
       );
     }
   }
@@ -88,7 +95,9 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Checked Git LFS rules for ${AUDIO_EXTENSIONS.size} audio formats and ${recordingCount} recording record(s); ${availableAudioCount} audio file(s) are available and stored with Git LFS.`
+  audioPaths.length === 0
+    ? `Skipped Git LFS checks: ${storyCount} story record(s) contain no audio.`
+    : `Checked Git LFS rules for ${AUDIO_EXTENSIONS.size} audio formats and ${audioPaths.length} story audio attachment(s); ${availableAudioCount} audio file(s) are available and stored with Git LFS.`
 );
 
 function formatMiB(sizeBytes) {
