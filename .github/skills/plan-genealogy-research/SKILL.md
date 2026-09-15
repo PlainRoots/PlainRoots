@@ -140,8 +140,7 @@ For each proposed question:
    needed.
 7. Do not send the question.
 
-Use `draft-family-outreach` for a complete message or correspondence workflow
-when that skill is available.
+Use `draft-family-outreach` for a complete message or correspondence workflow.
 
 ## Research historical context
 
@@ -221,7 +220,7 @@ sufficient.
 - Use `ingest-genealogy-source` to transcribe or compare a source.
 - Use `verify-genealogy-data` to assess claims, conflicts, calculations,
   identities, and locations.
-- Use `draft-family-outreach` for complete correspondence, when available.
+- Use `draft-family-outreach` for complete correspondence.
 - Use `generate-family-tree` for focused missing-information review outputs.
 - Use `add-family-member` or `manage-family-relationships` only after the user
   separately approves proposed record changes.

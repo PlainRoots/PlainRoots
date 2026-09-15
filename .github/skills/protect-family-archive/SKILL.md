@@ -148,6 +148,8 @@ current working copy and hand the task to the relevant repository skill:
 - `verify-genealogy-data` for evidence, conflicts, and location validation.
 - `plan-genealogy-research` for read-only audits, source inventories, and
   prioritized next steps.
+- `draft-family-outreach` for privacy-conscious correspondence drafts that the
+  user reviews and sends.
 - `prepare-family-tree-pr` before commit, push, or pull request.
 
 Passing this check does not approve the contents of a source or authorize a
