@@ -134,4 +134,6 @@ keep every configured locale synchronized.
 Once you understand the fictional example and are ready to add your own family
 data, do not put it in the public PlainRoots checkout. Follow
 [Start your private family archive](START-YOUR-FAMILY-ARCHIVE.md) to create and
-verify an independent private copy first.
+verify an independent private copy first. After its privacy and locales are
+configured, continue with
+[Add data to your family archive](ADD-FAMILY-DATA.md).

@@ -26,14 +26,13 @@ a story automatically.
    `story-family-es-mx.md`. Preserve supplied text verbatim. For audio,
    transcribe the recording verbatim into this content file; never fabricate
    text.
-6. After detecting the original language, offer only translations into
-   different languages:
-   - For English, offer no translation or Mexican Spanish.
-   - For Spanish, offer no translation or English.
-   - For another language, offer no translation, English, Mexican Spanish, or
-     both.
-   Save each complete translation in a separate lowercase ASCII Markdown file,
-   such as `story-family-en-us.md`. Never add an empty translation.
+6. After detecting the original language, load the active locales from
+   `supported-locales.json`; canonical `en-US` is implicit. Translate the title
+   and complete content into every active locale other than the original
+   language. Save each translation in a separate lowercase ASCII Markdown
+   file, such as `story-family-en-us.md`. Never duplicate the original language
+   or add an empty translation. Identify wording that needs review by a fluent
+   speaker.
 7. For optional audio, report its size in MiB. The recommended target is 5 MiB
    or less and the repository maximum is 10 MiB. Preserve the supplied format
    and save it with a unique `story-*.aac`, `.flac`, `.m4a`, `.mp3`, `.ogg`,
@@ -85,10 +84,11 @@ a story automatically.
 10. When audio exists, stage it normally and confirm both
     `git check-attr filter -- <audio-file>` reports `filter: lfs` and
     `git lfs ls-files --name-only` lists it.
-11. Run `npm run test:stories`, generate both locales, and generate both full
-    printable reports. Run `npm run check:lfs` when the story has audio.
-    Confirm that stories appear only in printable reports, with localized
-    content, available images, and optional audio and story-text links.
+11. Run `npm run test:stories`, generate every active locale, and generate
+    every localized full printable report. Run `npm run check:lfs` when the
+    story has audio. Confirm that stories appear only in printable reports,
+    with localized content, available images, and optional audio and story-text
+    links.
 
 ## Missing files
 

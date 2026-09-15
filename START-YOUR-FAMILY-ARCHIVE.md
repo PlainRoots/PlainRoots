@@ -135,25 +135,61 @@ and every remote fetch and push URL. Do not change anything.
 If any check is unexpected, stop. Do not add or commit private information
 until the destination is corrected.
 
-## Replace the fictional sample gradually
+## Configure your family's languages first
 
-The duplicated repository initially contains the fictional García-Smith
-reference family. Preserve it until you understand how records, relationships,
-translations, skills, and generated outputs work together.
+Before adding family records, decide which languages and regional conventions
+your relatives will use to read and contribute to the archive. For example,
+choose `es-MX` for Mexican Spanish rather than the broader `es` tag when
+Mexican spelling, terminology, and date formatting are intended.
 
-Start with a plan:
+PlainRoots always keeps `en-US` as its canonical source locale. List every
+additional active locale in `supported-locales.json`. Each active locale needs
+a matching resource under `locales/` and complete translations for current
+translatable content. Locale IDs use canonical
+[BCP 47](https://www.rfc-editor.org/info/bcp47) casing.
+
+Ask Copilot:
 
 ```text
-I am ready to replace the fictional reference family with my own data in this
-private repository. Read the repository instructions and relevant skills.
-Propose a small, reversible plan that starts with one person and preserves the
-schema, scripts, locales, validation, and generated outputs. Do not make
-changes yet, and do not invent any family facts.
+Before I add any family data, help me configure the languages spoken and read
+by members of my family.
+
+1. Read supported-locales.json, locales/en-US.json, the localization
+   documentation, and the localize-family-tree skill.
+2. Ask me which languages and regional variants my family needs. Do not assume
+   a locale from a country name or from my computer settings.
+3. Keep en-US as the canonical source locale. For each additional language I
+   confirm, propose its canonical BCP 47 locale ID and explain the regional
+   choice before changing files.
+4. Update supported-locales.json and create or update the matching locale
+   resources. Translate every required interface value accurately and preserve
+   placeholders and data structure. Do not activate or delete a locale without
+   my approval.
+5. Complete any translations required by the existing fictional reference
+   content so locale validation succeeds. Do not add, remove, or replace family
+   records as part of this language-configuration task.
+6. Run the locale tests, translation checks, and generation checks for every
+   configured locale. Summarize the files changed and any wording that still
+   needs review by a fluent speaker.
+
+Show me a plan and ask for approval before changing files. Do not add real
+family names, relationships, stories, photographs, recordings, or other family
+information yet.
 ```
 
-When you approve a plan, provide only the information needed for that step.
-Ask Copilot to distinguish documented facts, family accounts, inference, and
-unknown values. Review every diff before committing.
+Have a fluent speaker review each locale before relying on it. Machine
+translation can provide a draft, but names, kinship terms, places, and
+genealogy terminology need human review.
+
+## Add your family data
+
+After locale configuration is complete, follow
+[Add data to your family archive](ADD-FAMILY-DATA.md). It provides prompts for
+documents and images, stories and recordings, natural-language family facts,
+location and conflict validation, photos, and correspondence with relatives or
+record custodians.
+
+## Protect your private family archive
 
 Private repository access reduces accidental public exposure, but it does not
 replace careful handling:
