@@ -1,11 +1,33 @@
 ---
 name: verify-genealogy-data
-description: Evaluate recovered, inferred, conflicting, or incomplete genealogy information before publishing it. Use when importing family records or deciding whether a relationship is confirmed.
+description: Evaluate sources, family replies, corrections, identities, locations, and inferred, conflicting, or incomplete genealogy information before publishing it.
 ---
 
 # Verify genealogy data
 
 Accuracy is more important than tree completeness.
+
+For real family data, require `protect-family-archive` to pass before reading
+sensitive evidence. When evidence comes from an attached document, legacy
+tree, spreadsheet, or recovered notes, use `ingest-genealogy-source` to
+transcribe and identify claims before evaluating them here.
+
+## Operating mode
+
+Evidence review begins as read-only analysis. If the user asks to analyze,
+compare, research, explain, inventory, or identify conflicts, do not modify
+files.
+
+When the user asks to add or correct information:
+
+1. Identify each proposed fact or relationship separately.
+2. Show the source, evidence level, conflicts, uncertainty, and exact proposed
+   value.
+3. Ask for approval before changing source records.
+4. Apply only approved items.
+
+Permission to read evidence is not permission to update the archive. Approval
+of one claim does not approve other claims from the same source.
 
 ## Evidence levels
 
@@ -21,6 +43,30 @@ Only confirmed facts belong in `tree.json`.
 An optional `familyStatus` summary may describe unmodeled relatives, but its
 relationship and children values must also be confirmed. It does not establish
 specific partner or parent-child relationships.
+
+## Per-claim provenance
+
+Assess and cite provenance for each claim, not merely for the source as a
+whole. A single document may be primary evidence for one fact and weak,
+incidental evidence for another.
+
+For each claim, retain when known:
+
+- The person or relationship concerned.
+- The source type, creator or issuing organization, jurisdiction, and date.
+- Page, image, entry, certificate, row, or other precise locator.
+- The exact original statement and language.
+- The informant or declarant and their ability to know the fact.
+- Whether the value is explicit, calculated, inferred, translated, or
+  unreadable.
+- The source's value and any normalized archive value.
+- Competing evidence, uncertainty, calculations, and rationale.
+- Who supplied or confirmed the information and when, when appropriate and
+  safe.
+
+Keep provenance concise enough for `researchNotes`; do not copy entire
+sensitive documents, private addresses, identity numbers, or unrelated
+personal information into the repository.
 
 ## Automatic life status
 
@@ -65,7 +111,9 @@ Consider these factors:
    but do not present it as documentary fact until corroborated.
 8. **Derived clues:** Name days, age calculations, address matching, surname
    similarity, and photograph comparisons support hypotheses; they do not
-   independently establish a fact or relationship.
+   independently establish a fact or relationship. Visual resemblance never
+   establishes identity, and the agent must not perform or claim
+   facial-recognition identification.
 
 Do not mechanically apply this order. For example, a child's delayed birth
 registration may be stronger evidence for the mother's age than her later
@@ -87,6 +135,106 @@ one-year conflict can still result from rounded ages.
    provenance, calculation, and rationale in `researchNotes`.
 7. If no source is meaningfully stronger, keep the value unknown or use the
    least-specific supported value until more evidence appears.
+
+## Precision and derived facts
+
+Preserve the precision of the evidence:
+
+- A year is not a complete date.
+- `About 1900` is not exactly `1900`.
+- `Before 1956` is not `1955`.
+- `After 1920` has no implied end date.
+- A range must not be replaced with its midpoint.
+- `At least three children` is not exactly three.
+- `Three or four children` must remain an unresolved range.
+
+For a fact derived from an age on a dated source:
+
+1. Transcribe the stated age and source date.
+2. Calculate every possible birth date or year, accounting for whether the
+   birthday had occurred.
+3. Show the calculation and assumptions.
+4. Mark the result as estimated.
+5. Preserve the stated age, source date, range, and calculation in
+   `researchNotes`.
+
+Do not increase precision merely because the data model accepts a complete
+date. If the schema cannot represent the supported precision faithfully, keep
+the published value at the least-specific supported level and preserve the
+full expression in `researchNotes`.
+
+## Corrections, duplicates, and identity
+
+Before correcting a person or relationship:
+
+1. Check for similarly named people and unresolved duplicates.
+2. Compare dates, places, partners, parents, children, siblings, occupations,
+   alternate names, and source context.
+3. Trace which families, sibling groups, guardianships, and generated views
+   the correction would affect.
+4. Distinguish a wrong fact from a wrong relationship, mistaken merge, or two
+   different people with similar names.
+5. Show the proposed change and its effects before editing.
+
+Do not delete a person merely because one relationship or identifying fact was
+wrong. Remove a rejected claim from the published value, but preserve its
+source and the correction in `researchNotes` when useful for preventing the
+same mistake or understanding prior conclusions. Never preserve superseded
+private data that the repository does not need.
+
+## Family replies and oral accounts
+
+When the user pastes a relative's message or summarizes a conversation:
+
+1. Preserve the original wording and language during analysis.
+2. Identify the respondent, their relationship to the events or people, and
+   when the reply was received, when appropriate and safe.
+3. Separate direct memory from information heard from another person.
+4. Extract each fact, correction, relationship, story, and uncertainty
+   separately.
+5. Expand abbreviations only when their meaning is clear.
+6. Compare every claim with the archive and identify ambiguous names, dates,
+   places, and conflicts.
+7. Ask focused follow-up questions from the respondent's point of view.
+8. Present proposed updates and attribution before changing files.
+
+Attribute the claim to the relative who supplied it, not to the archive
+contributor who typed or pasted it. A family reply can be first-hand evidence
+without automatically overriding a contemporary record.
+
+## Names, scripts, and linguistic hypotheses
+
+Distinguish:
+
+- Documented names and spelling variants.
+- Maiden and married names.
+- Confirmed nicknames.
+- Original-script names and direct transliterations.
+- Phonetic administrative spellings.
+- Translated equivalents.
+- Culturally plausible but unconfirmed name hypotheses.
+
+Similar meaning, pronunciation, or cultural usage does not prove that a person
+used a name. Research historical period, documented language, location, and
+community without inferring ethnicity or religion. Keep unconfirmed linguistic
+possibilities in `researchNotes`; add an alternate name only when evidence or
+an informed family source confirms its use or explicitly approves its
+tentative classification.
+
+## Choose the right content location
+
+| Content | Store in |
+| --- | --- |
+| Stable biographical fact represented by the schema | The corresponding `person.json` field |
+| Substantial attributed first-person or family narrative | A Story through `add-family-story` |
+| Concise biographical context suitable for family reports | `remarks` |
+| Provenance, citations, competing claims, calculations, hypotheses, or curation guidance | `researchNotes` |
+| Unsupported sensitive detail or unrelated information | Do not store |
+
+Do not convert a narrative into `remarks` or a Story automatically. Identify
+the narrator, distinguish direct memory from retelling, recommend a location,
+and ask for approval. When one account concerns multiple people, keep one
+authoritative attributed narrative rather than creating inconsistent copies.
 
 ## Location validation
 
@@ -115,10 +263,16 @@ catalogs, civil registries, and official municipal or state records.
 4. Ask focused questions from the perspective of the relative being asked.
 5. Prefer questions that resolve an entire branch, such as identifying a
    sibling group's missing parent.
-6. Record corrections immediately and discard superseded inferences.
+6. Remove superseded inferences from published values after approval. Preserve
+   useful provenance explaining the correction.
 7. Do not silently convert proximity, matching surnames, or chart adjacency
    into a confirmed relationship.
 8. Remove or correct `familyStatus` when exact relatives are later modeled.
+9. Keep read-only work read-only. For requested changes, present numbered,
+   individually approvable proposals before editing.
+10. After approved edits, use `add-family-member` and
+    `manage-family-relationships` for the actual source changes and run their
+    validation procedures.
 
 ## Publishing rule
 
