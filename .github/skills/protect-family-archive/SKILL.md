@@ -141,8 +141,7 @@ the destination owner and repository and wait for approval.
 After the check passes, state that private archive mode is verified for the
 current working copy and hand the task to the relevant repository skill:
 
-- `ingest-genealogy-source` for documents and recovered records, when
-  available.
+- `ingest-genealogy-source` for documents and recovered records.
 - `add-family-member` for person facts and portraits.
 - `manage-family-relationships` for family links and guardianships.
 - `add-family-story` for approved text or audio stories.
