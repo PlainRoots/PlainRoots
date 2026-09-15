@@ -1,6 +1,6 @@
 ---
 name: generate-family-tree
-description: Generate, validate, or render the family tree and its localized cards. Use when asked to refresh outputs, produce a preview, or diagnose stale generated files.
+description: Generate, validate, render, or prepare privacy-reviewed family-tree charts, text views, printable reports, and localized review packages.
 ---
 
 # Generate the family tree
@@ -13,20 +13,27 @@ scripts.
 
 Generated files must not be edited manually.
 
+For real family data, require `protect-family-archive` to pass before
+generating or opening outputs. Generated files can expose the same private
+information as their source records even when Git ignores them.
+
 ## Commands
 
 ```powershell
 npm start
 npm run generate
-npm run generate:es-MX
 npm run check
-npm run check:es-MX
 npm run check:lfs
 npm run check:translations
 npm run render
-npm run render:es-MX
-npm run view:ascii -- --view descendants --person <person-id>
+npm run report
+npm run view:ascii -- --view descendants --person <person-id> --locale <locale-id>
 ```
+
+The standard `generate`, `check`, `render`, and `report` commands process
+canonical English and every active locale from `supported-locales.json`. To
+produce only one locale for a specific review, call the underlying script with
+`--locale <locale-id>` after confirming that the locale is active.
 
 Add `--highlight-missing` to any generate, check, or render command to create a
 separate `.highlight-missing` HTML or PNG research preview. This opt-in mode
@@ -37,10 +44,11 @@ not treat intentionally omitted redundant fields as missing.
 
 Use `node scripts/print-report.mjs --view <view-id>` to generate a
 print-optimized HTML report for any registered view. Person-centered views also
-require `--person <person-id>`. Add `--locale es-MX` for Mexican Spanish and
-`--highlight-missing` for yellow unknown-fact markers. The report includes the
-ASCII relationship outline, complete facts, modeled relationships, remarks,
-research notes, family stories, and project-level provenance guidance.
+require `--person <person-id>`. Add `--locale <locale-id>` for one active
+locale and `--highlight-missing` for yellow unknown-fact markers. The report
+includes the ASCII relationship outline, complete facts, modeled
+relationships, remarks, research notes, family stories, and project-level
+provenance guidance.
 Person records use the complete graph for direct relationships, even when a
 related person is outside the selected view. Story-text and optional audio
 links include visible repository-relative paths. Missing content, audio, or
@@ -70,18 +78,14 @@ For a direct-ancestry view with aunts and uncles:
 
 ```powershell
 npm run render:ancestry -- <person-id>
-npm run render:ancestry -- <person-id> --locale es-MX
 npm run check:ancestry -- <person-id>
-npm run check:ancestry -- <person-id> --locale es-MX
 ```
 
 For direct ancestors only:
 
 ```powershell
 npm run render:ancestry-strict -- <person-id>
-npm run render:ancestry-strict -- <person-id> --locale es-MX
 npm run check:ancestry-strict -- <person-id>
-npm run check:ancestry-strict -- <person-id> --locale es-MX
 ```
 
 For descendants with the selected person's spouse(s), plus every descendant's
@@ -89,9 +93,7 @@ spouse:
 
 ```powershell
 npm run render:descendants -- <person-id>
-npm run render:descendants -- <person-id> --locale es-MX
 npm run check:descendants -- <person-id>
-npm run check:descendants -- <person-id> --locale es-MX
 ```
 
 For all modeled blood descendants of the direct ancestors, plus every included
@@ -99,19 +101,24 @@ blood relative's spouse:
 
 ```powershell
 npm run render:blood-relatives -- <person-id>
-npm run render:blood-relatives -- <person-id> --locale es-MX
 npm run check:blood-relatives -- <person-id>
-npm run check:blood-relatives -- <person-id> --locale es-MX
+```
+
+For a single active locale, use the corresponding underlying script:
+
+```powershell
+node scripts/render.mjs --view ancestry --person <person-id> --locale <locale-id>
+node scripts/generate.mjs --check --view ancestry --person <person-id> --locale <locale-id>
 ```
 
 ## Outputs
 
-- `index.html`: English tree.
-- `index.es-MX.html`: Mexican Spanish tree.
-- `people/*/card.html`: English standalone cards.
-- `people/*/card.es-MX.html`: Mexican Spanish standalone cards.
-- `family-tree.png`: English preview.
-- `family-tree.es-MX.png`: Mexican Spanish preview.
+- `index.html`: canonical English tree.
+- `index.<locale>.html`: additional-locale tree.
+- `people/*/card.html`: canonical English standalone cards.
+- `people/*/card.<locale>.html`: additional-locale standalone cards.
+- `family-tree.png`: canonical English preview.
+- `family-tree.<locale>.png`: additional-locale preview.
 - `index.highlight-missing*.html`, `people/*/card.highlight-missing*.html`,
   and `family-tree.highlight-missing*.png`: ignored research-gap previews.
 - `print-report*.html`: ignored image-free printable full-tree reports.
@@ -119,9 +126,8 @@ npm run check:blood-relatives -- <person-id> --locale es-MX
   printable reports for person-focused views.
 - `index.ancestry.html`: local ancestry view with the selected person's
   siblings and spouse(s), plus direct ancestors and their siblings.
-- `index.ancestry.es-MX.html`: Mexican Spanish ancestry view.
-- `<person-id>.ancestry.en-US.png`: English ancestry preview.
-- `<person-id>.ancestry.es-MX.png`: Mexican Spanish ancestry preview.
+- `index.ancestry.<locale>.html`: additional-locale ancestry view.
+- `<person-id>.ancestry.<locale>.png`: localized ancestry preview.
 - `index.ancestry-maternal*.html` and
   `<person-id>.ancestry-maternal.<locale>.png`:
   maternal-only ancestry using the second parent recorded in the family.
@@ -141,15 +147,14 @@ npm run check:blood-relatives -- <person-id> --locale es-MX
 
 After rendering any chart, include a direct clickable link to every generated
 PNG in the final response. Use an absolute `file:///` URI so the chart opens
-from the local filesystem, and keep the English and Mexican Spanish links
-clearly labeled. Resolve the repository root dynamically rather than assuming
-a fixed checkout location.
+from the local filesystem, and label each link with its locale. Resolve the
+repository root dynamically rather than assuming a fixed checkout location.
 
 On Windows, convert path separators to `/` and format links like:
 
 ```markdown
-[Open English chart](file:///C:/absolute/path/to/chart.en-US.png)
-[Open Mexican Spanish chart](file:///C:/absolute/path/to/chart.es-MX.png)
+[Open en-US chart](file:///C:/absolute/path/to/chart.en-US.png)
+[Open locale chart](file:///C:/absolute/path/to/chart.LOCALE.png)
 ```
 
 URL-encode spaces and other characters that are not safe in a URI. Confirm
@@ -166,10 +171,74 @@ On Windows, convert path separators to `/`, following the same URI conventions
 as rendered chart links. If report generation fails or an output is missing,
 report that explicitly instead of emitting a broken link.
 
+## Prepare a family review package
+
+Use a review package when a relative or informed family member will inspect a
+focused branch for errors, missing people, or missing facts.
+
+### Define the review
+
+Before generating:
+
+1. Confirm the reviewer or reviewer type and what they are being asked to
+   verify.
+2. Confirm the focus person, branch, relationship, or disputed facts.
+3. Confirm the reviewer's requested language. Generate every active locale
+   when no reviewer language is specified; otherwise generate only the
+   requested active locale for the package.
+4. Choose the smallest view that contains the needed context:
+   - `person` for one person's complete record and direct relationships.
+   - `ancestry-strict` for direct ancestors only.
+   - `ancestry` for direct ancestors plus immediate sibling and spouse context.
+   - `ancestry-maternal` or `ancestry-paternal` for one parental line.
+   - `descendants` for a person's descendants and their spouses.
+   - `blood-relatives` only when extended collateral context is necessary.
+5. Decide whether a visual chart, printable report, text report, or a
+   combination will help the reviewer. Do not generate every format by
+   default.
+6. Use `--highlight-missing` only when asking the reviewer to identify gaps.
+
+### Privacy review
+
+Inspect the complete generated output before presenting or sharing it:
+
+- Include only the relatives and living-person details needed for the review.
+- Check names, dates, places, photographs, remarks, Stories, and direct
+  relationships.
+- Remember that printable reports include `researchNotes` and project-level
+  provenance guidance. Do not share one when those sections contain material
+  inappropriate for the reviewer.
+- Do not assume an ignored or local-only generated file is safe to share.
+- Do not hand-edit generated output to redact it.
+
+If no existing view can produce a safe package, explain the limitation and
+ask whether the user wants a separate source-level feature for filtered
+reports. Do not improvise a redacted generated file whose contents cannot be
+reproduced and validated.
+
+### Package output
+
+For every included artifact:
+
+1. Run the matching source-data check.
+2. Confirm the file exists.
+3. Open or inspect the complete output, not only the initial viewport.
+4. Label it by view, format, and locale.
+5. Provide a clickable absolute `file:///` link.
+6. State what the reviewer should verify and which facts remain uncertain.
+
+Use `draft-family-outreach` to prepare a short review request in the
+reviewer's language. Do not send the message or generated files.
+
+Returned annotations or corrections are new evidence. Preserve their original
+wording, identify the respondent and date when appropriate, compare them
+through `verify-genealogy-data`, and request approval before changing records.
+
 ## Procedure
 
-1. Always generate every locale registered by `supported-locales.json`;
-   English is included implicitly.
+1. For normal repository generation, always generate every locale registered
+   by `supported-locales.json`; English is included implicitly. A review
+   package may target one explicitly requested active locale.
 2. Run `npm run check` to detect stale, missing, or incomplete content across
    all active locales.
 3. Run `npm run render` when visual output changed or a preview was requested.
@@ -216,12 +285,13 @@ report that explicitly instead of emitting a broken link.
 14. In the full view, group every person absent from all modeled family
     relationships in the orange localized unconnected group at the far right.
     Confirm those people do not appear in focused views.
-15. Use `view:ascii` for a terminal-only text report containing names, birth and
-    death years, and birthplaces. Format generations with ASCII tree connectors
-    and whitespace indentation. Unknown dates must remain visible prompts. It
-    must reuse the registered view selectors and localization resources rather
-    than implement separate inclusion rules. Use `<-->` for spouses or partners
-    and include a localized legend explaining the symbols.
+15. Use `view:ascii` for a terminal-only text report containing names, birth
+    and death years, and birthplaces. Call it a text report in user-facing
+    communication. Format generations with ASCII tree connectors and
+    whitespace indentation. Unknown dates must remain visible prompts. It must
+    reuse the registered view selectors and localization resources rather than
+    implement separate inclusion rules. Use `<-->` for spouses or partners and
+    include a localized legend explaining the symbols.
 16. When person records contain `stories`, run `npm run test:stories`, then
     generate printable reports for all active locales. Run `npm run check:lfs`
     only when at least one story has audio. Confirm each available content and
