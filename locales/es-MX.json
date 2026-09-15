@@ -54,7 +54,7 @@
     "occupation": "Ocupación",
     "born": "Nacimiento",
     "birthplace": "Lugar de nacimiento",
-    "likelyArabicName": "Nombre probable en árabe",
+    "alternateName": "Nombre alternativo",
     "died": "Fallecimiento",
     "deathplace": "Lugar de fallecimiento",
     "lifeEventFormat": "{date} en {place}",

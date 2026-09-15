@@ -318,8 +318,10 @@ function renderPersonRecord(
       : "",
     ...(person.alternateNames ?? []).map((alternateName) =>
       renderFact(
-        strings.likelyArabicName,
-        `${alternateName.name} (${alternateName.transliteration}; ${alternateName.language})`,
+        strings.alternateName,
+        alternateName.transliteration
+          ? `${alternateName.name} (${alternateName.transliteration}; ${alternateName.language})`
+          : `${alternateName.name} (${alternateName.language})`,
         false,
         localeData,
         options

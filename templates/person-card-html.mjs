@@ -9,6 +9,16 @@ const REQUIRED_FIELDS = [
   "birthPlace"
 ];
 
+const ALTERNATE_NAME_TYPES = new Set([
+  "documented-spelling-variant",
+  "married-name",
+  "nickname",
+  "original-script",
+  "phonetic-administrative-spelling",
+  "translated-name-equivalent",
+  "likely-equivalent-in-native-language"
+]);
+
 export function validatePerson(person, source) {
   for (const field of REQUIRED_FIELDS) {
     if (typeof person[field] !== "string" || person[field].trim() === "") {
@@ -77,15 +87,18 @@ export function validatePerson(person, source) {
       if (
         !alternateName ||
         typeof alternateName !== "object" ||
-        !["name", "language", "transliteration", "type", "evidence"].every(
+        !["name", "language", "type", "evidence"].every(
           (field) =>
             typeof alternateName[field] === "string" &&
             alternateName[field].trim() !== ""
         ) ||
-        alternateName.type !== "likely-arabic-equivalent"
+        (alternateName.transliteration !== undefined &&
+          (typeof alternateName.transliteration !== "string" ||
+            alternateName.transliteration.trim() === "")) ||
+        !ALTERNATE_NAME_TYPES.has(alternateName.type)
       ) {
         throw new Error(
-          `${source}: each alternate name needs a name, language, transliteration, type "likely-arabic-equivalent", and descriptive evidence`
+          `${source}: each alternate name needs a name, language, supported type, optional non-empty transliteration, and descriptive evidence`
         );
       }
     }
@@ -190,10 +203,12 @@ function renderAlternateNames(person, locale, indent) {
     return "";
   }
   return person.alternateNames
-    .map(
-      (alternateName) =>
-        `${indent}<div class="alternate-name"><dt>${escapeHtml(locale.strings.likelyArabicName)}</dt><dd><bdi lang="${escapeAttribute(alternateName.language)}" dir="rtl">${escapeHtml(alternateName.name)}</bdi> <span>(${escapeHtml(alternateName.transliteration)})</span></dd></div>`
-    )
+    .map((alternateName) => {
+      const transliteration = alternateName.transliteration
+        ? ` <span>(${escapeHtml(alternateName.transliteration)})</span>`
+        : "";
+      return `${indent}<div class="alternate-name"><dt>${escapeHtml(locale.strings.alternateName)}</dt><dd><bdi lang="${escapeAttribute(alternateName.language)}" dir="auto">${escapeHtml(alternateName.name)}</bdi>${transliteration}</dd></div>`;
+    })
     .join("\n");
 }
 

@@ -105,6 +105,24 @@ predeterminado solo cuando todas las fechas posibles de ese año hagan que la
 persona sea mayor de 110 años. Los reportes muestran el estado almacenado sin
 reemplazarlo.
 
+Los registros pueden incluir `alternateNames`. Cada entrada necesita nombre,
+etiqueta de idioma BCP 47, tipo y evidencia; la transliteración es opcional.
+Usa:
+
+| Tipo | Significado |
+| --- | --- |
+| `documented-spelling-variant` | Una ortografía diferente que aparece realmente en una fuente |
+| `married-name` | Un nombre documentado que la persona usó después del matrimonio |
+| `nickname` | Un apodo confirmado |
+| `original-script` | El nombre en su sistema de escritura original confirmado |
+| `phonetic-administrative-spelling` | Una ortografía fonética registrada por una institución |
+| `translated-name-equivalent` | Un equivalente reconocido en otro idioma, sin afirmar que la persona lo usó |
+| `likely-equivalent-in-native-language` | Una reconstrucción no confirmada en el idioma nativo, respaldada por investigación lingüística e histórica |
+
+Usa `maidenName` para un apellido de soltera confirmado. Los nombres
+equivalentes o reconstruidos nunca deben reemplazar el nombre para mostrar de
+la persona, y su evidencia debe explicar la incertidumbre.
+
 Los registros también pueden incluir un arreglo `stories` para relatos escritos
 por esa persona. Cada entrada necesita un `id` ASCII estable en minúsculas y un
 objeto `original` con título, un archivo Markdown `content` no vacío y una

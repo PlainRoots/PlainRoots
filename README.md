@@ -99,6 +99,23 @@ birth, apply this default only when every possible birthday in that year makes
 the person older than 110. Generated reports render the stored status without
 overriding it.
 
+Person records may include `alternateNames`. Each entry needs a name, BCP 47
+language tag, type, and evidence; transliteration is optional. Use:
+
+| Type | Meaning |
+| --- | --- |
+| `documented-spelling-variant` | A different spelling actually found in a source |
+| `married-name` | A documented name used after marriage |
+| `nickname` | A confirmed familiar name |
+| `original-script` | A name in its confirmed original writing system |
+| `phonetic-administrative-spelling` | A phonetic spelling recorded by an institution |
+| `translated-name-equivalent` | A recognized equivalent in another language, without claiming the person used it |
+| `likely-equivalent-in-native-language` | An unconfirmed native-language reconstruction supported by linguistic and historical research |
+
+Use `maidenName` for a confirmed maiden name. Equivalent or reconstructed names
+must never replace the person's display name, and their evidence must explain
+the uncertainty.
+
 Person records may also include a `stories` array for narrative accounts
 authored by that person. Each entry needs a stable lowercase ASCII `id` and an
 `original` object with a title, a non-empty Markdown `content` file, and a BCP

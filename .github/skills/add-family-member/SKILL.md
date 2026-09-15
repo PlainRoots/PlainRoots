@@ -8,6 +8,23 @@ description: Add or update a person in this family-tree repository. Use when ask
 Treat `people/<person-id>/person.json` as source data. Never hand-edit generated
 HTML.
 
+For real family data, require `protect-family-archive` to pass first. Evaluate
+documentary evidence, family replies, conflicts, estimates, and identity
+questions through `verify-genealogy-data`.
+
+## Before editing
+
+1. Confirm whether the person already exists or may duplicate another record.
+2. Separate supplied facts from inference and identify the source of each fact.
+3. Validate locations and preserve the precision of dates and estimates.
+4. Show the proposed person ID, fields, provenance, files, translations, and
+   tree membership.
+5. Ask for approval before creating or updating source files.
+
+Apply only approved facts. Permission to add one person does not approve
+unconfirmed relatives, inferred relationships, sensitive source files, or
+media.
+
 ## Procedure
 
 1. Read `README.md`, `tree.json`, and one comparable existing person record.
@@ -68,6 +85,7 @@ HTML.
 9. Add new occupation, birthplace, or death-place values to every file under
    `locales/`.
 10. Add the person to `tree.json` only when they belong in the published tree.
+    Use `manage-family-relationships` before adding or changing family links.
 
 ## Person schema
 
@@ -80,11 +98,10 @@ HTML.
   "maidenName": null,
   "alternateNames": [
     {
-      "name": "Name in original script",
-      "language": "ar",
-      "transliteration": "Latin transliteration",
-      "type": "likely-arabic-equivalent",
-      "evidence": "Explain the source and limitations supporting this alternate name."
+      "name": "Lola",
+      "language": "es",
+      "type": "nickname",
+      "evidence": "The person's daughter confirmed this nickname in 2026."
     }
   ],
   "initials": "PI",
@@ -126,18 +143,98 @@ HTML.
 
 `familyStatus` is optional. Use it only to summarize unmodeled relatives, and
 remove it when exact partner or child relationships are added to `tree.json`.
-`alternateNames` is optional. Use it for likely language-specific equivalents
-without replacing the documented name. Keep the tentative
-`likely-arabic-equivalent` type until a historical record confirms actual use.
+`alternateNames` is optional. Every entry requires a non-empty `name`,
+BCP 47 `language`, supported `type`, and descriptive `evidence`.
+`transliteration` is optional and must be non-empty when present.
+
+Supported alternate-name types are:
+
+- `documented-spelling-variant`
+- `married-name`
+- `nickname`
+- `original-script`
+- `phonetic-administrative-spelling`
+- `translated-name-equivalent`
+- `likely-equivalent-in-native-language`
+
+Use `maidenName` rather than an alternate-name entry for a confirmed maiden
+name.
+
+Use each type according to this table:
+
+| Type | Use when |
+| --- | --- |
+| `documented-spelling-variant` | A source actually records a different spelling of the person's name. |
+| `married-name` | The person is documented as using this name after marriage. |
+| `nickname` | A source or informed family member confirms this familiar name. |
+| `original-script` | Evidence confirms the person's name in its original writing system. |
+| `phonetic-administrative-spelling` | A government, immigration, religious, or other institutional record wrote the name phonetically. |
+| `translated-name-equivalent` | This is a recognized equivalent in another language, but there is no claim that the person used it. |
+| `likely-equivalent-in-native-language` | Linguistic, historical, and cultural evidence suggests this unconfirmed reconstruction of the person's native-language name. |
+
+`translated-name-equivalent` and
+`likely-equivalent-in-native-language` are research context, not documented
+aliases. They must never replace the display name and their `evidence` must
+explain that the person is not known to have used the proposed name.
+`original-script` requires evidence of actual use and must not be used merely
+because a script conversion is plausible.
+
 `remarks` is optional and may be a non-empty string or `null`. Reserve it for
 concise facts and biographical details about the person; store narrative
-accounts in `stories`. `researchNotes` follows the same optional format and stores
-source provenance, documentary citations, uncertainty, evidence conflicts,
-reasoning, portrait provenance, and curation guidance. It is source-only and
-must never be added to cards or tree views.
+accounts in `stories`. `researchNotes` follows the same optional format and
+stores source provenance, documentary citations, uncertainty, evidence
+conflicts, reasoning, portrait provenance, and curation guidance. It is
+source-only and must never be added to cards or tree views.
+
 `stories` is optional. Use the separate `add-family-story` skill to preserve an
-approved text or audio story, create its localized Markdown content, and add metadata.
-Stories render only in printable reports.
+approved text or audio story, create its localized Markdown content, and add
+metadata. Stories render only in printable reports.
+
+## Other life details
+
+Store stable facts only in fields supported by the current person schema.
+Birth and death places, dates, occupation, life status, names, and family
+status have dedicated fields.
+
+For burial, cemetery, migration, naturalization, last-known location,
+languages, education, military service, religion, institutional affiliation,
+or another unsupported detail:
+
+1. Confirm that the detail is appropriate to retain, especially for a living
+   person.
+2. Preserve its source and uncertainty.
+3. Use `remarks` only for concise biographical context suitable for family
+   reports.
+4. Use `researchNotes` for provenance, evidence analysis, hypotheses, or
+   details that should not render.
+5. Use a Story for a substantial attributed narrative.
+6. Do not invent a new schema field solely to retain extracted information.
+
+Ask before omitting a relevant detail that has no supported destination.
+Never move private addresses, identity numbers, or unrelated sensitive
+information into `remarks` or `researchNotes`.
+
+## Group photographs
+
+When extracting portraits from a group photograph:
+
+1. Preserve the supplied group original unchanged and outside Git unless the
+   user separately approves it as a supplemental repository image.
+2. Ask the user to identify people and describe their order or position. Do
+   not infer identities from facial resemblance.
+3. Report the group image's pixel dimensions and file size.
+4. Check each identified person's existing portraits. Skip a person with a
+   preferred portrait unless the user requests a new candidate.
+5. Create separate review crops using the normal 400 x 708 pixel portrait
+   guidance and next available `photo-N.jpg` names.
+6. Report each source crop and final image's dimensions and file size.
+7. Provide clickable links to the group source and every candidate crop.
+8. Wait for the user to confirm both identity and crop before updating person
+   records or generated outputs.
+
+If an identification is later corrected, remove the incorrect association
+without deleting the preserved source or concealing the correction. Never
+perform or claim facial-recognition identification.
 
 ## Privacy
 
@@ -148,11 +245,15 @@ also repository-visible and must not contain private information.
 
 ## Validation
 
-Run all four commands:
+Generate and check canonical English plus every active locale through the
+standard locale runner:
 
 ```powershell
 npm run generate
-npm run generate:es-MX
 npm run check
-npm run check:es-MX
+npm run check:translations
 ```
+
+Run `npm run render` and inspect every active locale when a person, photo,
+localized value, or relationship changes visual output. Confirm every
+generated and rendered file exists before providing a clickable link.
