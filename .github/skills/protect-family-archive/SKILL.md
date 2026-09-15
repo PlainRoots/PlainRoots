@@ -146,6 +146,8 @@ current working copy and hand the task to the relevant repository skill:
 - `manage-family-relationships` for family links and guardianships.
 - `add-family-story` for approved text or audio stories.
 - `verify-genealogy-data` for evidence, conflicts, and location validation.
+- `plan-genealogy-research` for read-only audits, source inventories, and
+  prioritized next steps.
 - `prepare-family-tree-pr` before commit, push, or pull request.
 
 Passing this check does not approve the contents of a source or authorize a
