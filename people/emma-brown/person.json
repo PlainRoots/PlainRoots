@@ -3,6 +3,7 @@
   "name": "Emma Brown",
   "givenNames": "Emma",
   "surnames": "Brown",
+  "sex": "female",
   "maidenName": null,
   "initials": "EB",
   "occupation": "Software engineer",

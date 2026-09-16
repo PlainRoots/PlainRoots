@@ -3,6 +3,7 @@
   "name": "Robert Smith",
   "givenNames": "Robert",
   "surnames": "Smith",
+  "sex": "male",
   "maidenName": null,
   "initials": "RS",
   "occupation": "Mechanical engineer",

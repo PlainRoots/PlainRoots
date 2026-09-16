@@ -1,4 +1,6 @@
 node_modules/
+/family-tree.ged
+/.plainroots-import/
 *.png
 print-report*.html
 *.print-report*.html

@@ -50,9 +50,19 @@ TIFF is not a native Copilot CLI attachment format. For TIFF input:
 6. Ask before deleting the temporary conversion after the task.
 
 Do not claim support for a genealogy exchange format merely because its text
-can be inspected. Unless the repository contains a tested importer for that
-format, analyze it as source evidence and convert only reviewed facts into the
-PlainRoots model.
+can be inspected. PlainRoots has a tested review-only importer for GEDCOM 5.5,
+5.5.1, and 5.5.5:
+
+```powershell
+npm run import:gedcom -- --input path\family.ged
+```
+
+It creates an ignored `.plainroots-import/` staging package and never applies
+records. ANSEL input is rejected until it is safely converted to UTF-8.
+Treat every staged proposal as source evidence requiring the matching,
+conflict, provenance, and approval steps in this skill. For other exchange
+formats, analyze them as source evidence unless the repository gains a tested
+importer.
 
 Do not upload source files or extracted contents to unrelated services. Keep
 sensitive sources outside Git unless the user separately approves adding the

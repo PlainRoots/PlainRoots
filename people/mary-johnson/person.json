@@ -3,6 +3,7 @@
   "name": "Mary Johnson",
   "givenNames": "Mary",
   "surnames": "Johnson",
+  "sex": "female",
   "maidenName": null,
   "initials": "MJ",
   "occupation": "Homemaker",
