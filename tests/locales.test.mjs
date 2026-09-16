@@ -8,6 +8,7 @@ import {
   loadLocale,
   loadSupportedLocaleIds
 } from "../scripts/locales.mjs";
+import { ALTERNATE_NAME_TYPES } from "../scripts/alternate-names.mjs";
 import { loadLocalizedPeople } from "../scripts/narrative-translations.mjs";
 
 test("always includes English before configured additional locales", async (context) => {
@@ -54,6 +55,18 @@ test("requires active locale resources to match English keys", async (context) =
   await assert.rejects(
     loadSupportedLocaleIds(projectRoot),
     /missing required "strings.greeting" translation/
+  );
+});
+
+test("requires a label for every alternate-name type", async (context) => {
+  const projectRoot = await createProject(context, ["es-MX"]);
+  const incompleteLabels = alternateNameTypeLabels();
+  delete incompleteLabels["likely-original-spelling"];
+  await writeLocale(projectRoot, "es-MX", {}, incompleteLabels);
+
+  await assert.rejects(
+    loadSupportedLocaleIds(projectRoot),
+    /missing required "alternateNameTypes\.likely-original-spelling" translation/
   );
 });
 
@@ -160,11 +173,17 @@ async function createProject(context, additionalLocales) {
   return projectRoot;
 }
 
-async function writeLocale(projectRoot, localeId, strings = {}) {
+async function writeLocale(
+  projectRoot,
+  localeId,
+  strings = {},
+  alternateNameTypes = alternateNameTypeLabels()
+) {
   await writeJson(path.join(projectRoot, "locales", `${localeId}.json`), {
     id: localeId,
     languageTag: localeId,
     strings,
+    alternateNameTypes,
     familyRelationships: {},
     familyChildren: {},
     researchNoteStatuses: {},
@@ -172,6 +191,12 @@ async function writeLocale(projectRoot, localeId, strings = {}) {
     birthPlaces: {},
     deathPlaces: {}
   });
+}
+
+function alternateNameTypeLabels() {
+  return Object.fromEntries(
+    ALTERNATE_NAME_TYPES.map((type) => [type, `Label for ${type}`])
+  );
 }
 
 async function writeJson(filePath, value) {

@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { validatePerson } from "../templates/person-card-html.mjs";
+import {
+  renderPersonCard,
+  validatePerson
+} from "../templates/person-card-html.mjs";
+import { ALTERNATE_NAME_TYPES } from "../scripts/alternate-names.mjs";
 
 test("accepts language-neutral alternate name types", () => {
   assert.doesNotThrow(() =>
@@ -17,7 +22,7 @@ test("accepts language-neutral alternate name types", () => {
             name: "別名",
             language: "ja",
             transliteration: "Betsumei",
-            type: "original-script",
+            type: "confirmed-original-spelling",
             evidence: "Recorded in a contemporary document."
           },
           {
@@ -29,7 +34,7 @@ test("accepts language-neutral alternate name types", () => {
           {
             name: "Native-language candidate",
             language: "und",
-            type: "likely-equivalent-in-native-language",
+            type: "likely-original-spelling",
             evidence: "An unconfirmed reconstruction supported by name research."
           }
         ]
@@ -39,11 +44,15 @@ test("accepts language-neutral alternate name types", () => {
   );
 });
 
-test("rejects removed ambiguous alternate name types", () => {
+test("rejects removed alternate name types", () => {
   for (const type of [
     "translated-equivalent",
     "linguistic-hypothesis",
-    "likely-arabic-equivalent"
+    "likely-arabic-equivalent",
+    "documented-spelling-variant",
+    "original-script",
+    "phonetic-administrative-spelling",
+    "likely-equivalent-in-native-language"
   ]) {
     assert.throws(
       () =>
@@ -83,6 +92,30 @@ test("rejects unsupported alternate name types", () => {
       ),
     /supported type/
   );
+});
+
+test("renders the localized label for every alternate name type", async () => {
+  const locale = JSON.parse(
+    await readFile(new URL("../locales/en-US.json", import.meta.url), "utf8")
+  );
+  const person = createPerson({
+    alternateNames: ALTERNATE_NAME_TYPES.map((type) => ({
+      name: `Example ${type}`,
+      language: "en",
+      type,
+      evidence: "Test evidence."
+    }))
+  });
+
+  const html = renderPersonCard(person, { locale });
+
+  for (const type of ALTERNATE_NAME_TYPES) {
+    assert.match(
+      html,
+      new RegExp(`<dt>${locale.alternateNameTypes[type]}</dt>`)
+    );
+  }
+  assert.doesNotMatch(html, /<dt>Alternate name<\/dt>/);
 });
 
 function createPerson(overrides = {}) {

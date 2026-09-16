@@ -1,9 +1,11 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { ALTERNATE_NAME_TYPES } from "./alternate-names.mjs";
 
 export const CANONICAL_LOCALE_ID = "en-US";
 const TRANSLATION_SECTIONS = [
   "strings",
+  "alternateNameTypes",
   "familyRelationships",
   "familyChildren",
   "researchNoteStatuses",
@@ -118,7 +120,30 @@ async function loadLocaleData(projectRoot, localeId) {
       }
     }
   }
+  validateAlternateNameTypeLabels(locale, source);
   return locale;
+}
+
+function validateAlternateNameTypeLabels(locale, source) {
+  const labels = locale.alternateNameTypes;
+  const labelKeys = new Set(Object.keys(labels));
+  const missingType = ALTERNATE_NAME_TYPES.find(
+    (type) => !labelKeys.has(type)
+  );
+  if (missingType) {
+    throw new Error(
+      `${source}: missing required "alternateNameTypes.${missingType}" translation`
+    );
+  }
+  const supportedTypes = new Set(ALTERNATE_NAME_TYPES);
+  const unsupportedType = [...labelKeys].find(
+    (type) => !supportedTypes.has(type)
+  );
+  if (unsupportedType) {
+    throw new Error(
+      `${source}: unsupported "alternateNameTypes.${unsupportedType}" translation`
+    );
+  }
 }
 
 function validateLocaleParity(locale, canonicalLocale) {

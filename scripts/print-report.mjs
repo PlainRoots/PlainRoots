@@ -18,6 +18,7 @@ import {
 import { resolvePersonPhoto } from "./person-photo.mjs";
 import { resolvePersonStories } from "./person-stories.mjs";
 import { renderPrintStories } from "../templates/print-stories-html.mjs";
+import { alternateNameTypeLabel } from "./alternate-names.mjs";
 import {
   CANONICAL_LOCALE_ID,
   loadLocale,
@@ -318,7 +319,7 @@ function renderPersonRecord(
       : "",
     ...(person.alternateNames ?? []).map((alternateName) =>
       renderFact(
-        strings.alternateName,
+        alternateNameTypeLabel(localeData, alternateName.type),
         alternateName.transliteration
           ? `${alternateName.name} (${alternateName.transliteration}; ${alternateName.language})`
           : `${alternateName.name} (${alternateName.language})`,

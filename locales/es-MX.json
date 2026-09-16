@@ -54,7 +54,6 @@
     "occupation": "Ocupación",
     "born": "Nacimiento",
     "birthplace": "Lugar de nacimiento",
-    "alternateName": "Nombre alternativo",
     "died": "Fallecimiento",
     "deathplace": "Lugar de fallecimiento",
     "lifeEventFormat": "{date} en {place}",
@@ -99,6 +98,14 @@
     "printStoryAudio": "Audio de la historia",
     "printStoryText": "Texto de la historia",
     "printFileUnavailable": "Archivo no disponible:"
+  },
+  "alternateNameTypes": {
+    "documented-variant": "Variante documentada del nombre",
+    "married-name": "Nombre después del matrimonio",
+    "nickname": "Apodo",
+    "confirmed-original-spelling": "Ortografía original confirmada",
+    "likely-original-spelling": "Ortografía original probable",
+    "translated-name-equivalent": "Traducción equivalente del nombre"
   },
   "familyRelationships": {
     "married": "Casado/a",

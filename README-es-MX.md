@@ -111,13 +111,12 @@ Usa:
 
 | Tipo | Significado |
 | --- | --- |
-| `documented-spelling-variant` | Una ortografía diferente que aparece realmente en una fuente |
+| `documented-variant` | Una forma u ortografía diferente que aparece realmente en una fuente, incluida una ortografía fonética institucional |
 | `married-name` | Un nombre documentado que la persona usó después del matrimonio |
 | `nickname` | Un apodo confirmado |
-| `original-script` | El nombre en su sistema de escritura original confirmado |
-| `phonetic-administrative-spelling` | Una ortografía fonética registrada por una institución |
+| `confirmed-original-spelling` | La ortografía confirmada en el idioma o sistema de escritura original |
+| `likely-original-spelling` | Una reconstrucción no confirmada en el idioma original, respaldada por investigación lingüística e histórica |
 | `translated-name-equivalent` | Un equivalente reconocido en otro idioma, sin afirmar que la persona lo usó |
-| `likely-equivalent-in-native-language` | Una reconstrucción no confirmada en el idioma nativo, respaldada por investigación lingüística e histórica |
 
 Usa `maidenName` para un apellido de soltera confirmado. Los nombres
 equivalentes o reconstruidos nunca deben reemplazar el nombre para mostrar de

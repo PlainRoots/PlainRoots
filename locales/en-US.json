@@ -54,7 +54,6 @@
     "occupation": "Occupation",
     "born": "Birth",
     "birthplace": "Birthplace",
-    "alternateName": "Alternate name",
     "died": "Death",
     "deathplace": "Place of death",
     "lifeEventFormat": "{date} in {place}",
@@ -99,6 +98,14 @@
     "printStoryAudio": "Story audio",
     "printStoryText": "Story text",
     "printFileUnavailable": "File unavailable:"
+  },
+  "alternateNameTypes": {
+    "documented-variant": "Documented name variant",
+    "married-name": "Married name",
+    "nickname": "Nickname",
+    "confirmed-original-spelling": "Confirmed original spelling",
+    "likely-original-spelling": "Likely original spelling",
+    "translated-name-equivalent": "Translated name equivalent"
   },
   "familyRelationships": {
     "married": "Married",

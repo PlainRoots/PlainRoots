@@ -104,13 +104,12 @@ language tag, type, and evidence; transliteration is optional. Use:
 
 | Type | Meaning |
 | --- | --- |
-| `documented-spelling-variant` | A different spelling actually found in a source |
+| `documented-variant` | A different form or spelling actually found in a source, including an institutional phonetic spelling |
 | `married-name` | A documented name used after marriage |
 | `nickname` | A confirmed familiar name |
-| `original-script` | A name in its confirmed original writing system |
-| `phonetic-administrative-spelling` | A phonetic spelling recorded by an institution |
+| `confirmed-original-spelling` | The confirmed spelling in the original language or writing system |
+| `likely-original-spelling` | An unconfirmed original-language reconstruction supported by linguistic and historical research |
 | `translated-name-equivalent` | A recognized equivalent in another language, without claiming the person used it |
-| `likely-equivalent-in-native-language` | An unconfirmed native-language reconstruction supported by linguistic and historical research |
 
 Use `maidenName` for a confirmed maiden name. Equivalent or reconstructed names
 must never replace the person's display name, and their evidence must explain

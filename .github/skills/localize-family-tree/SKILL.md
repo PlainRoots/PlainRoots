@@ -87,13 +87,13 @@ or person translation files merely because they use an active locale.
 
 Follow the alternate-name types defined in `add-family-member`:
 
-- `original-script` requires evidence of actual use.
+- `confirmed-original-spelling` requires evidence of actual use.
 - `translated-name-equivalent` records a recognized equivalent in another
   language without claiming that the person used it.
-- `likely-equivalent-in-native-language` is an unconfirmed reconstruction
+- `likely-original-spelling` is an unconfirmed reconstruction
   supported by linguistic, historical, and cultural research.
-- `phonetic-administrative-spelling` records how an institution actually wrote
-  the name phonetically.
+- `documented-variant` includes phonetic institutional spellings; a documented
+  spelling does not by itself prove that the person's legal name changed.
 
 Do not create an alternate name merely to localize a report. Similar meaning,
 pronunciation, transliteration, or cultural usage does not prove identity or

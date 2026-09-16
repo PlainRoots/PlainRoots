@@ -1,3 +1,8 @@
+import {
+  alternateNameTypeLabel,
+  isAlternateNameType
+} from "../scripts/alternate-names.mjs";
+
 const REQUIRED_FIELDS = [
   "id",
   "name",
@@ -8,16 +13,6 @@ const REQUIRED_FIELDS = [
   "birthDate",
   "birthPlace"
 ];
-
-const ALTERNATE_NAME_TYPES = new Set([
-  "documented-spelling-variant",
-  "married-name",
-  "nickname",
-  "original-script",
-  "phonetic-administrative-spelling",
-  "translated-name-equivalent",
-  "likely-equivalent-in-native-language"
-]);
 
 export function validatePerson(person, source) {
   for (const field of REQUIRED_FIELDS) {
@@ -95,7 +90,7 @@ export function validatePerson(person, source) {
         (alternateName.transliteration !== undefined &&
           (typeof alternateName.transliteration !== "string" ||
             alternateName.transliteration.trim() === "")) ||
-        !ALTERNATE_NAME_TYPES.has(alternateName.type)
+        !isAlternateNameType(alternateName.type)
       ) {
         throw new Error(
           `${source}: each alternate name needs a name, language, supported type, optional non-empty transliteration, and descriptive evidence`
@@ -207,7 +202,8 @@ function renderAlternateNames(person, locale, indent) {
       const transliteration = alternateName.transliteration
         ? ` <span>(${escapeHtml(alternateName.transliteration)})</span>`
         : "";
-      return `${indent}<div class="alternate-name"><dt>${escapeHtml(locale.strings.alternateName)}</dt><dd><bdi lang="${escapeAttribute(alternateName.language)}" dir="auto">${escapeHtml(alternateName.name)}</bdi>${transliteration}</dd></div>`;
+      const label = alternateNameTypeLabel(locale, alternateName.type);
+      return `${indent}<div class="alternate-name"><dt>${escapeHtml(label)}</dt><dd><bdi lang="${escapeAttribute(alternateName.language)}" dir="auto">${escapeHtml(alternateName.name)}</bdi>${transliteration}</dd></div>`;
     })
     .join("\n");
 }

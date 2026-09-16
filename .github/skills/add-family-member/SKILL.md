@@ -149,13 +149,12 @@ BCP 47 `language`, supported `type`, and descriptive `evidence`.
 
 Supported alternate-name types are:
 
-- `documented-spelling-variant`
+- `documented-variant`
 - `married-name`
 - `nickname`
-- `original-script`
-- `phonetic-administrative-spelling`
+- `confirmed-original-spelling`
+- `likely-original-spelling`
 - `translated-name-equivalent`
-- `likely-equivalent-in-native-language`
 
 Use `maidenName` rather than an alternate-name entry for a confirmed maiden
 name.
@@ -164,20 +163,19 @@ Use each type according to this table:
 
 | Type | Use when |
 | --- | --- |
-| `documented-spelling-variant` | A source actually records a different spelling of the person's name. |
+| `documented-variant` | A source actually records a different form or spelling of the person's name, including a phonetic institutional spelling. This does not by itself establish a legal name change. |
 | `married-name` | The person is documented as using this name after marriage. |
 | `nickname` | A source or informed family member confirms this familiar name. |
-| `original-script` | Evidence confirms the person's name in its original writing system. |
-| `phonetic-administrative-spelling` | A government, immigration, religious, or other institutional record wrote the name phonetically. |
+| `confirmed-original-spelling` | Evidence confirms the person's name as spelled in its original language or writing system. |
+| `likely-original-spelling` | Linguistic, historical, and cultural evidence suggests this unconfirmed reconstruction of the person's name in its original language or writing system. |
 | `translated-name-equivalent` | This is a recognized equivalent in another language, but there is no claim that the person used it. |
-| `likely-equivalent-in-native-language` | Linguistic, historical, and cultural evidence suggests this unconfirmed reconstruction of the person's native-language name. |
 
 `translated-name-equivalent` and
-`likely-equivalent-in-native-language` are research context, not documented
+`likely-original-spelling` are research context, not documented
 aliases. They must never replace the display name and their `evidence` must
 explain that the person is not known to have used the proposed name.
-`original-script` requires evidence of actual use and must not be used merely
-because a script conversion is plausible.
+`confirmed-original-spelling` requires evidence of actual use and must not be
+used merely because a script conversion is plausible.
 
 `remarks` is optional and may be a non-empty string or `null`. Reserve it for
 concise facts and biographical details about the person; store narrative

@@ -4,6 +4,14 @@
   "givenNames": "Miguel",
   "surnames": "Torres Rivera",
   "maidenName": null,
+  "alternateNames": [
+    {
+      "name": "Michael",
+      "language": "en",
+      "type": "translated-name-equivalent",
+      "evidence": "Michael is the English equivalent of Miguel; this fictional example does not claim that Miguel used it as a name."
+    }
+  ],
   "initials": "MTR",
   "occupation": "Student",
   "birthDate": "Unknown",
