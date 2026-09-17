@@ -92,6 +92,11 @@ when a death place is unknown, and add every known value to the `deathPlaces`
 dictionary in each locale. Tree cards combine each birth or death date with its
 place in a single localized life-event row.
 
+Every person record includes `sex`, using `"male"`, `"female"`, `"intersex"`,
+`"unknown"`, or `"not-recorded"`. This value exists for genealogical data
+exchange and maps directly to GEDCOM 5.5.5 `INDI.SEX`; family relationship
+labels must not be inferred from it.
+
 Set `lifeStatus` to `"living"`, `"deceased"`, or `"unknown"`. When adding or
 reviewing source data, presume anyone older than 110 is deceased unless a
 reliable source explicitly confirms that the person is living. For a year-only
@@ -145,6 +150,56 @@ than internal family IDs. A lone visible sibling group is flattened into its
 generation row. Person-focused PNG previews use
 `<person-id>.<view>.<locale>.png`, which prevents previews for different people
 from overwriting one another.
+
+## GEDCOM export
+
+Export the complete canonical tree as UTF-8 GEDCOM 5.5.5:
+
+```powershell
+npm run export:gedcom
+npm run export:gedcom -- --output exports\family-tree.ged
+```
+
+The default output is the ignored `family-tree.ged` file. Existing files are
+not replaced unless `--force` is supplied. The export includes full details for
+living people and prints a prominent sensitive-information notice before the
+file is shared.
+
+Individuals, names, sex, births, deaths, occupations, families, children,
+unknown-parent sibling groups, and raised-by guardianships are exported.
+Guardianships use a separate family link with `PEDI foster`, preserving them
+without changing biological parentage. Their starting age and evidence do not
+have direct GEDCOM 5.5.5 representations and are reported as omitted. Stories,
+research notes, photos, and non-nickname alternate names without independently
+structured name pieces are also reported as warnings and omitted from the
+first exporter version.
+
+GEDCOM 5.5.5 treats `FAM.HUSB` and `FAM.WIFE` as historical partner labels and
+normally permits at most one of each. For compatibility with applications that
+represent same-sex couples using repeated partner tags, PlainRoots deliberately
+exports two `HUSB` records for two male partners or two `WIFE` records for two
+female partners and reports that extension as a warning.
+
+See [GEDCOM export limitations](GEDCOM-EXPORT-LIMITATIONS.md) for the complete
+inventory of omitted, reduced, non-standard, and repository-only functionality.
+
+## GEDCOM import review
+
+Analyze a GEDCOM 5.5, 5.5.1, or 5.5.5 file without changing PlainRoots source
+records:
+
+```powershell
+npm run import:gedcom -- --input path\family.ged
+```
+
+The command creates an ignored `.plainroots-import/<file-name>/` review package
+containing proposed people and relationships, diagnostics, unresolved source
+records, and `IMPORT-REPORT.md`. It accepts UTF-8, UTF-16, and ASCII input;
+ANSEL is rejected rather than decoded incorrectly. There is no automatic apply
+or merge mode.
+
+See [Importing GEDCOM for review](GEDCOM-IMPORT.md) for mappings, safeguards,
+known loss, and the approval workflow.
 
 ## Contribution model
 

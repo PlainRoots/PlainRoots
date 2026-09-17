@@ -8,6 +8,7 @@ const REQUIRED_FIELDS = [
   "name",
   "givenNames",
   "surnames",
+  "sex",
   "initials",
   "occupation",
   "birthDate",
@@ -19,6 +20,15 @@ export function validatePerson(person, source) {
     if (typeof person[field] !== "string" || person[field].trim() === "") {
       throw new Error(`${source}: "${field}" must be a non-empty string`);
     }
+  }
+  if (
+    !["male", "female", "intersex", "unknown", "not-recorded"].includes(
+      person.sex
+    )
+  ) {
+    throw new Error(
+      `${source}: "sex" must be "male", "female", "intersex", "unknown", or "not-recorded"`
+    );
   }
 
   if (person.photo !== null && typeof person.photo !== "string") {

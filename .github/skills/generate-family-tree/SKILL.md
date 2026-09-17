@@ -22,6 +22,8 @@ information as their source records even when Git ignores them.
 ```powershell
 npm start
 npm run generate
+npm run export:gedcom
+npm run import:gedcom -- --input path\family.ged
 npm run check
 npm run check:lfs
 npm run check:translations
@@ -122,6 +124,10 @@ node scripts/generate.mjs --check --view ancestry --person <person-id> --locale 
 - `index.highlight-missing*.html`, `people/*/card.highlight-missing*.html`,
   and `family-tree.highlight-missing*.png`: ignored research-gap previews.
 - `print-report*.html`: ignored image-free printable full-tree reports.
+- `family-tree.ged`: ignored UTF-8 GEDCOM 5.5.5 export containing everyone in
+  the tree, including full details for living people.
+- `.plainroots-import/<source>/`: ignored review-only GEDCOM import package;
+  it never modifies the family archive.
 - `<person-id>.print-report.<view-id>.<locale>.html`: ignored image-free
   printable reports for person-focused views.
 - `index.ancestry.html`: local ancestry view with the selected person's

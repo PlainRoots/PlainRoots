@@ -6,6 +6,8 @@
     "start": "node scripts/view.mjs",
     "view": "node scripts/view.mjs",
     "view:ascii": "node scripts/cli-view.mjs",
+    "export:gedcom": "node scripts/export-gedcom.mjs",
+    "import:gedcom": "node scripts/import-gedcom.mjs",
     "report": "node scripts/run-for-locales.mjs print-report.mjs --view full",
     "report:en-US": "node scripts/print-report.mjs --view full --locale en-US",
     "report:es-MX": "node scripts/print-report.mjs --view full --locale es-MX",

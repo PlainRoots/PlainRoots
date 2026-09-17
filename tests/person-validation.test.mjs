@@ -94,6 +94,13 @@ test("rejects unsupported alternate name types", () => {
   );
 });
 
+test("rejects unsupported sex values", () => {
+  assert.throws(
+    () => validatePerson(createPerson({ sex: "unspecified" }), "person.json"),
+    /"sex" must be/
+  );
+});
+
 test("renders the localized label for every alternate name type", async () => {
   const locale = JSON.parse(
     await readFile(new URL("../locales/en-US.json", import.meta.url), "utf8")
@@ -124,6 +131,7 @@ function createPerson(overrides = {}) {
     name: "Example Person",
     givenNames: "Example",
     surnames: "Person",
+    sex: "unknown",
     maidenName: null,
     initials: "EP",
     occupation: "Unknown",

@@ -29,13 +29,15 @@ media.
 
 1. Read `README.md`, `tree.json`, and one comparable existing person record.
 2. Ask for missing facts rather than inventing genealogical data.
-3. Create a permanent lowercase ASCII ID with hyphens, such as
+3. Record `sex` only when supplied or supported by approved evidence; otherwise
+   use `unknown`.
+4. Create a permanent lowercase ASCII ID with hyphens, such as
    `maria-garcia-lopez`.
-4. Create or update `people/<person-id>/person.json`.
-5. Preserve the person's preferred spelling and UTF-8 diacritics in names.
-6. Store complete dates as ISO `YYYY-MM-DD`; use `YYYY` when only the year is
+5. Create or update `people/<person-id>/person.json`.
+6. Preserve the person's preferred spelling and UTF-8 diacritics in names.
+7. Store complete dates as ISO `YYYY-MM-DD`; use `YYYY` when only the year is
    known.
-7. Use:
+8. Use:
    - `"Unknown"` for unknown occupation, birth date, birthplace, or death place.
    - `null` for an unavailable death date or photo.
    - `"unknown"` for an unconfirmed life status.
@@ -48,7 +50,7 @@ media.
      person. Store narrative accounts separately in `stories`.
    - Optional `researchNotes` for provenance, evidence analysis, uncertainty,
      and curation guidance that must not render.
-8. Put an approved photo in the person's folder and store only its file name.
+9. Put an approved photo in the person's folder and store only its file name.
    Never overwrite or delete an existing portrait. Preserve the original and
    add each replacement using the next numbered name (`photo-2.jpg`,
    `photo-3.jpg`, and so on); generated cards automatically select the highest
@@ -82,9 +84,9 @@ media.
    or 30s." After every photo-ingestion operation, provide clickable local
    `file:///` links to each ingested repository image so the user can review
    the exact results.
-9. Add new occupation, birthplace, or death-place values to every file under
+10. Add new occupation, birthplace, or death-place values to every file under
    `locales/`.
-10. Add the person to `tree.json` only when they belong in the published tree.
+11. Add the person to `tree.json` only when they belong in the published tree.
     Use `manage-family-relationships` before adding or changing family links.
 
 ## Person schema
@@ -95,6 +97,7 @@ media.
   "name": "Complete searchable name",
   "givenNames": "Given names",
   "surnames": "Surname or surnames",
+  "sex": "unknown",
   "maidenName": null,
   "alternateNames": [
     {
@@ -143,6 +146,9 @@ media.
 
 `familyStatus` is optional. Use it only to summarize unmodeled relatives, and
 remove it when exact partner or child relationships are added to `tree.json`.
+`sex` is required and accepts `male`, `female`, `intersex`, `unknown`, or
+`not-recorded`. Preserve the supplied value and do not infer it from a person's
+name, pronouns, partner, or family role.
 `alternateNames` is optional. Every entry requires a non-empty `name`,
 BCP 47 `language`, supported `type`, and descriptive `evidence`.
 `transliteration` is optional and must be non-empty when present.
