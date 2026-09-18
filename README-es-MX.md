@@ -18,6 +18,15 @@ diferencias significativas y pull requests fáciles de revisar.
 > referencia y no contiene datos ni fotografías del árbol familiar privado que
 > lo inspiró.
 
+> **Aviso:** PlainRoots es una prueba de concepto de una solución de genealogía
+> nativa de Git e IA, concebida para fines educativos y experimentales. Úsala
+> bajo tu propio riesgo. Quien utilice este software con datos reales es
+> responsable de los controles de acceso, consentimientos, respaldos,
+> cumplimiento de las leyes aplicables y cualquier consecuencia resultante. El
+> software se proporciona "tal cual," sin garantía alguna. Consulta la
+> [Licencia MIT](LICENSE) para conocer los términos aplicables, incluidas las
+> limitaciones de responsabilidad.
+
 ## Por qué PlainRoots
 
 - Conserva la historia familiar en archivos de texto UTF-8 independientes de

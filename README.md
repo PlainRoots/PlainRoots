@@ -16,6 +16,14 @@ requests.
 > fictional. The repository is a public reference implementation and contains
 > no data or photographs from the private family tree that inspired it.
 
+> **Disclaimer:** PlainRoots is a proof of concept for a Git- and AI-native
+> genealogy solution, intended for educational and experimental use. Use it at
+> your own risk. Anyone using this software with real data is responsible for
+> access controls, consent, backups, compliance with applicable laws, and any
+> resulting consequences. The software is provided "as is," without warranty.
+> See the [MIT License](LICENSE) for the applicable terms, including limitations
+> of liability.
+
 ## Why PlainRoots
 
 - Preserve family history in UTF-8 text files that do not depend on a
