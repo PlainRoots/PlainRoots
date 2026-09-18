@@ -14,7 +14,7 @@ requests.
 
 > Every person, date, relationship, story, and source in this repository is
 > fictional. The repository is a public reference implementation and contains
-> no data or photographs from the private family tree that inspired it.
+> no real data or photographs.
 
 > **Disclaimer:** PlainRoots is a proof of concept for a Git- and AI-native
 > genealogy solution, intended for educational and experimental use. Use it at

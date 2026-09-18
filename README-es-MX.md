@@ -15,8 +15,7 @@ diferencias significativas y pull requests fáciles de revisar.
 
 > Todas las personas, fechas, relaciones, historias y fuentes de este
 > repositorio son ficticias. El repositorio es una implementación pública de
-> referencia y no contiene datos ni fotografías del árbol familiar privado que
-> lo inspiró.
+> referencia y no contiene información o fotografías reales.
 
 > **Aviso:** PlainRoots es una prueba de concepto de una solución de genealogía
 > nativa de Git e IA, concebida para fines educativos y experimentales. Úsala
