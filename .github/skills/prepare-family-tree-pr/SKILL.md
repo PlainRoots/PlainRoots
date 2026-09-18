@@ -71,7 +71,7 @@ private archive changes before preparing either contribution.
   alternate-name semantics defined by `add-family-member`.
 - Confirm dates use the precision and representation supported by the schema.
 - Confirm people older than 110 default to `deceased` unless explicitly
-  confirmed living, applying the year-only rule conservatively.
+  confirmed living, applying month- and year-only precision conservatively.
 - Confirm provenance is specific enough to understand and relocate the source
   but does not copy sensitive documents or unnecessary personal information
   into the repository.

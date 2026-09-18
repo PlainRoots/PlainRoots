@@ -106,23 +106,29 @@ Records do not need to appear before records that point to them.
 | `DIV` | `relationship: divorced` |
 | Child-only `FAM` with at least two children | `siblingGroups` proposal |
 | `FAMC` with `PEDI foster` | Guardianship candidate requiring review |
+| `FAMC.PEDI` or Ancestry `FAM.CHIL._FREL/_MREL` with a non-birth value | Pedigree candidate requiring review |
 
 Repeated `HUSB` or `WIFE` records are accepted. Partner sex is taken only from
 `INDI.SEX`; the importer does not infer sex from family tags.
 
 ## Dates
 
-PlainRoots currently stores complete dates as `YYYY-MM-DD` and year-only dates
-as `YYYY`. The importer converts:
+PlainRoots stores day-precision dates as `YYYY-MM-DD`, month-precision dates as
+`YYYY-MM`, and year-only dates as `YYYY`. The importer converts:
 
 - `11 MAY 1968` to `1968-05-11`
+- `7 February 1916` to `1916-02-07`
+- `November 1864` to `1864-11`
 - `1968` to `1968`
 - `ABT 1968` to `1968` with `birthDateEstimated: true`
 
 `EST` and `CAL` are also reduced to `birthDateEstimated: true` and reported as
-lossy. Month-and-year dates, ranges, periods, before/after dates, interpreted
-dates, date phrases, and non-Gregorian dates remain unresolved instead of
-being guessed.
+lossy. Ranges, periods, before/after dates, interpreted dates, date phrases,
+and non-Gregorian dates remain unresolved instead of being guessed.
+
+When repeated birth or death records contain conflicting dates, the importer
+retains the source records but does not propose a date. Compatible entries with
+different precision are reduced to their shared year or month.
 
 PlainRoots does not currently have `deathDateEstimated`, so an approximate
 death date is staged with a warning.
@@ -156,6 +162,9 @@ are resolved.
 - `PEDI foster` produces a guardianship candidate rather than an automatic
   relationship. GEDCOM does not provide PlainRoots' required starting age or
   evidence classification.
+- Standard `FAMC.PEDI` and Ancestry family-level `_FREL` and `_MREL` values are
+  reviewed as pedigree evidence. Matching `_FREL` and `_MREL` values apply to
+  both named parents; differing values remain parent-specific.
 - Adoptive and other non-birth pedigree values are written to
   `pedigree-candidates.json` and are not converted into biological parentage.
 

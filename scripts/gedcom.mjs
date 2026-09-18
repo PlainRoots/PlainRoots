@@ -1,3 +1,5 @@
+import { parsePlainRootsDate } from "./date-values.mjs";
+
 const GEDCOM_VERSION = "5.5.5";
 const MONTHS = [
   "JAN",
@@ -81,28 +83,19 @@ export function formatGedcomDate(value, estimated = false) {
   if (value === null || value === undefined || value === "Unknown") {
     return null;
   }
-  if (/^\d{4}$/.test(value)) {
-    return estimated ? `ABT ${value}` : value;
-  }
-
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) {
-    throw new Error(`Unsupported PlainRoots date "${value}"`);
-  }
-  const [, yearText, monthText, dayText] = match;
-  const year = Number(yearText);
-  const month = Number(monthText);
-  const day = Number(dayText);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  if (
-    date.getUTCFullYear() !== year ||
-    date.getUTCMonth() !== month - 1 ||
-    date.getUTCDate() !== day
-  ) {
+  const parsed = parsePlainRootsDate(value);
+  if (!parsed) {
     throw new Error(`Invalid PlainRoots date "${value}"`);
   }
+  if (parsed.precision === "year") {
+    return estimated ? `ABT ${value}` : value;
+  }
+  if (parsed.precision === "month") {
+    const result = `${MONTHS[parsed.month - 1]} ${parsed.year}`;
+    return estimated ? `ABT ${result}` : result;
+  }
 
-  const result = `${day} ${MONTHS[month - 1]} ${year}`;
+  const result = `${parsed.day} ${MONTHS[parsed.month - 1]} ${parsed.year}`;
   return estimated ? `ABT ${result}` : result;
 }
 

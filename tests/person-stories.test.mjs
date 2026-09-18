@@ -106,6 +106,24 @@ test("rejects invalid IDs and unsupported story fields", () => {
 });
 
 test("rejects invalid story dates and media", () => {
+  assert.doesNotThrow(() =>
+    validatePersonStories(
+      {
+        stories: [{ ...validTextStory, date: "2026-02" }]
+      },
+      "people/example/person.json"
+    )
+  );
+  assert.throws(
+    () =>
+      validatePersonStories(
+        {
+          stories: [{ ...validTextStory, date: "2026-13" }]
+        },
+        "people/example/person.json"
+      ),
+    /"date"/
+  );
   assert.throws(
     () =>
       validatePersonStories(

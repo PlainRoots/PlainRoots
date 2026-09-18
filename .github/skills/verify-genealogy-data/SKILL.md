@@ -74,10 +74,10 @@ When adding or reviewing source data, presume anyone older than 110 is deceased
 unless the user or a reliable source explicitly confirms that the person is
 living. Confirmed living status always overrides the age-based default. For a
 complete birth date, apply the default after the person's 111th birthday. For a
-year-only birth, apply it only when every possible birthday in that year would
-make the person older than 110. Preserve the unknown death date and explain the
-age-based presumption in `researchNotes`. Report generation must render the
-stored status without inferring or overriding it.
+month- or year-only birth, apply it only when every possible birthday in that
+period would make the person older than 110. Preserve the unknown death date
+and explain the age-based presumption in `researchNotes`. Report generation
+must render the stored status without inferring or overriding it.
 
 ## Source reliability
 

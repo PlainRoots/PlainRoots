@@ -35,17 +35,17 @@ media.
    `maria-garcia-lopez`.
 5. Create or update `people/<person-id>/person.json`.
 6. Preserve the person's preferred spelling and UTF-8 diacritics in names.
-7. Store complete dates as ISO `YYYY-MM-DD`; use `YYYY` when only the year is
-   known.
+7. Store dates as ISO `YYYY-MM-DD`, `YYYY-MM`, or `YYYY`, matching the
+   precision supported by the evidence.
 8. Use:
    - `"Unknown"` for unknown occupation, birth date, birthplace, or death place.
    - `null` for an unavailable death date or photo.
    - `"unknown"` for an unconfirmed life status.
    - `"deceased"` as the default for anyone older than 110 unless the user or a
      reliable source explicitly confirms that the person is living. A confirmed
-     `"living"` status always wins. For a year-only birth, apply the default
-     only when every possible birthday in that year makes the person older than
-     110.
+     `"living"` status always wins. For a month- or year-only birth, apply the
+     default only when every possible birthday in that period makes the person
+     older than 110.
    - Optional `remarks` for concise facts and biographical details about the
      person. Store narrative accounts separately in `stories`.
    - Optional `researchNotes` for provenance, evidence analysis, uncertainty,

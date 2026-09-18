@@ -97,6 +97,9 @@ valor conocido al diccionario `deathPlaces` de todos los recursos regionales.
 Las fichas combinan cada fecha de nacimiento o fallecimiento con su lugar en
 una sola fila localizada de evento de vida.
 
+Guarda las fechas de las personas como `YYYY-MM-DD`, `YYYY-MM` o `YYYY`,
+conservando la precisión respaldada por la evidencia.
+
 Cada registro de persona incluye `sex`, con uno de los valores `"male"`,
 `"female"`, `"intersex"`, `"unknown"` o `"not-recorded"`. Este valor existe
 para el intercambio de datos genealógicos y se asigna directamente a
@@ -106,10 +109,10 @@ deben inferirse a partir de este valor.
 Establece `lifeStatus` como `"living"`, `"deceased"` o `"unknown"`. Al agregar o
 revisar los datos fuente, presume que toda persona mayor de 110 años está
 fallecida, salvo que una fuente confiable confirme explícitamente que sigue
-viva. Para un año de nacimiento sin fecha completa, aplica este valor
-predeterminado solo cuando todas las fechas posibles de ese año hagan que la
-persona sea mayor de 110 años. Los reportes muestran el estado almacenado sin
-reemplazarlo.
+viva. Para un mes o año de nacimiento sin fecha completa, aplica este valor
+predeterminado solo cuando todas las fechas posibles de ese periodo hagan que
+la persona sea mayor de 110 años. Los reportes muestran el estado almacenado
+sin reemplazarlo.
 
 Los registros pueden incluir `alternateNames`. Cada entrada necesita nombre,
 etiqueta de idioma BCP 47, tipo y evidencia; la transliteración es opcional.
@@ -131,7 +134,8 @@ la persona, y su evidencia debe explicar la incertidumbre.
 Los registros también pueden incluir un arreglo `stories` para relatos escritos
 por esa persona. Cada entrada necesita un `id` ASCII estable en minúsculas y un
 objeto `original` con título, un archivo Markdown `content` no vacío y una
-etiqueta de idioma BCP 47. Una `date` opcional acepta `YYYY` o `YYYY-MM-DD`.
+etiqueta de idioma BCP 47. Una `date` opcional acepta `YYYY`, `YYYY-MM` o
+`YYYY-MM-DD`.
 El objeto `translations`, indexado por idioma, puede proporcionar títulos y
 contenido localizados. Los objetos opcionales `audio` e `images` adjuntan los
 medios originales; cada imagen requiere texto alternativo no vacío y puede

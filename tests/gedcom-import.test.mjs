@@ -7,6 +7,7 @@ import test from "node:test";
 import { promisify } from "node:util";
 import { serializeGedcom } from "../scripts/gedcom.mjs";
 import { convertGedcomToStaging } from "../scripts/gedcom/convert.mjs";
+import { convertGedcomDate } from "../scripts/gedcom/dates.mjs";
 import { parseGedcomBuffer } from "../scripts/gedcom/parser.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -70,6 +71,97 @@ test("rejects ANSEL and unsupported GEDCOM versions", () => {
   assert.throws(
     () => parseGedcomBuffer(Buffer.from(gedcom("7.0", []))),
     /Unsupported GEDCOM version/
+  );
+});
+
+test("imports unambiguous full English month names", () => {
+  assert.deepEqual(convertGedcomDate("27 October 2020"), {
+    value: "2020-10-27",
+    estimated: false,
+    loss: null
+  });
+  assert.deepEqual(convertGedcomDate("7 February 1916"), {
+    value: "1916-02-07",
+    estimated: false,
+    loss: null
+  });
+  assert.deepEqual(convertGedcomDate("November 1864"), {
+    value: "1864-11",
+    estimated: false,
+    loss: null
+  });
+  assert.equal(convertGedcomDate("31 February 1916").value, null);
+});
+
+test("does not choose between conflicting repeated event dates", () => {
+  const source = gedcom("5.5.1", [
+    "0 @I1@ INDI",
+    "1 NAME Example /Person/",
+    "2 GIVN Example",
+    "2 SURN Person",
+    "1 BIRT",
+    "2 DATE 20 Apr 1912",
+    "1 BIRT",
+    "2 DATE 20 February 1912"
+  ]);
+  const staging = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(source)),
+    "conflicting-dates.ged"
+  );
+
+  assert.equal(staging.people[0].proposedPerson.birthDate, "Unknown");
+  assert.ok(
+    staging.people[0].issues.some((issue) =>
+      issue.includes("conflicting GEDCOM dates")
+    )
+  );
+});
+
+test("uses shared lower precision for compatible repeated event dates", () => {
+  const source = gedcom("5.5.1", [
+    "0 @I1@ INDI",
+    "1 NAME Example /Person/",
+    "2 GIVN Example",
+    "2 SURN Person",
+    "1 BIRT",
+    "2 DATE 23 Feb 1843",
+    "1 BIRT",
+    "2 DATE 1843"
+  ]);
+  const staging = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(source)),
+    "compatible-dates.ged"
+  );
+
+  assert.equal(staging.people[0].proposedPerson.birthDate, "1843");
+  assert.ok(
+    staging.people[0].issues.some((issue) =>
+      issue.includes("were reduced to shared precision 1843")
+    )
+  );
+});
+
+test("uses shared month precision for compatible repeated event dates", () => {
+  const source = gedcom("5.5.1", [
+    "0 @I1@ INDI",
+    "1 NAME Example /Person/",
+    "2 GIVN Example",
+    "2 SURN Person",
+    "1 BIRT",
+    "2 DATE 23 Feb 1843",
+    "1 BIRT",
+    "2 DATE Feb 1843"
+  ]);
+  const staging = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(source)),
+    "compatible-month-dates.ged"
+  );
+
+  assert.equal(staging.people[0].proposedPerson.birthDate, "1843-02");
+  assert.ok(
+    staging.people[0].issues.some((issue) =>
+      issue.includes("were reduced to shared precision 1843-02")
+    )
   );
 });
 
@@ -236,6 +328,80 @@ test("keeps adopted children out of ordinary parentage proposals", () => {
   assert.equal(staging.proposedTree.families.length, 0);
   assert.equal(staging.pedigreeCandidates.length, 1);
   assert.equal(staging.pedigreeCandidates[0].pedigree, "adopted");
+});
+
+test("recognizes Ancestry family-level adoption markers", () => {
+  const source = gedcom("5.5.1", [
+    "0 @I1@ INDI",
+    "1 NAME Birth /Parent/",
+    "2 GIVN Birth",
+    "2 SURN Parent",
+    "0 @I2@ INDI",
+    "1 NAME Adoptive /Father/",
+    "2 GIVN Adoptive",
+    "2 SURN Father",
+    "0 @I3@ INDI",
+    "1 NAME Adoptive /Mother/",
+    "2 GIVN Adoptive",
+    "2 SURN Mother",
+    "0 @I4@ INDI",
+    "1 NAME Example /Child/",
+    "2 GIVN Example",
+    "2 SURN Child",
+    "1 FAMC @F1@",
+    "1 FAMC @F2@",
+    "0 @F1@ FAM",
+    "1 HUSB @I1@",
+    "1 CHIL @I4@",
+    "0 @F2@ FAM",
+    "1 HUSB @I2@",
+    "1 WIFE @I3@",
+    "1 CHIL @I4@",
+    "2 _FREL adopted",
+    "2 _MREL adopted",
+    "2 _CUSTOM preserved",
+    "1 MARR Y"
+  ]);
+  const staging = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(source)),
+    "ancestry-adoption.ged"
+  );
+
+  assert.deepEqual(
+    staging.proposedTree.families.find(
+      (family) => family.id === "birth-parent"
+    ).children,
+    ["example-child"]
+  );
+  assert.deepEqual(
+    staging.proposedTree.families.find(
+      (family) => family.id === "adoptive-father-adoptive-mother"
+    ).children,
+    []
+  );
+  assert.deepEqual(staging.pedigreeCandidates, [
+    {
+      sourceFamilyPointer: "@F2@",
+      child: "example-child",
+      parents: ["adoptive-father", "adoptive-mother"],
+      pedigree: "adopted",
+      reviewRequired: true
+    }
+  ]);
+  assert.ok(
+    staging.unresolved.some(
+      (item) =>
+        item.reason === "unsupported-family-child-detail" &&
+        item.record.tag === "_CUSTOM"
+    )
+  );
+  assert.equal(
+    staging.unresolved.some(
+      (item) =>
+        item.record.tag === "_FREL" || item.record.tag === "_MREL"
+    ),
+    false
+  );
 });
 
 test("round trips the exported core graph into staging", () => {

@@ -150,9 +150,10 @@ function convertIndividual(record, id, issues, unresolved) {
     personIssues.push(`Unsupported GEDCOM SEX value "${sexCode}"`);
   }
 
-  const birth = convertEvent(child(record, "BIRT"), "birth", personIssues);
-  const deathRecord = child(record, "DEAT");
-  const death = convertEvent(deathRecord, "death", personIssues);
+  const birthRecords = children(record, "BIRT");
+  const deathRecords = children(record, "DEAT");
+  const birth = convertEvent(birthRecords, "birth", personIssues);
+  const death = convertEvent(deathRecords, "death", personIssues);
   if (death.estimated) {
     personIssues.push(
       "death: an approximate date was reduced to its date value because PlainRoots has no deathDateEstimated field"
@@ -222,7 +223,7 @@ function convertIndividual(record, id, issues, unresolved) {
     ...(birth.estimated ? { birthDateEstimated: true } : {}),
     deathDate: death.date,
     ...(death.place ? { deathPlace: death.place } : {}),
-    lifeStatus: deathRecord ? "deceased" : "unknown",
+    lifeStatus: deathRecords.length > 0 ? "deceased" : "unknown",
     photo: null
   };
 
@@ -289,7 +290,7 @@ function convertFamily(record, context) {
     issues
   );
   const familyId = uniqueFamilyId(record, partners, familyChildren, families, siblingGroups);
-  const pedigreeLinks = findPedigreeLinks(record.xref, people);
+  const pedigreeLinks = findPedigreeLinks(record, people, idsByPointer);
   const fosterLinks = pedigreeLinks.filter((link) => link.type === "foster");
   const otherPedigreeLinks = pedigreeLinks.filter(
     (link) => link.type !== "foster" && link.type !== "birth"
@@ -309,13 +310,13 @@ function convertFamily(record, context) {
         id: `${link.child}-raised-by-${partners.join("-") || "unknown-guardians"}`,
         sourceFamilyPointer: record.xref,
         child: link.child,
-        guardians: partners,
+        guardians: link.parents ?? partners,
         relationship: "raised-by",
         startingAge: null,
         evidence: null,
         reviewRequired: true,
         issues: [
-          "GEDCOM PEDI foster does not establish the PlainRoots startingAge or evidence fields"
+          "GEDCOM foster pedigree does not establish the PlainRoots startingAge or evidence fields"
         ]
       });
     }
@@ -338,7 +339,7 @@ function convertFamily(record, context) {
     pedigreeCandidates.push({
       sourceFamilyPointer: record.xref,
       child: link.child,
-      parents: partners,
+      parents: link.parents ?? partners,
       pedigree: link.type,
       reviewRequired: true
     });
@@ -347,7 +348,7 @@ function convertFamily(record, context) {
       code: "non-birth-pedigree",
       record: record.xref,
       line: record.line,
-      message: `${link.child} has PEDI ${link.type}; the relationship was not proposed as ordinary parentage`
+      message: `${link.child} has pedigree ${link.type}; the relationship was not proposed as ordinary parentage`
     });
   }
 
@@ -458,19 +459,94 @@ function parseName(nameRecord) {
   return { displayName, givenNames, surnames };
 }
 
-function convertEvent(eventRecord, label, issues) {
-  if (!eventRecord) {
+function convertEvent(eventRecords, label, issues) {
+  if (eventRecords.length === 0) {
     return { date: null, place: null, estimated: false };
   }
-  const dateResult = convertGedcomDate(childValue(eventRecord, "DATE"));
-  if (dateResult.loss) {
-    issues.push(`${label}: ${dateResult.loss}`);
+
+  const dateEntries = eventRecords
+    .map((eventRecord) => {
+      const original = childValue(eventRecord, "DATE")?.trim() || null;
+      return original
+        ? { original, result: convertGedcomDate(original) }
+        : null;
+    })
+    .filter(Boolean);
+  for (const { result } of dateEntries) {
+    if (result.loss) {
+      issues.push(`${label}: ${result.loss}`);
+    }
   }
+
+  const dateResult = reconcileEventDates(dateEntries, label, issues);
   return {
     date: dateResult.value,
-    place: childValue(eventRecord, "PLAC")?.trim() || null,
+    place:
+      eventRecords
+        .map((eventRecord) => childValue(eventRecord, "PLAC")?.trim())
+        .find(Boolean) ?? null,
     estimated: dateResult.estimated
   };
+}
+
+function reconcileEventDates(dateEntries, label, issues) {
+  if (dateEntries.length === 0) {
+    return { value: null, estimated: false };
+  }
+
+  const uniqueOriginals = [
+    ...new Set(dateEntries.map(({ original }) => original.toUpperCase()))
+  ];
+  if (uniqueOriginals.length === 1) {
+    return dateEntries[0].result;
+  }
+  if (dateEntries.some(({ result }) => !result.value)) {
+    issues.push(conflictingDatesMessage(label, dateEntries));
+    return { value: null, estimated: false };
+  }
+
+  const uniqueValues = [
+    ...new Set(dateEntries.map(({ result }) => result.value))
+  ];
+  if (uniqueValues.length === 1) {
+    return {
+      value: uniqueValues[0],
+      estimated: dateEntries.some(({ result }) => result.estimated)
+    };
+  }
+
+  const sharedPrecision = sharedDatePrecision(uniqueValues);
+  if (sharedPrecision) {
+    issues.push(
+      `${label}: compatible GEDCOM dates (${dateEntries
+        .map(({ original }) => `"${original}"`)
+        .join(", ")}) were reduced to shared precision ${sharedPrecision}`
+    );
+    return {
+      value: sharedPrecision,
+      estimated: dateEntries.some(({ result }) => result.estimated)
+    };
+  }
+
+  issues.push(conflictingDatesMessage(label, dateEntries));
+  return { value: null, estimated: false };
+}
+
+function conflictingDatesMessage(label, dateEntries) {
+  return `${label}: conflicting GEDCOM dates (${dateEntries
+    .map(({ original }) => `"${original}"`)
+    .join(", ")}); no date was proposed`;
+}
+
+function sharedDatePrecision(values) {
+  const leastPrecise = [...values].sort(
+    (left, right) => left.length - right.length
+  )[0];
+  return values.every(
+    (value) => value === leastPrecise || value.startsWith(`${leastPrecise}-`)
+  )
+    ? leastPrecise
+    : null;
 }
 
 function inventoryIndividualDetails(record, unresolved) {
@@ -518,6 +594,15 @@ function inventoryIndividualDetails(record, unresolved) {
 }
 
 function inventoryFamilyDetails(record, unresolved) {
+  for (const childRecord of children(record, "CHIL")) {
+    inventoryUnsupportedChildren(
+      childRecord,
+      new Set(["_FREL", "_MREL"]),
+      "unsupported-family-child-detail",
+      record.xref,
+      unresolved
+    );
+  }
   for (const eventTag of ["MARR", "DIV"]) {
     for (const eventRecord of children(record, eventTag)) {
       inventoryUnsupportedChildren(
@@ -568,27 +653,96 @@ function resolvePointers(pointerValues, idsByPointer, record, role, issues) {
   return resolved;
 }
 
-function findPedigreeLinks(familyPointer, people) {
-  const matches = [];
+function findPedigreeLinks(familyRecord, people, idsByPointer) {
+  const matchesByChild = new Map();
   for (const person of people) {
     const links = person.sourceNode.children.filter(
       (candidate) =>
         candidate.tag === "FAMC" &&
-        candidate.rawValue === familyPointer
+        candidate.rawValue === familyRecord.xref
     );
     for (const link of links) {
-      const pedigree =
-        link.children
-          .find((detail) => detail.tag === "PEDI")
-          ?.value?.trim()
-          .toLowerCase() ?? "birth";
-      matches.push({
+      const pedigreeRecord = link.children.find(
+        (detail) => detail.tag === "PEDI"
+      );
+      matchesByChild.set(person.proposedPerson.id, {
         child: person.proposedPerson.id,
-        type: pedigree
+        type: normalizedPedigree(pedigreeRecord?.value) ?? "birth",
+        explicit: Boolean(pedigreeRecord)
       });
     }
   }
-  return matches;
+
+  const fatherIds = resolveKnownPointers(
+    children(familyRecord, "HUSB").map((record) => record.rawValue),
+    idsByPointer
+  );
+  const motherIds = resolveKnownPointers(
+    children(familyRecord, "WIFE").map((record) => record.rawValue),
+    idsByPointer
+  );
+  for (const childRecord of children(familyRecord, "CHIL")) {
+    const childId = idsByPointer.get(childRecord.rawValue);
+    if (!childId || matchesByChild.get(childId)?.explicit) {
+      continue;
+    }
+    const fatherPedigree = normalizedPedigree(
+      childValue(childRecord, "_FREL")
+    );
+    const motherPedigree = normalizedPedigree(
+      childValue(childRecord, "_MREL")
+    );
+    if (!fatherPedigree && !motherPedigree) {
+      continue;
+    }
+
+    if (
+      fatherPedigree &&
+      motherPedigree &&
+      fatherPedigree === motherPedigree
+    ) {
+      matchesByChild.set(childId, {
+        child: childId,
+        type: fatherPedigree,
+        parents: [...fatherIds, ...motherIds]
+      });
+      continue;
+    }
+
+    const parentSpecificLinks = [
+      ...pedigreeLinksForParents(childId, fatherPedigree, fatherIds),
+      ...pedigreeLinksForParents(childId, motherPedigree, motherIds)
+    ];
+    matchesByChild.delete(childId);
+    parentSpecificLinks.forEach((link, index) => {
+      matchesByChild.set(`${childId}:${index}`, link);
+    });
+  }
+
+  return [...matchesByChild.values()];
+}
+
+function pedigreeLinksForParents(childId, pedigree, parents) {
+  if (!pedigree) {
+    return [];
+  }
+  return [
+    {
+      child: childId,
+      type: pedigree,
+      parents
+    }
+  ];
+}
+
+function normalizedPedigree(value) {
+  return value?.trim().toLowerCase() || null;
+}
+
+function resolveKnownPointers(pointerValues, idsByPointer) {
+  return pointerValues
+    .map((pointer) => idsByPointer.get(pointer))
+    .filter((id, index, values) => id && values.indexOf(id) === index);
 }
 
 function uniqueFamilyId(record, partners, familyChildren, families, siblingGroups) {

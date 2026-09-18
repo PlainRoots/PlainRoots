@@ -92,11 +92,13 @@ test("exports living people, same-sex families, siblings, and guardianships", ()
 
 test("formats supported PlainRoots dates", () => {
   assert.equal(formatGedcomDate("1968-05-11"), "11 MAY 1968");
+  assert.equal(formatGedcomDate("1968-05"), "MAY 1968");
   assert.equal(formatGedcomDate("1968"), "1968");
   assert.equal(formatGedcomDate("1968", true), "ABT 1968");
   assert.equal(formatGedcomDate("Unknown"), null);
   assert.throws(() => formatGedcomDate("1968-02-31"), /Invalid/);
-  assert.throws(() => formatGedcomDate("May 1968"), /Unsupported/);
+  assert.throws(() => formatGedcomDate("1968-13"), /Invalid/);
+  assert.throws(() => formatGedcomDate("May 1968"), /Invalid/);
 });
 
 test("rejects GEDCOM lines that exceed the format limit", () => {

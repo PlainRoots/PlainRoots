@@ -2,6 +2,10 @@ import {
   alternateNameTypeLabel,
   isAlternateNameType
 } from "../scripts/alternate-names.mjs";
+import {
+  isValidPlainRootsDate,
+  parsePlainRootsDate
+} from "../scripts/date-values.mjs";
 
 const REQUIRED_FIELDS = [
   "id",
@@ -42,9 +46,19 @@ export function validatePerson(person, source) {
   }
   if (
     person.deathDate !== null &&
-    (typeof person.deathDate !== "string" || person.deathDate.trim() === "")
+    !isValidPlainRootsDate(person.deathDate)
   ) {
-    throw new Error(`${source}: "deathDate" must be a non-empty string or null`);
+    throw new Error(
+      `${source}: "deathDate" must be YYYY, YYYY-MM, YYYY-MM-DD, or null`
+    );
+  }
+  if (
+    person.birthDate !== "Unknown" &&
+    !isValidPlainRootsDate(person.birthDate)
+  ) {
+    throw new Error(
+      `${source}: "birthDate" must be YYYY, YYYY-MM, YYYY-MM-DD, or "Unknown"`
+    );
   }
   if (
     person.deathPlace !== undefined &&
@@ -286,8 +300,18 @@ function formatCardDate(value, languageTag, unknown) {
   if (!value || value === "Unknown") {
     return unknown;
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+  const parsed = parsePlainRootsDate(value);
+  if (!parsed || parsed.precision === "year") {
     return value;
+  }
+  if (parsed.precision === "month") {
+    return new Intl.DateTimeFormat(languageTag, {
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC"
+    })
+      .format(new Date(Date.UTC(parsed.year, parsed.month - 1, 1)))
+      .replace(/\.$/, "");
   }
   const date = new Date(`${value}T00:00:00Z`);
   const month = new Intl.DateTimeFormat(languageTag, {

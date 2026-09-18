@@ -92,6 +92,9 @@ when a death place is unknown, and add every known value to the `deathPlaces`
 dictionary in each locale. Tree cards combine each birth or death date with its
 place in a single localized life-event row.
 
+Store person dates as `YYYY-MM-DD`, `YYYY-MM`, or `YYYY`, preserving the
+precision supported by the evidence.
+
 Every person record includes `sex`, using `"male"`, `"female"`, `"intersex"`,
 `"unknown"`, or `"not-recorded"`. This value exists for genealogical data
 exchange and maps directly to GEDCOM 5.5.5 `INDI.SEX`; family relationship
@@ -99,10 +102,10 @@ labels must not be inferred from it.
 
 Set `lifeStatus` to `"living"`, `"deceased"`, or `"unknown"`. When adding or
 reviewing source data, presume anyone older than 110 is deceased unless a
-reliable source explicitly confirms that the person is living. For a year-only
-birth, apply this default only when every possible birthday in that year makes
-the person older than 110. Generated reports render the stored status without
-overriding it.
+reliable source explicitly confirms that the person is living. For a
+month-only or year-only birth, apply this default only when every possible
+birthday in that period makes the person older than 110. Generated reports
+render the stored status without overriding it.
 
 Person records may include `alternateNames`. Each entry needs a name, BCP 47
 language tag, type, and evidence; transliteration is optional. Use:
@@ -123,7 +126,8 @@ the uncertainty.
 Person records may also include a `stories` array for narrative accounts
 authored by that person. Each entry needs a stable lowercase ASCII `id` and an
 `original` object with a title, a non-empty Markdown `content` file, and a BCP
-47 language tag. An optional `date` accepts `YYYY` or `YYYY-MM-DD`.
+47 language tag. An optional `date` accepts `YYYY`, `YYYY-MM`, or
+`YYYY-MM-DD`.
 Language-keyed `translations` may supply localized titles and content files.
 Optional `audio` and `images` attach original media; every image needs
 non-empty alternative text and may include a caption and localized image text.

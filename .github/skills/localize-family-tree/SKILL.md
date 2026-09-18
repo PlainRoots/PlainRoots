@@ -54,7 +54,8 @@ or person translation files merely because they use an active locale.
 - Add localized titles, menu names, and menu descriptions for every registered
   view in `scripts/views.mjs`.
 - Keep all interactive CLI prompts and status messages in locale resources.
-- Keep dates in person records as ISO `YYYY-MM-DD`; formatting is locale-aware.
+- Keep dates in person records as ISO `YYYY-MM-DD`, `YYYY-MM`, or `YYYY`;
+  formatting is locale-aware.
 - Do not translate people's names, initials, IDs, or family IDs as application
   localization.
 - Preserve UTF-8 diacritics.

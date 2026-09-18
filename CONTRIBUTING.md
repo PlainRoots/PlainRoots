@@ -44,10 +44,12 @@ plain text. Keep contributions focused, evidence-aware, and safe to publish.
 - Preserve preferred spelling and UTF-8 diacritics in names.
 - Record `sex` as `male`, `female`, `intersex`, `unknown`, or `not-recorded`;
   do not infer it from a name or family role.
-- Store complete dates as ISO `YYYY-MM-DD`; use `YYYY` for year-only dates.
+- Store dates as ISO `YYYY-MM-DD`, `YYYY-MM`, or `YYYY`, matching the precision
+  supported by the source.
 - Use `Unknown` for unknown occupation, birth date, birthplace, or death place.
 - Presume people older than 110 are deceased unless a reliable source
-  explicitly confirms they are living; handle year-only births conservatively.
+  explicitly confirms they are living; handle month- and year-only births
+  conservatively.
 - Keep canonical English narratives in `person.json`.
 - Put localized narratives in `translations.json`.
 - Update every locale when adding an occupation, birthplace, death place, or

@@ -19,6 +19,7 @@ import { resolvePersonPhoto } from "./person-photo.mjs";
 import { resolvePersonStories } from "./person-stories.mjs";
 import { renderPrintStories } from "../templates/print-stories-html.mjs";
 import { alternateNameTypeLabel } from "./alternate-names.mjs";
+import { parsePlainRootsDate } from "./date-values.mjs";
 import {
   CANONICAL_LOCALE_ID,
   loadLocale,
@@ -521,8 +522,16 @@ function formatDate(value, localeData) {
   if (!value || value === "Unknown") {
     return localeData.strings.unknown;
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+  const parsed = parsePlainRootsDate(value);
+  if (!parsed || parsed.precision === "year") {
     return value;
+  }
+  if (parsed.precision === "month") {
+    return new Intl.DateTimeFormat(localeData.languageTag, {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    }).format(new Date(Date.UTC(parsed.year, parsed.month - 1, 1)));
   }
   return new Intl.DateTimeFormat(localeData.languageTag, {
     dateStyle: "long",

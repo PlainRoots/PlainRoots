@@ -101,6 +101,38 @@ test("rejects unsupported sex values", () => {
   );
 });
 
+test("accepts and renders month-precision dates", async () => {
+  const locale = JSON.parse(
+    await readFile(new URL("../locales/en-US.json", import.meta.url), "utf8")
+  );
+  const person = createPerson({
+    birthDate: "1864-11",
+    birthPlace: "Unknown"
+  });
+
+  assert.doesNotThrow(() => validatePerson(person, "person.json"));
+  assert.match(renderPersonCard(person, { locale }), /Nov 1864/);
+});
+
+test("rejects invalid person dates", () => {
+  assert.throws(
+    () =>
+      validatePerson(
+        createPerson({ birthDate: "1864-13" }),
+        "person.json"
+      ),
+    /birthDate/
+  );
+  assert.throws(
+    () =>
+      validatePerson(
+        createPerson({ deathDate: "1864-02-30" }),
+        "person.json"
+      ),
+    /deathDate/
+  );
+});
+
 test("renders the localized label for every alternate name type", async () => {
   const locale = JSON.parse(
     await readFile(new URL("../locales/en-US.json", import.meta.url), "utf8")

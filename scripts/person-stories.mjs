@@ -1,6 +1,7 @@
 import { access, readFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import path from "node:path";
+import { isValidPlainRootsDate } from "./date-values.mjs";
 
 export const AUDIO_EXTENSIONS = new Set([
   ".aac",
@@ -77,7 +78,7 @@ export function validatePersonStories(person, source) {
       (typeof story.date !== "string" || !isValidStoryDate(story.date))
     ) {
       throw new Error(
-        `${storySource}: "date" must be YYYY or YYYY-MM-DD when present`
+        `${storySource}: "date" must be YYYY, YYYY-MM, or YYYY-MM-DD when present`
       );
     }
   }
@@ -436,32 +437,7 @@ function rejectUnsupportedFields(value, allowedFields, source, kind) {
 }
 
 function isValidStoryDate(value) {
-  if (/^\d{4}$/.test(value)) {
-    return true;
-  }
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) {
-    return false;
-  }
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-  const daysInMonth = [
-    31,
-    leapYear ? 29 : 28,
-    31,
-    30,
-    31,
-    30,
-    31,
-    31,
-    30,
-    31,
-    30,
-    31
-  ];
-  return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth[month - 1];
+  return isValidPlainRootsDate(value);
 }
 
 function validateFileName(fileName, source, field) {
