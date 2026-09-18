@@ -71,11 +71,11 @@ entry in the `guardianships` collection:
 ## Rules
 
 - Use one or two partners and any number of children.
-- Add `"relationship": "divorced"` to the family when the partners divorced;
-  two-partner families otherwise default to `married`.
-- The current family schema supports only default `married` and explicit
-  `divorced` partnership labels. Do not encode another relationship label
-  without first extending and validating the schema.
+- Two-partner families default to `unknown` when `relationship` is omitted.
+  Store `married` or `divorced` explicitly only when confirmed, and use
+  `partnered` for a confirmed informal or non-marital union.
+- Do not use `partnered` merely because no marriage record has been found, and
+  do not use `unknown` when evidence confirms that no partnership existed.
 - For two-parent families with children, list the paternal parent first and the
   maternal parent second; ancestry branch ordering depends on this convention.
 - Use only person IDs already listed in `tree.json.people`.

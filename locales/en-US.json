@@ -48,6 +48,8 @@
     "peopleAcrossGenerations": "{people} people across {generations} generations",
     "generation": "Generation",
     "married": "Married",
+    "partnered": "Partners",
+    "unknown": "Relationship unknown",
     "divorced": "Divorced",
     "parent": "Parent",
     "raisedBy": "Raised by",

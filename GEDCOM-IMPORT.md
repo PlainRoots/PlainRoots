@@ -104,6 +104,8 @@ Records do not need to appear before records that point to them.
 | `FAM.CHIL` | `children` array |
 | `MARR` | `relationship: married` |
 | `DIV` | `relationship: divorced` |
+| `EVEN` with `TYPE Unmarried partnership` | `relationship: partnered` |
+| Two-partner `FAM` without a recognized relationship event | `relationship: unknown` |
 | Child-only `FAM` with at least two children | `siblingGroups` proposal |
 | `FAMC` with `PEDI foster` | Guardianship candidate requiring review |
 | `FAMC.PEDI` or Ancestry `FAM.CHIL._FREL/_MREL` with a non-birth value | Pedigree candidate requiring review |
@@ -152,9 +154,10 @@ placeholder.
 Ordinary family records are staged only after all available person pointers
 are resolved.
 
-- A two-partner family without `MARR` or `DIV` receives
-  `relationship: "unknown"` and cannot be applied directly to the current
-  PlainRoots relationship schema.
+- A two-partner family without `MARR`, `DIV`, or a recognized partnership
+  event receives `relationship: "unknown"`.
+- A two-partner family with `EVEN` and `TYPE Unmarried partnership` receives
+  `relationship: "partnered"`.
 - A one-partner family does not receive an invented relationship status.
 - A family without partners and with at least two children becomes a sibling
   group proposal.

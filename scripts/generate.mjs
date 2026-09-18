@@ -257,7 +257,7 @@ ${cards}
 function renderRelationship(family, localeData, indent) {
   const label =
     family.partners.length === 2
-      ? localeData.strings[family.relationship ?? "married"]
+      ? localeData.strings[family.relationship ?? "unknown"]
       : localeData.strings.parent;
   const childClass = family.children.length > 0 ? " has-children" : "";
   return `${indent}<div class="relationship${childClass}" data-family-id="${escapeAttribute(family.id)}">
