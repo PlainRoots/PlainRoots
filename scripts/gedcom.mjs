@@ -220,9 +220,15 @@ function addFamily(lines, family, xref, personXrefs, people, warnings) {
   }
 
   if (family.kind === "family" && family.partners.length === 2) {
-    lines.push(line(1, "MARR", "Y"));
-    if (family.relationship === "divorced") {
-      lines.push(line(1, "DIV"));
+    const relationship = family.relationship ?? "unknown";
+    if (relationship === "married" || relationship === "divorced") {
+      lines.push(line(1, "MARR", "Y"));
+      if (relationship === "divorced") {
+        lines.push(line(1, "DIV"));
+      }
+    } else if (relationship === "partnered") {
+      lines.push(line(1, "EVEN"));
+      lines.push(line(2, "TYPE", "Unmarried partnership"));
     }
   } else if (family.kind === "guardian") {
     warnings.push(

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { formatGedcomDate, serializeGedcom } from "../scripts/gedcom.mjs";
+import { validateTree } from "../scripts/tree-data.mjs";
 
 test("exports living people, same-sex families, siblings, and guardianships", () => {
   const people = new Map([
@@ -30,6 +31,7 @@ test("exports living people, same-sex families, siblings, and guardianships", ()
       {
         id: "alex-sam",
         partners: ["alex", "sam"],
+        relationship: "married",
         children: ["child"]
       }
     ],
@@ -99,6 +101,85 @@ test("formats supported PlainRoots dates", () => {
   assert.throws(() => formatGedcomDate("1968-02-31"), /Invalid/);
   assert.throws(() => formatGedcomDate("1968-13"), /Invalid/);
   assert.throws(() => formatGedcomDate("May 1968"), /Invalid/);
+});
+
+test("exports partnered and unknown relationships without asserting marriage", () => {
+  const people = new Map([
+    ["alex", person("alex", "Alex", "Rivera", "male")],
+    ["sam", person("sam", "Sam", "Morgan", "female")],
+    ["casey", person("casey", "Casey", "Rivera", "unknown")],
+    ["jamie", person("jamie", "Jamie", "Lee", "male")],
+    ["taylor", person("taylor", "Taylor", "Diaz", "female")],
+    ["jordan", person("jordan", "Jordan", "Lee", "unknown")]
+  ]);
+  const tree = {
+    title: "Example",
+    people: [...people.keys()],
+    families: [
+      {
+        id: "rivera",
+        partners: ["alex", "sam"],
+        relationship: "partnered",
+        children: ["casey"]
+      },
+      {
+        id: "lee",
+        partners: ["jamie", "taylor"],
+        relationship: "unknown",
+        children: ["jordan"]
+      }
+    ]
+  };
+
+  assert.doesNotThrow(() => validateTree(tree));
+
+  const result = serializeGedcom({
+    tree,
+    people,
+    createdAt: new Date("2026-09-16T00:00:00Z")
+  });
+
+  assert.match(
+    result.content,
+    /0 @F1@ FAM\r\n1 HUSB @I1@\r\n1 WIFE @I2@\r\n1 CHIL @I3@\r\n1 EVEN\r\n2 TYPE Unmarried partnership\r\n/
+  );
+  assert.match(
+    result.content,
+    /0 @F2@ FAM\r\n1 HUSB @I4@\r\n1 WIFE @I5@\r\n1 CHIL @I6@\r\n0 TRLR\r\n/
+  );
+  assert.doesNotMatch(
+    result.content,
+    /0 @F[12]@ FAM[\s\S]*?1 MARR Y/
+  );
+});
+
+test("defaults an omitted two-partner relationship to unknown", () => {
+  const people = new Map([
+    ["alex", person("alex", "Alex", "Rivera", "male")],
+    ["sam", person("sam", "Sam", "Morgan", "female")]
+  ]);
+
+  const result = serializeGedcom({
+    tree: {
+      title: "Example",
+      people: [...people.keys()],
+      families: [
+        {
+          id: "rivera",
+          partners: ["alex", "sam"],
+          children: []
+        }
+      ]
+    },
+    people,
+    createdAt: new Date("2026-09-16T00:00:00Z")
+  });
+
+  assert.match(
+    result.content,
+    /0 @F1@ FAM\r\n1 HUSB @I1@\r\n1 WIFE @I2@\r\n0 TRLR\r\n/
+  );
+  assert.doesNotMatch(result.content, /1 MARR|1 DIV|1 EVEN/);
 });
 
 test("rejects GEDCOM lines that exceed the format limit", () => {

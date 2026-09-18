@@ -155,8 +155,11 @@ or delete an existing portrait when adding a better one; preserve it and use the
 next numbered name, such as `photo-2.jpg`. Include non-AI-edited photos,
 preferably showing people in their 20s or 30s.
 
-Families with two partners default to `married`; set
-`"relationship": "divorced"` when the connector should communicate a divorce.
+Families with two partners default to `unknown` when `relationship` is omitted.
+Set `"relationship": "married"` or `"relationship": "divorced"` only when that
+status is confirmed, and use `"relationship": "partnered"` for a confirmed
+informal or non-marital union. Existing known marriages should always store
+`"relationship": "married"` explicitly.
 Sibling-group labels are derived from the siblings' recorded surnames rather
 than internal family IDs. A lone visible sibling group is flattened into its
 generation row. Person-focused PNG previews use
@@ -179,6 +182,8 @@ file is shared.
 
 Individuals, names, sex, births, deaths, occupations, families, children,
 unknown-parent sibling groups, and raised-by guardianships are exported.
+Partnered families use `EVEN` with `TYPE Unmarried partnership`; families with
+an unknown relationship omit marriage and partnership events.
 Guardianships use a separate family link with `PEDI foster`, preserving them
 without changing biological parentage. Their starting age and evidence do not
 have direct GEDCOM 5.5.5 representations and are reported as omitted. Stories,

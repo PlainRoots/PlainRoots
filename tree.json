@@ -24,6 +24,7 @@
         "jose-garcia-romero",
         "elena-lopez-martin"
       ],
+      "relationship": "married",
       "children": [
         "carlos-garcia-lopez",
         "marta-garcia-lopez"
@@ -35,6 +36,7 @@
         "robert-smith",
         "mary-johnson"
       ],
+      "relationship": "married",
       "children": [
         "linda-smith-johnson",
         "james-smith-johnson"
@@ -46,6 +48,7 @@
         "carlos-garcia-lopez",
         "linda-smith-johnson"
       ],
+      "relationship": "married",
       "children": [
         "sofia-garcia-smith",
         "daniel-garcia-smith"
@@ -66,6 +69,7 @@
         "sofia-garcia-smith",
         "ana-torres-rivera"
       ],
+      "relationship": "married",
       "children": []
     },
     {
@@ -74,6 +78,7 @@
         "daniel-garcia-smith",
         "emma-brown"
       ],
+      "relationship": "married",
       "children": [
         "lucas-garcia-brown"
       ]

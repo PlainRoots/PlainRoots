@@ -123,9 +123,13 @@ The following information is omitted with a warning:
 
 ### Partnership metadata
 
-PlainRoots currently records only basic `married` or `divorced` relationship
-status. The exporter carries those statuses but cannot add information that
-PlainRoots does not model, such as:
+PlainRoots records `married`, `divorced`, `partnered`, and `unknown`
+relationship status. The exporter writes partnered families as `EVEN` with
+`TYPE Unmarried partnership`; unknown relationships omit marriage and
+partnership events. An omitted relationship also defaults to `unknown`; known
+marriages must store `married` explicitly. GEDCOM consumers may not interpret
+the free-text partnered event consistently. The exporter cannot add
+information that PlainRoots does not model, such as:
 
 - Marriage or divorce dates
 - Marriage or divorce places
