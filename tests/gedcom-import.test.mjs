@@ -418,6 +418,7 @@ test("round trips the exported core graph into staging", () => {
         {
           id: "alex-sam",
           partners: ["alex", "sam"],
+          relationship: "married",
           children: ["casey"]
         }
       ]
@@ -438,6 +439,56 @@ test("round trips the exported core graph into staging", () => {
     "sam-morgan"
   ]);
   assert.deepEqual(staged.proposedTree.families[0].children, ["casey-rivera"]);
+});
+
+test("round trips partnered and unknown relationship statuses", () => {
+  const people = new Map([
+    ["alex", person("alex", "Alex", "Rivera", "male")],
+    ["sam", person("sam", "Sam", "Morgan", "female")],
+    ["casey", person("casey", "Casey", "Rivera", "unknown")],
+    ["jamie", person("jamie", "Jamie", "Lee", "male")],
+    ["taylor", person("taylor", "Taylor", "Diaz", "female")],
+    ["jordan", person("jordan", "Jordan", "Lee", "unknown")]
+  ]);
+  const exported = serializeGedcom({
+    tree: {
+      title: "Example",
+      people: [...people.keys()],
+      families: [
+        {
+          id: "rivera",
+          partners: ["alex", "sam"],
+          relationship: "partnered",
+          children: ["casey"]
+        },
+        {
+          id: "lee",
+          partners: ["jamie", "taylor"],
+          relationship: "unknown",
+          children: ["jordan"]
+        }
+      ]
+    },
+    people,
+    fileName: "relationship-round-trip.ged",
+    createdAt: new Date("2026-09-16T00:00:00Z")
+  });
+
+  const staged = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(exported.content, "utf8")),
+    "relationship-round-trip.ged"
+  );
+
+  assert.equal(staged.proposedTree.families[0].relationship, "partnered");
+  assert.equal(staged.proposedTree.families[1].relationship, "unknown");
+  assert.equal(
+    staged.unresolved.some(
+      (item) =>
+        item.reason === "unsupported-family-structure" &&
+        item.record.tag === "EVEN"
+    ),
+    false
+  );
 });
 
 test("CLI writes an ignored review package without applying records", async (context) => {

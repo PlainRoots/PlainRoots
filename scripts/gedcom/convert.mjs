@@ -353,7 +353,10 @@ function convertFamily(record, context) {
   }
 
   const hasIndependentPartnership =
-    partners.length === 2 && (child(record, "MARR") || child(record, "DIV"));
+    partners.length === 2 &&
+    (child(record, "MARR") ||
+      child(record, "DIV") ||
+      hasUnmarriedPartnershipEvent(record));
   if (partners.length === 0 && ordinaryChildren.length >= 2) {
     siblingGroups.push({
       id: familyId,
@@ -381,7 +384,9 @@ function convertFamily(record, context) {
           ? "divorced"
           : child(record, "MARR")
             ? "married"
-            : "unknown"
+            : hasUnmarriedPartnershipEvent(record)
+              ? "partnered"
+              : "unknown"
         : null;
     const proposedFamily = {
       id: familyId,
@@ -392,20 +397,12 @@ function convertFamily(record, context) {
       proposedFamily.relationship = relationship;
     }
     families.push(proposedFamily);
-    if (relationship === "unknown" && partners.length === 2) {
-      issues.push({
-        severity: "warning",
-        code: "unknown-partnership-status",
-        record: record.xref,
-        line: record.line,
-        message:
-          "Two-partner family has neither MARR nor DIV; staged relationship is unknown and is not directly applyable to PlainRoots"
-      });
-    }
   }
 
   for (const unsupported of record.children.filter(
-    (candidate) => !KNOWN_FAMILY_TAGS.has(candidate.tag)
+    (candidate) =>
+      !KNOWN_FAMILY_TAGS.has(candidate.tag) &&
+      !isUnmarriedPartnershipEvent(candidate)
   )) {
     unresolved.push({
       reason: "unsupported-family-structure",
@@ -614,6 +611,29 @@ function inventoryFamilyDetails(record, unresolved) {
       );
     }
   }
+  for (const eventRecord of children(record, "EVEN").filter(
+    isUnmarriedPartnershipEvent
+  )) {
+    inventoryUnsupportedChildren(
+      eventRecord,
+      new Set(["TYPE"]),
+      "unsupported-family-event-detail",
+      record.xref,
+      unresolved
+    );
+  }
+}
+
+function hasUnmarriedPartnershipEvent(record) {
+  return children(record, "EVEN").some(isUnmarriedPartnershipEvent);
+}
+
+function isUnmarriedPartnershipEvent(record) {
+  return (
+    record?.tag === "EVEN" &&
+    childValue(record, "TYPE")?.trim().toLowerCase() ===
+      "unmarried partnership"
+  );
 }
 
 function inventoryUnsupportedChildren(

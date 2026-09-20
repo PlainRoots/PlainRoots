@@ -165,12 +165,15 @@ y usa el siguiente nombre numerado, como `photo-2.jpg`. Incluye fotografías sin
 edición mediante IA, preferentemente de las personas cuando tenían entre 20 y
 39 años.
 
-Las familias con dos integrantes usan `married` de manera predeterminada;
-establece `"relationship": "divorced"` cuando el conector deba comunicar un
-divorcio. Las etiquetas de grupos de hermanos se derivan de los apellidos
-registrados, no de los IDs internos de familia. Un único grupo de hermanos
-visible se incorpora directamente a la fila de su generación. Las vistas
-previas PNG enfocadas en una persona usan
+Las familias con dos integrantes usan `unknown` de manera predeterminada
+cuando se omite `relationship`. Usa `"relationship": "married"` o
+`"relationship": "divorced"` solo cuando el estado esté confirmado, y
+`"relationship": "partnered"` para una unión informal o no matrimonial
+confirmada. Los matrimonios conocidos deben guardar siempre
+`"relationship": "married"` de forma explícita. Las etiquetas de grupos de
+hermanos se derivan de los apellidos registrados, no de los IDs internos de
+familia. Un único grupo de hermanos visible se incorpora directamente a la
+fila de su generación. Las vistas previas PNG enfocadas en una persona usan
 `<person-id>.<view>.<locale>.png`, lo que evita sobrescribir las vistas de otras
 personas.
 
@@ -190,7 +193,9 @@ de información sensible antes de compartir el archivo.
 
 Se exportan personas, nombres, sexo, nacimientos, fallecimientos, ocupaciones,
 familias, hijos, grupos de hermanos con padres desconocidos y relaciones de
-crianza. Las relaciones de crianza usan un enlace de familia separado con
+crianza. Las familias `partnered` usan `EVEN` con
+`TYPE Unmarried partnership`; las familias con relación desconocida omiten los
+eventos de matrimonio y unión. Las relaciones de crianza usan un enlace de familia separado con
 `PEDI foster`, sin cambiar la ascendencia biológica. La edad de inicio y la
 evidencia no tienen una representación directa en GEDCOM 5.5.5 y se informan
 como omitidas. Las historias, notas de investigación, fotografías y nombres

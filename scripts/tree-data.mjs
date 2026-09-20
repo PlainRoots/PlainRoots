@@ -46,7 +46,9 @@ export function validateTree(value) {
     }
     if (
       family.relationship !== undefined &&
-      !["married", "divorced"].includes(family.relationship)
+      !["married", "divorced", "partnered", "unknown"].includes(
+        family.relationship
+      )
     ) {
       throw new Error(
         `tree.json: family "${family.id}" has invalid relationship "${family.relationship}"`
