@@ -69,7 +69,7 @@
         "sofia-garcia-smith",
         "ana-torres-rivera"
       ],
-      "relationship": "married",
+      "relationship": "partnered",
       "children": []
     },
     {
@@ -78,7 +78,7 @@
         "daniel-garcia-smith",
         "emma-brown"
       ],
-      "relationship": "married",
+      "relationship": "unknown",
       "children": [
         "lucas-garcia-brown"
       ]
