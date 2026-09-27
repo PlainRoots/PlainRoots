@@ -28,7 +28,12 @@ media.
 ## Procedure
 
 1. Read `README.md`, `tree.json`, and one comparable existing person record.
-2. Ask for missing facts rather than inventing genealogical data.
+2. Ask for missing facts rather than inventing genealogical data. Whenever the
+   user supplies genealogical data, confirm its provenance before recording it.
+   If the provenance is unclear, ask who supplied the information, when they
+   supplied it, and whether it comes from firsthand knowledge or a specific
+   document or other source. Do not assume that the user is the original source
+   or that the conversation date is the source date.
 3. Record `sex` only when supplied or supported by approved evidence; otherwise
    use `unknown`.
 4. Create a permanent lowercase ASCII ID with hyphens, such as
@@ -71,10 +76,13 @@ media.
    center the remaining horizontal crop. This places faces higher in the card,
    matching the user's preferred composition. Inspect the result and reduce the
    top trim if it would clip hair, hats, or other important details. Use 1 MB
-   as the soft maximum file size for each photo. Before ingesting a photo over
-   1 MB, report its size and require the user to confirm an exception. For a
-   photo over 3 MB, require a second, separate confirmation even if the user
-   already approved the exception above 1 MB. Whenever an image is imported,
+   as the soft maximum file size for each photo added to the repository. Before
+   adding a repository image over 1 MB, report its size and require the user to
+   confirm an exception. For a repository image over 3 MB, require a second,
+   separate confirmation even if the user already approved the exception above
+   1 MB. External source images that remain outside Git and are used only for
+   one-time processing do not require size-exception approval; still measure
+   and report their dimensions and file size. Whenever an image is imported,
    measure and report both its actual pixel dimensions and file size. For card
    portraits, compare the dimensions with the 400 x 708 pixel recommendation
    so the user can adjust them immediately. Report these details for both the

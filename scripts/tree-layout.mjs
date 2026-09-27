@@ -66,9 +66,28 @@ export function selectAncestry(treeData, personId) {
     personId,
     ...ancestry.directAncestorIds
   ]);
-  const guardianships = (treeData.guardianships ?? []).filter(
+  const primaryGuardianships = (treeData.guardianships ?? []).filter(
     (guardianship) => guardianshipChildren.has(guardianship.child)
   );
+  const guardianships = [...primaryGuardianships];
+  const caregivingPeerIds = new Set();
+  for (const guardianship of primaryGuardianships) {
+    for (const candidate of treeData.guardianships ?? []) {
+      if (
+        candidate.child === guardianship.child ||
+        !samePeople(candidate.guardians, guardianship.guardians)
+      ) {
+        continue;
+      }
+      if (!guardianships.some((item) => item.id === candidate.id)) {
+        guardianships.push(candidate);
+      }
+      if (!includedPeople.has(candidate.child)) {
+        includedPeople.add(candidate.child);
+        caregivingPeerIds.add(candidate.child);
+      }
+    }
+  }
   const guardianLineageIds = new Set();
 
   for (const family of treeData.families) {
@@ -157,6 +176,7 @@ export function selectAncestry(treeData, personId) {
     directAncestorIds: [...ancestry.directAncestorIds],
     directAncestorPaths: Object.fromEntries(ancestry.directAncestorPaths),
     guardianships,
+    caregivingPeerIds: [...caregivingPeerIds],
     spouseGroupingLineageIds: [...spouseGroupingLineageIds],
     groupLineageSpouses: spouseGroupingLineageIds.size > 0,
     people: treeData.people.filter((id) => includedPeople.has(id)),
@@ -186,6 +206,13 @@ export function selectAncestry(treeData, personId) {
       )
     ]
   };
+}
+
+function samePeople(left, right) {
+  return (
+    left.length === right.length &&
+    left.every((personId) => right.includes(personId))
+  );
 }
 
 export function selectPaternalAncestry(treeData, personId) {
@@ -291,38 +318,99 @@ export function selectDescendants(treeData, personId) {
     personId,
     ...descendants.directDescendantIds
   ]);
-  const includedPeople = new Set(bloodLineage);
+  const caregivingDescendantIds = new Set();
+  const guardianships = [];
+  const caregivingFamilyIds = new Set();
+  const pendingCaregivers = [...bloodLineage];
+  const processedCaregivers = new Set();
+
+  while (pendingCaregivers.length > 0) {
+    const caregiverId = pendingCaregivers.shift();
+    if (processedCaregivers.has(caregiverId)) {
+      continue;
+    }
+    processedCaregivers.add(caregiverId);
+
+    for (const guardianship of treeData.guardianships ?? []) {
+      if (!guardianship.guardians.includes(caregiverId)) {
+        continue;
+      }
+      if (!guardianships.some((item) => item.id === guardianship.id)) {
+        guardianships.push(guardianship);
+      }
+      const branch = traceDirectDescendants(treeData, guardianship.child);
+      for (const familyId of branch.descendantFamilyIds) {
+        caregivingFamilyIds.add(familyId);
+      }
+      for (const descendantId of [
+        guardianship.child,
+        ...branch.directDescendantIds
+      ]) {
+        if (!bloodLineage.has(descendantId)) {
+          caregivingDescendantIds.add(descendantId);
+        }
+        pendingCaregivers.push(descendantId);
+      }
+    }
+  }
+
+  const descendantLineage = new Set([
+    ...bloodLineage,
+    ...caregivingDescendantIds
+  ]);
+  const includedPeople = new Set(descendantLineage);
   const spouseIds = new Set();
-  const includedFamilyIds = new Set(descendants.descendantFamilyIds);
-  const groupingFamilyIds = new Set(descendants.descendantFamilyIds);
+  const includedFamilyIds = new Set([
+    ...descendants.descendantFamilyIds,
+    ...caregivingFamilyIds
+  ]);
+  const groupingFamilyIds = new Set(includedFamilyIds);
 
   for (const family of treeData.families) {
-    if (!family.partners.some((partnerId) => bloodLineage.has(partnerId))) {
+    if (
+      !family.partners.some((partnerId) =>
+        descendantLineage.has(partnerId)
+      )
+    ) {
       continue;
     }
     includedFamilyIds.add(family.id);
     for (const partnerId of family.partners) {
       includedPeople.add(partnerId);
-      if (!bloodLineage.has(partnerId)) {
+      if (!descendantLineage.has(partnerId)) {
         spouseIds.add(partnerId);
       }
     }
   }
 
+  const families = treeData.families
+    .filter((family) => includedFamilyIds.has(family.id))
+    .map((family) => ({
+      ...family,
+      children: family.children.filter((id) => includedPeople.has(id))
+    }));
+  const orderedPeople = orderPeopleWithPartners(
+    treeData.people,
+    includedPeople,
+    families,
+    descendantLineage,
+    personId
+  );
+
   return {
     ...treeData,
     focusPersonId: personId,
     directDescendantIds: [...descendants.directDescendantIds],
+    caregivingDescendantIds: [...caregivingDescendantIds],
+    guardianships,
     spouseIds: [...spouseIds],
-    spouseGroupingLineageIds: [...bloodLineage],
+    spouseGroupingLineageIds: [...descendantLineage],
     groupLineageSpouses: true,
-    people: treeData.people.filter((id) => includedPeople.has(id)),
-    families: treeData.families
-      .filter((family) => includedFamilyIds.has(family.id))
-      .map((family) => ({
-        ...family,
-        children: family.children.filter((id) => includedPeople.has(id))
-      })),
+    displayOrderPaths: Object.fromEntries(
+      orderedPeople.map((id, index) => [id, String(index).padStart(6, "0")])
+    ),
+    people: orderedPeople,
+    families,
     groupingFamilies: treeData.families
       .filter((family) => groupingFamilyIds.has(family.id))
       .map((family) => ({
@@ -330,6 +418,55 @@ export function selectDescendants(treeData, personId) {
         children: family.children.filter((id) => includedPeople.has(id))
       }))
   };
+}
+
+function orderPeopleWithPartners(
+  people,
+  includedPeople,
+  families,
+  lineagePeople,
+  focusPersonId
+) {
+  const ordered = [];
+  const added = new Set();
+  const prioritizedPeople = [
+    focusPersonId,
+    ...people.filter((personId) => personId !== focusPersonId)
+  ];
+
+  for (const personId of prioritizedPeople) {
+    if (
+      !includedPeople.has(personId) ||
+      !lineagePeople.has(personId) ||
+      added.has(personId)
+    ) {
+      continue;
+    }
+    ordered.push(personId);
+    added.add(personId);
+    for (const family of families) {
+      if (
+        family.partners.length !== 2 ||
+        !family.partners.includes(personId)
+      ) {
+        continue;
+      }
+      const partnerId = family.partners.find((id) => id !== personId);
+      if (includedPeople.has(partnerId) && !added.has(partnerId)) {
+        ordered.push(partnerId);
+        added.add(partnerId);
+      }
+    }
+  }
+
+  for (const personId of people) {
+    if (includedPeople.has(personId) && !added.has(personId)) {
+      ordered.push(personId);
+      added.add(personId);
+    }
+  }
+
+  return ordered;
 }
 
 export function selectBloodRelatives(treeData, personId) {
@@ -551,4 +688,18 @@ export function calculateLevels(treeData) {
   throw new Error(
     "Family relationships contain a generation cycle that cannot be laid out"
   );
+}
+
+export function calculateViewLevels(treeData) {
+  const levels = calculateLevels(treeData);
+  const focusLevel = levels.get(treeData.focusPersonId);
+  if (focusLevel === undefined) {
+    return levels;
+  }
+  for (const personId of treeData.caregivingPeerIds ?? []) {
+    if (levels.has(personId)) {
+      levels.set(personId, focusLevel);
+    }
+  }
+  return levels;
 }

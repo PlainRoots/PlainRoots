@@ -7,7 +7,7 @@ import {
   renderPersonCard,
   renderStandalonePage
 } from "../templates/person-card-html.mjs";
-import { calculateLevels } from "./tree-layout.mjs";
+import { calculateViewLevels } from "./tree-layout.mjs";
 import { parseViewArguments, selectViewTree } from "./views.mjs";
 import { resolvePersonPhoto } from "./person-photo.mjs";
 import { resolvePersonStories } from "./person-stories.mjs";
@@ -122,8 +122,11 @@ function renderTree(
         person: peopleById.get(treeData.focusPersonId).name
       })
     : strings.treeTitle ?? treeData.title;
-  const levels = calculateLevels(treeData);
-  const rows = flattenLoneSiblingGroup(buildRows(treeData, levels));
+  const levels = calculateViewLevels(treeData);
+  const rows = flattenLoneSiblingGroup(
+    buildRows(treeData, levels),
+    (treeData.caregivingPeerIds?.length ?? 0) === 0
+  );
   const ancestryChartClass = view.id.startsWith("ancestry")
     ? " ancestry-chart-page"
     : "";
@@ -267,7 +270,10 @@ ${indent}  <span>${label}</span>
 ${indent}</div>`;
 }
 
-function flattenLoneSiblingGroup(rows) {
+function flattenLoneSiblingGroup(rows, enabled) {
+  if (!enabled) {
+    return rows;
+  }
   const siblingGroupIds = new Set(
     rows
       .flat()
@@ -462,7 +468,8 @@ function buildRows(treeData, levels) {
         new Map(Object.entries(treeData.directAncestorPaths ?? {})),
         treeData.focusPersonId,
         new Set(treeData.spouseGroupingLineageIds ?? []),
-        treeData.groupLineageSpouses === true
+        treeData.groupLineageSpouses === true,
+        new Map(Object.entries(treeData.displayOrderPaths ?? {}))
       )
     );
   }
@@ -477,7 +484,8 @@ function arrangeLevel(
   directAncestorPaths,
   focusPersonId,
   spouseGroupingLineageIds,
-  groupLineageSpouses
+  groupLineageSpouses,
+  displayOrderPaths
 ) {
   const positions = new Map(
     peopleAtLevel.map((personId, index) => [personId, index])
@@ -523,6 +531,10 @@ function arrangeLevel(
     );
     const directAncestor = directAncestors[0];
     const ancestorPath = directAncestorPaths.get(directAncestor);
+    const displayPath = siblingMembers
+      .map((personId) => displayOrderPaths.get(personId))
+      .filter((path) => path !== undefined)
+      .sort()[0];
     const membersInDisplayOrder =
       ancestorPath?.endsWith("0")
         ? [...collateralRelatives, ...directAncestors]
@@ -580,7 +592,7 @@ function arrangeLevel(
       members,
       items,
       embeddedPartnerships,
-      lineagePath: ancestorPath,
+      lineagePath: ancestorPath ?? displayPath,
       pinToEnd: family.pinToEnd === true,
       position: Math.min(
         ...siblingMembers.map((personId) => positions.get(personId))
@@ -596,7 +608,8 @@ function arrangeLevel(
         lineagePath:
           personId === focusPersonId
             ? ""
-            : directAncestorPaths.get(personId),
+            : directAncestorPaths.get(personId) ??
+              displayOrderPaths.get(personId),
         position: positions.get(personId)
       });
     }

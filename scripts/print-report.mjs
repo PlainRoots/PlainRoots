@@ -3,7 +3,7 @@ import { constants } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { escapeAttribute, escapeHtml } from "../templates/person-card-html.mjs";
-import { calculateLevels } from "./tree-layout.mjs";
+import { calculateViewLevels } from "./tree-layout.mjs";
 import {
   formatTextTitle,
   renderTextGuardianships,
@@ -170,7 +170,7 @@ function renderPeopleByGeneration(
   localeData,
   options
 ) {
-  const levels = calculateLevels(treeData);
+  const levels = calculateViewLevels(treeData);
   const generationNumbers = [
     ...new Set(treeData.people.map((personId) => levels.get(personId) ?? 0))
   ].sort((left, right) => left - right);
@@ -444,10 +444,13 @@ function renderRelationships(relationships, peopleById, localeData) {
     ),
     ...relationships.guardians.map((guardianship) => {
       const names = namesFor(guardianship.guardians, peopleById);
-      const detail = strings.asciiRaisedByFromAge.replace(
-        "{age}",
-        String(guardianship.startingAge)
-      );
+      const detail =
+        guardianship.startingAge === undefined
+          ? strings.asciiRaisedByUnknownAge
+          : strings.asciiRaisedByFromAge.replace(
+              "{age}",
+              String(guardianship.startingAge)
+            );
       return `              <li><strong>${escapeHtml(strings.printGuardians)}:</strong> ${escapeHtml(names)} — ${escapeHtml(detail)}</li>`;
     })
   ].filter(Boolean);

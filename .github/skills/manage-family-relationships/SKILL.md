@@ -96,9 +96,10 @@ entry in the `guardianships` collection:
   caregiving. It does not by itself establish legal guardianship.
 - Never add caregivers as biological partners or parents merely to display
   their role.
-- A raised-by entry must have one or two confirmed caregivers, a non-negative
-  starting age, and explicit evidence. Preserve fuller provenance in
-  `researchNotes`.
+- A raised-by entry must have one or two confirmed caregivers and explicit
+  evidence. Include `startingAge` only when a non-negative integer age is
+  confirmed; omit it when the starting age is unknown. Preserve fuller
+  provenance in `researchNotes`.
 - Raised-by entries may add caregivers to focused ancestry context, but must
   never affect direct-ancestor traversal or generation calculation.
 
@@ -162,13 +163,13 @@ schema requires:
 - One child.
 - One or two caregivers in the `guardians` array.
 - Relationship value `raised-by`.
-- A known non-negative integer `startingAge`.
+- An optional non-negative integer `startingAge`, included only when known.
 - Evidence value `family-account`.
 
-If the starting age is unknown, the evidence is not a family account, or the
-relationship was caregiving without a confirmed raised-by role, do not force
-it into the current structure. Preserve the evidence and limitation in
-`researchNotes` and ask whether the schema should be extended separately.
+If the starting age is unknown, omit `startingAge` and preserve that limitation
+in `researchNotes`. If the evidence is not a family account or the relationship
+was caregiving without a confirmed raised-by role, do not force it into the
+current structure.
 
 Keep fuller source attribution in the affected person's `researchNotes`.
 Never use a raised-by entry to alter biological ancestry, parent ordering,

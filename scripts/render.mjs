@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { calculateLevels } from "./tree-layout.mjs";
+import { calculateViewLevels } from "./tree-layout.mjs";
 import { parseViewArguments, selectViewTree } from "./views.mjs";
 import {
   CANONICAL_LOCALE_ID,
@@ -92,7 +92,7 @@ function argumentValue(name) {
 }
 
 function calculateViewport(treeData, layoutData) {
-  const levels = calculateLevels(treeData);
+  const levels = calculateViewLevels(treeData);
   const generationCount = Math.max(...levels.values()) + 1;
   const groupingFamilies = treeData.groupingFamilies ?? treeData.families;
   const visibleSiblingGroupIds = new Set(

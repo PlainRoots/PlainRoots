@@ -101,12 +101,13 @@ export function validateTree(value) {
       guardianship.guardians.length < 1 ||
       guardianship.guardians.length > 2 ||
       guardianship.relationship !== "raised-by" ||
-      !Number.isInteger(guardianship.startingAge) ||
-      guardianship.startingAge < 0 ||
+      (guardianship.startingAge !== undefined &&
+        (!Number.isInteger(guardianship.startingAge) ||
+          guardianship.startingAge < 0)) ||
       guardianship.evidence !== "family-account"
     ) {
       throw new Error(
-        'tree.json: each guardianship needs an "id", "child", one or two "guardians", relationship "raised-by", non-negative integer "startingAge", and evidence "family-account"'
+        'tree.json: each guardianship needs an "id", "child", one or two "guardians", relationship "raised-by", optional non-negative integer "startingAge", and evidence "family-account"'
       );
     }
     if (guardianshipIds.has(guardianship.id)) {

@@ -50,9 +50,18 @@ test("exports living people, same-sex families, siblings, and guardianships", ()
         relationship: "raised-by",
         startingAge: 4,
         evidence: "family-account"
+      },
+      {
+        id: "sibling-raised-by-guardian",
+        child: "sibling",
+        guardians: ["guardian"],
+        relationship: "raised-by",
+        evidence: "family-account"
       }
     ]
   };
+
+  assert.doesNotThrow(() => validateTree(tree));
 
   const result = serializeGedcom({
     tree,
@@ -85,11 +94,15 @@ test("exports living people, same-sex families, siblings, and guardianships", ()
     /0 @F3@ FAM\r\n1 HUSB @I5@\r\n1 CHIL @I3@\r\n/
   );
   assert.match(
+    result.content,
+    /1 FAMC @F4@\r\n2 PEDI foster\r\n/
+  );
+  assert.match(
     result.warnings.join("\n"),
     /duplicate WIFE records for a same-sex family/
   );
   assert.equal(result.stats.individuals, 5);
-  assert.equal(result.stats.families, 3);
+  assert.equal(result.stats.families, 4);
 });
 
 test("formats supported PlainRoots dates", () => {

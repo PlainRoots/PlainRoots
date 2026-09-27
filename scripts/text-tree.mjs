@@ -175,10 +175,13 @@ export function renderTextGuardianships(
     const guardians = guardianship.guardians
       .map((id) => formatTextPerson(id, peopleById, localeData, options))
       .join(" <--> ");
-    const relationship = localeData.strings.asciiRaisedByFromAge.replace(
-      "{age}",
-      String(guardianship.startingAge)
-    );
+    const relationship =
+      guardianship.startingAge === undefined
+        ? localeData.strings.asciiRaisedByUnknownAge
+        : localeData.strings.asciiRaisedByFromAge.replace(
+            "{age}",
+            String(guardianship.startingAge)
+          );
     lines.push(`+-- ${child}`);
     lines.push(`|   ${relationship}: ${guardians}`);
   });

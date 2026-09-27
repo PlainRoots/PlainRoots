@@ -90,8 +90,8 @@ npm run render:ancestry-strict -- <person-id>
 npm run check:ancestry-strict -- <person-id>
 ```
 
-For descendants with the selected person's spouse(s), plus every descendant's
-spouse:
+For descendants with the selected person's spouse(s), every descendant's
+spouse, and any raised-by children with their modeled descendant branches:
 
 ```powershell
 npm run render:descendants -- <person-id>
@@ -264,9 +264,12 @@ through `verify-genealogy-data`, and request approval before changing records.
    own siblings and connect the groups.
 6. For descendant views, confirm the tree flows downward from the selected
    person. The regular view excludes the selected person's siblings and
-   includes their spouse(s), all blood descendants, and descendant spouses.
-   Confirm the selected person and every blood descendant use the blue lineage
-   treatment, while every non-blood spouse uses the gray spouse treatment.
+   includes their spouse(s), all blood descendants, descendant spouses, and
+   raised-by children with their modeled descendant branches. Keep raised-by
+   connectors dashed so caregiving context is not presented as biological
+   parentage. Confirm the selected person and every blood descendant use the
+   blue lineage treatment, while every non-blood spouse uses the gray spouse
+   treatment.
 7. Inspect the entire image, not only the initial viewport.
 8. Confirm the preview shows the local generation date, without a time, below
    the people and generations summary.

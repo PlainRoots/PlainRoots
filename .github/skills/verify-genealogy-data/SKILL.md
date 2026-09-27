@@ -257,20 +257,25 @@ catalogs, civil registries, and official municipal or state records.
 ## Procedure
 
 1. Preserve the original spelling and wording of recovered evidence.
-2. Separate direct evidence from inference.
-3. Check whether the proposed relationship conflicts with existing parents,
+2. Determine the provenance of every fact supplied by the user before recording
+   it. If the provenance is unclear, ask who supplied the information, when they
+   supplied it, and whether it comes from firsthand knowledge or a specific
+   document or other source. Do not assume that the user is the original source
+   or that the conversation date is the source date.
+3. Separate direct evidence from inference.
+4. Check whether the proposed relationship conflicts with existing parents,
    partners, children, surnames, or generations.
-4. Ask focused questions from the perspective of the relative being asked.
-5. Prefer questions that resolve an entire branch, such as identifying a
+5. Ask focused questions from the perspective of the relative being asked.
+6. Prefer questions that resolve an entire branch, such as identifying a
    sibling group's missing parent.
-6. Remove superseded inferences from published values after approval. Preserve
+7. Remove superseded inferences from published values after approval. Preserve
    useful provenance explaining the correction.
-7. Do not silently convert proximity, matching surnames, or chart adjacency
+8. Do not silently convert proximity, matching surnames, or chart adjacency
    into a confirmed relationship.
-8. Remove or correct `familyStatus` when exact relatives are later modeled.
-9. Keep read-only work read-only. For requested changes, present numbered,
+9. Remove or correct `familyStatus` when exact relatives are later modeled.
+10. Keep read-only work read-only. For requested changes, present numbered,
    individually approvable proposals before editing.
-10. After approved edits, use `add-family-member` and
+11. After approved edits, use `add-family-member` and
     `manage-family-relationships` for the actual source changes and run their
     validation procedures.
 
