@@ -74,6 +74,15 @@ entry in the `guardianships` collection:
 - Two-partner families default to `unknown` when `relationship` is omitted.
   Store `married` or `divorced` explicitly only when confirmed, and use
   `partnered` for a confirmed informal or non-marital union.
+- Store known marriage, divorce, and partnership dates in optional
+  `relationshipEvents` on two-partner families. Each event uses type `married`,
+  `divorced`, or `partnered`, a `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or `"Unknown"`
+  date, and optional `dateEstimated: true` for known approximate dates. Add
+  optional `place` when the relationship-event location is confirmed. Keep
+  `relationship` as the current status; events may be a partial history when
+  other transitions are unknown. Charts and text reports omit event places;
+  printable reports include them. Localize event locations through the shared
+  `places` dictionary in every active locale, reusing birth and death entries.
 - Do not use `partnered` merely because no marriage record has been found, and
   do not use `unknown` when evidence confirms that no partnership existed.
 - For two-parent families with children, list the paternal parent first and the

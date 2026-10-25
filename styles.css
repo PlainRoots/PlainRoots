@@ -90,6 +90,7 @@
   /* Relationship markers and lines */
   --relationship-min-width: 100.8px;
   --relationship-min-height: 40.8px;
+  --relationship-max-width: 360px;
   --relationship-padding: 8.4px 16.8px;
   --relationship-radius: 999px;
   --family-line-width: 2.5;
@@ -499,6 +500,7 @@ h1 {
   min-height: var(--relationship-min-height);
   align-items: center;
   justify-content: center;
+  max-width: var(--relationship-max-width);
   padding: var(--relationship-padding);
   color: var(--light-on-accent);
   background: var(--copper-dark);
@@ -508,6 +510,8 @@ h1 {
   font-size: var(--font-size-relationship-label);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.12em;
+  line-height: 1.35;
+  text-align: center;
   text-transform: uppercase;
 }
 

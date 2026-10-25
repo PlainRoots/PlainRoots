@@ -221,12 +221,23 @@ function addFamily(lines, family, xref, personXrefs, people, warnings) {
 
   if (family.kind === "family" && family.partners.length === 2) {
     const relationship = family.relationship ?? "unknown";
-    if (relationship === "married" || relationship === "divorced") {
+    const relationshipEvents = family.relationshipEvents ?? [];
+    for (const event of relationshipEvents) {
+      addRelationshipEvent(lines, event);
+    }
+    const eventTypes = new Set(relationshipEvents.map((event) => event.type));
+    if (
+      (relationship === "married" || relationship === "divorced") &&
+      !eventTypes.has("married")
+    ) {
       lines.push(line(1, "MARR", "Y"));
-      if (relationship === "divorced") {
-        lines.push(line(1, "DIV"));
-      }
-    } else if (relationship === "partnered") {
+    }
+    if (relationship === "divorced" && !eventTypes.has("divorced")) {
+      lines.push(line(1, "DIV"));
+    } else if (
+      relationship === "partnered" &&
+      !eventTypes.has("partnered")
+    ) {
       lines.push(line(1, "EVEN"));
       lines.push(line(2, "TYPE", "Unmarried partnership"));
     }
@@ -234,6 +245,26 @@ function addFamily(lines, family, xref, personXrefs, people, warnings) {
     warnings.push(
       `${family.id}: exported the raised-by relationship with PEDI foster; startingAge and evidence have no direct GEDCOM 5.5.5 representation and were omitted.`
     );
+  }
+}
+
+function addRelationshipEvent(lines, event) {
+  const tag =
+    event.type === "married"
+      ? "MARR"
+      : event.type === "divorced"
+        ? "DIV"
+        : "EVEN";
+  lines.push(line(1, tag));
+  if (event.type === "partnered") {
+    lines.push(line(2, "TYPE", "Unmarried partnership"));
+  }
+  const date = formatGedcomDate(event.date, event.dateEstimated);
+  if (date) {
+    lines.push(line(2, "DATE", date));
+  }
+  if (event.place) {
+    lines.push(line(2, "PLAC", event.place));
   }
 }
 

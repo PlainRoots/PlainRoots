@@ -10,8 +10,7 @@ const TRANSLATION_SECTIONS = [
   "familyChildren",
   "researchNoteStatuses",
   "occupations",
-  "birthPlaces",
-  "deathPlaces"
+  "places"
 ];
 
 export async function loadSupportedLocaleIds(projectRoot) {

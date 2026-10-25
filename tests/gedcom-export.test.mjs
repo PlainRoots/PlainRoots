@@ -166,6 +166,84 @@ test("exports partnered and unknown relationships without asserting marriage", (
   );
 });
 
+test("exports dated marriage, divorce, and partnership events", () => {
+  const people = new Map([
+    ["alex", person("alex", "Alex", "Rivera", "male")],
+    ["sam", person("sam", "Sam", "Morgan", "female")],
+    ["jamie", person("jamie", "Jamie", "Lee", "male")],
+    ["taylor", person("taylor", "Taylor", "Diaz", "female")]
+  ]);
+  const result = serializeGedcom({
+    tree: {
+      title: "Example",
+      people: [...people.keys()],
+      families: [
+        {
+          id: "rivera",
+          partners: ["alex", "sam"],
+          relationship: "divorced",
+          relationshipEvents: [
+            { type: "married", date: "1980-05-10", place: "Austin, Texas, USA" },
+            { type: "divorced", date: "1992", dateEstimated: true }
+          ],
+          children: []
+        },
+        {
+          id: "lee",
+          partners: ["jamie", "taylor"],
+          relationship: "partnered",
+          relationshipEvents: [{ type: "partnered", date: "2001-07" }],
+          children: []
+        }
+      ]
+    },
+    people,
+    createdAt: new Date("2026-09-16T00:00:00Z")
+  });
+
+  assert.match(
+    result.content,
+    /1 MARR\r\n2 DATE 10 MAY 1980\r\n2 PLAC Austin, Texas, USA\r\n1 DIV\r\n2 DATE ABT 1992\r\n/
+  );
+  assert.match(
+    result.content,
+    /1 EVEN\r\n2 TYPE Unmarried partnership\r\n2 DATE JUL 2001\r\n/
+  );
+});
+
+test("exports confirmed relationship events with unknown dates", () => {
+  const people = new Map([
+    ["alex", person("alex", "Alex", "Rivera", "male")],
+    ["sam", person("sam", "Sam", "Morgan", "female")]
+  ]);
+  const result = serializeGedcom({
+    tree: {
+      title: "Example",
+      people: [...people.keys()],
+      families: [
+        {
+          id: "rivera",
+          partners: ["alex", "sam"],
+          relationship: "divorced",
+          relationshipEvents: [
+            { type: "married", date: "1980" },
+            { type: "divorced", date: "Unknown", place: "Seattle, Washington, USA" }
+          ],
+          children: []
+        }
+      ]
+    },
+    people,
+    createdAt: new Date("2026-09-16T00:00:00Z")
+  });
+
+  assert.match(
+    result.content,
+    /1 MARR\r\n2 DATE 1980\r\n1 DIV\r\n2 PLAC Seattle, Washington, USA\r\n0 TRLR\r\n/
+  );
+  assert.doesNotMatch(result.content, /2 DATE Unknown/);
+});
+
 test("defaults an omitted two-partner relationship to unknown", () => {
   const people = new Map([
     ["alex", person("alex", "Alex", "Rivera", "male")],

@@ -5,6 +5,7 @@ node_modules/
 print-report*.html
 *.print-report*.html
 index.ancestry*.html
+index.immediate-family*.html
 index.descendants*.html
 index.blood-relatives*.html
 index.ancestors*.html

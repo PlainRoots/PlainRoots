@@ -357,6 +357,7 @@ function convertFamily(record, context) {
     (child(record, "MARR") ||
       child(record, "DIV") ||
       hasUnmarriedPartnershipEvent(record));
+  let relationshipEventsImported = false;
   if (partners.length === 0 && ordinaryChildren.length >= 2) {
     siblingGroups.push({
       id: familyId,
@@ -396,6 +397,13 @@ function convertFamily(record, context) {
     if (relationship) {
       proposedFamily.relationship = relationship;
     }
+    if (partners.length === 2) {
+      const relationshipEvents = convertRelationshipEvents(record, issues);
+      if (relationshipEvents.length > 0) {
+        proposedFamily.relationshipEvents = relationshipEvents;
+      }
+      relationshipEventsImported = true;
+    }
     families.push(proposedFamily);
   }
 
@@ -410,7 +418,7 @@ function convertFamily(record, context) {
       record: serializeNode(unsupported)
     });
   }
-  inventoryFamilyDetails(record, unresolved);
+  inventoryFamilyDetails(record, unresolved, relationshipEventsImported);
 }
 
 function assignPersonIds(records) {
@@ -590,7 +598,7 @@ function inventoryIndividualDetails(record, unresolved) {
   }
 }
 
-function inventoryFamilyDetails(record, unresolved) {
+function inventoryFamilyDetails(record, unresolved, relationshipEventsImported) {
   for (const childRecord of children(record, "CHIL")) {
     inventoryUnsupportedChildren(
       childRecord,
@@ -600,28 +608,92 @@ function inventoryFamilyDetails(record, unresolved) {
       unresolved
     );
   }
-  for (const eventTag of ["MARR", "DIV"]) {
-    for (const eventRecord of children(record, eventTag)) {
-      inventoryUnsupportedChildren(
-        eventRecord,
-        new Set(),
-        "unsupported-family-event-detail",
-        record.xref,
-        unresolved
-      );
-    }
-  }
-  for (const eventRecord of children(record, "EVEN").filter(
-    isUnmarriedPartnershipEvent
+  for (const eventRecord of record.children.filter(
+    (event) =>
+      event.tag === "MARR" ||
+      event.tag === "DIV" ||
+      isUnmarriedPartnershipEvent(event)
   )) {
+    if (!relationshipEventsImported) {
+      unresolved.push({
+        reason: "unsupported-family-event-detail",
+        owner: record.xref,
+        record: serializeNode(eventRecord)
+      });
+      continue;
+    }
     inventoryUnsupportedChildren(
       eventRecord,
-      new Set(["TYPE"]),
+      new Set(
+        eventRecord.tag === "EVEN"
+          ? ["TYPE", "DATE", "PLAC"]
+          : ["DATE", "PLAC"]
+      ),
       "unsupported-family-event-detail",
       record.xref,
       unresolved
     );
   }
+}
+
+function convertRelationshipEvents(record, issues) {
+  const events = [
+    ...children(record, "MARR").map((eventRecord) => ({
+      type: "married",
+      record: eventRecord
+    })),
+    ...children(record, "DIV").map((eventRecord) => ({
+      type: "divorced",
+      record: eventRecord
+    })),
+    ...children(record, "EVEN")
+      .filter(isUnmarriedPartnershipEvent)
+      .map((eventRecord) => ({
+        type: "partnered",
+        record: eventRecord
+      }))
+  ].sort((left, right) => left.record.line - right.record.line);
+
+  return events.flatMap(({ type, record: eventRecord }) => {
+    const original = childValue(eventRecord, "DATE")?.trim();
+    const place = childValue(eventRecord, "PLAC")?.trim() || null;
+    if (!original) {
+      return [
+        {
+          type,
+          date: "Unknown",
+          ...(place ? { place } : {})
+        }
+      ];
+    }
+    const converted = convertGedcomDate(original);
+    if (converted.loss) {
+      issues.push({
+        severity: "warning",
+        code: "relationship-date-conversion",
+        record: record.xref,
+        line: eventRecord.line,
+        message: converted.loss
+      });
+    }
+    if (!converted.value) {
+      return [
+        {
+          type,
+          date: "Unknown",
+          ...(place ? { place } : {})
+        }
+      ];
+    }
+    return [
+      {
+        type,
+        date: converted.value,
+        ...(converted.estimated ? { dateEstimated: true } : {}),
+        ...(place ? { place } : {})
+      }
+    ];
+  });
 }
 
 function hasUnmarriedPartnershipEvent(record) {

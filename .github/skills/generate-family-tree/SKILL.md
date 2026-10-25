@@ -83,6 +83,14 @@ npm run render:ancestry -- <person-id>
 npm run check:ancestry -- <person-id>
 ```
 
+For the selected person with their modeled spouse or spouses, direct children,
+and children they raised (including any co-caregivers):
+
+```powershell
+npm run render:immediate-family -- <person-id>
+npm run check:immediate-family -- <person-id>
+```
+
 For direct ancestors only:
 
 ```powershell
@@ -132,6 +140,10 @@ node scripts/generate.mjs --check --view ancestry --person <person-id> --locale 
   printable reports for person-focused views.
 - `index.ancestry.html`: local ancestry view with the selected person's
   siblings and spouse(s), plus direct ancestors and their siblings.
+- `index.immediate-family*.html` and
+  `<person-id>.immediate-family.<locale>.png`: immediate-family outputs with
+  the selected person, partners, direct children, and children they raised
+  with any co-caregivers.
 - `index.ancestry.<locale>.html`: additional-locale ancestry view.
 - `<person-id>.ancestry.<locale>.png`: localized ancestry preview.
 - `index.ancestry-maternal*.html` and
@@ -194,6 +206,8 @@ Before generating:
    requested active locale for the package.
 4. Choose the smallest view that contains the needed context:
    - `person` for one person's complete record and direct relationships.
+   - `immediate-family` for one person, their partners, direct children, and
+     children they raised with any co-caregivers.
    - `ancestry-strict` for direct ancestors only.
    - `ancestry` for direct ancestors plus immediate sibling and spouse context.
    - `ancestry-maternal` or `ancestry-paternal` for one parental line.
@@ -270,7 +284,18 @@ through `verify-genealogy-data`, and request approval before changing records.
    parentage. Confirm the selected person and every blood descendant use the
    blue lineage treatment, while every non-blood spouse uses the gray spouse
    treatment.
-7. Inspect the entire image, not only the initial viewport.
+7. For immediate-family views, include the selected person, every modeled
+   spouse or partner, children from those partnerships, and children in
+   `raised-by` relationships where the selected person is a caregiver. Include
+   every co-caregiver needed to display those relationships without inferring
+   a partnership. Exclude parents, siblings, grandchildren, children's partners,
+   and children raised only by a spouse. Confirm direct children use the blue
+   lineage treatment and spouses use the gray spouse treatment. Place raised-by
+   children in the children's display row without changing biological generation
+   calculations or sibling groups. Preserve their non-lineage card appearance
+   and dashed raised-by connectors; caregiving does not assert biological
+   parentage, adoption, or legal foster status. Inspect the entire image, not
+   only the initial viewport.
 8. Confirm the preview shows the local generation date, without a time, below
    the people and generations summary.
 9. Treat browser diagnostic noise as non-fatal only when the command exits

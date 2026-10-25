@@ -125,14 +125,16 @@ The following information is omitted with a warning:
 
 PlainRoots records `married`, `divorced`, `partnered`, and `unknown`
 relationship status. The exporter writes partnered families as `EVEN` with
-`TYPE Unmarried partnership`; unknown relationships omit marriage and
-partnership events. An omitted relationship also defaults to `unknown`; known
-marriages must store `married` explicitly. GEDCOM consumers may not interpret
-the free-text partnered event consistently. The exporter cannot add
-information that PlainRoots does not model, such as:
+`TYPE Unmarried partnership`. Unknown relationships do not invent events, but
+explicit event histories are preserved regardless of current status. An omitted
+relationship also defaults to `unknown`; known marriages must store `married`
+explicitly. `relationshipEvents` export dates and places as `DATE` and `PLAC`
+details beneath `MARR`, `DIV`, or the unmarried-partnership `EVEN`. Events with
+`date: "Unknown"` export without a `DATE` detail while preserving a known
+`PLAC`. GEDCOM consumers may not interpret the free-text partnered event
+consistently. The exporter cannot add information that PlainRoots does not
+model, such as:
 
-- Marriage or divorce dates
-- Marriage or divorce places
 - Relationship evidence
 - Relationship-specific notes
 - Legal, civil, religious, or customary marriage type

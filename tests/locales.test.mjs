@@ -70,6 +70,43 @@ test("requires a label for every alternate-name type", async (context) => {
   );
 });
 
+test("requires active locales to translate every shared place", async (context) => {
+  const projectRoot = await createProject(context, ["es-MX"]);
+  await writeLocale(projectRoot, "en-US", {}, alternateNameTypeLabels(), {
+    "Example city": "Example city"
+  });
+  await writeLocale(projectRoot, "es-MX");
+
+  await assert.rejects(
+    loadSupportedLocaleIds(projectRoot),
+    /missing required "places.Example city" translation/
+  );
+});
+
+test("rejects unsupported shared place translations", async (context) => {
+  const projectRoot = await createProject(context, ["es-MX"]);
+  await writeLocale(projectRoot, "es-MX", {}, alternateNameTypeLabels(), {
+    "Example city": "Ciudad de ejemplo"
+  });
+
+  await assert.rejects(
+    loadSupportedLocaleIds(projectRoot),
+    /unsupported "places.Example city" translation/
+  );
+});
+
+test("rejects empty shared place translations", async (context) => {
+  const projectRoot = await createProject(context, []);
+  await writeLocale(projectRoot, "en-US", {}, alternateNameTypeLabels(), {
+    "Example city": " "
+  });
+
+  await assert.rejects(
+    loadSupportedLocaleIds(projectRoot),
+    /"places.Example city" must be a non-empty string/
+  );
+});
+
 test("preserves structurally valid inactive translations without requiring new fields", async (context) => {
   const projectRoot = await createProject(context, []);
   const personRoot = path.join(projectRoot, "people", "example");
@@ -180,7 +217,8 @@ async function writeLocale(
   projectRoot,
   localeId,
   strings = {},
-  alternateNameTypes = alternateNameTypeLabels()
+  alternateNameTypes = alternateNameTypeLabels(),
+  places = {}
 ) {
   await writeJson(path.join(projectRoot, "locales", `${localeId}.json`), {
     id: localeId,
@@ -191,8 +229,7 @@ async function writeLocale(
     familyChildren: {},
     researchNoteStatuses: {},
     occupations: {},
-    birthPlaces: {},
-    deathPlaces: {}
+    places
   });
 }
 

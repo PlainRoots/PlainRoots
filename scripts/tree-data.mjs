@@ -1,3 +1,6 @@
+import { isValidPlainRootsDate } from "./date-values.mjs";
+import { RELATIONSHIP_EVENT_TYPES } from "./relationship-events.mjs";
+
 export function validateTree(value) {
   if (!value || typeof value !== "object") {
     throw new Error("tree.json must contain an object");
@@ -53,6 +56,39 @@ export function validateTree(value) {
       throw new Error(
         `tree.json: family "${family.id}" has invalid relationship "${family.relationship}"`
       );
+    }
+    if (
+      family.relationshipEvents !== undefined &&
+      (!Array.isArray(family.relationshipEvents) ||
+        family.partners.length !== 2)
+    ) {
+      throw new Error(
+        `tree.json: family "${family.id}" relationshipEvents must be an array on a two-partner family`
+      );
+    }
+    for (const [index, event] of (
+      family.relationshipEvents ?? []
+    ).entries()) {
+      if (
+        !event ||
+        typeof event !== "object" ||
+        !RELATIONSHIP_EVENT_TYPES.includes(event.type) ||
+        typeof event.date !== "string" ||
+        (event.date !== "Unknown" && !isValidPlainRootsDate(event.date)) ||
+        (event.dateEstimated !== undefined &&
+          typeof event.dateEstimated !== "boolean") ||
+        (event.date === "Unknown" && event.dateEstimated === true) ||
+        (event.place !== undefined &&
+          (typeof event.place !== "string" || event.place.trim() === "")) ||
+        Object.keys(event).some(
+          (field) =>
+            !["type", "date", "dateEstimated", "place"].includes(field)
+        )
+      ) {
+        throw new Error(
+          `tree.json: family "${family.id}" relationshipEvents[${index}] needs a supported "type", a YYYY, YYYY-MM, YYYY-MM-DD, or "Unknown" date, optional boolean "dateEstimated" for known dates, and an optional non-empty "place"`
+        );
+      }
     }
     if (new Set(family.partners).size !== family.partners.length) {
       throw new Error(

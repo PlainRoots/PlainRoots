@@ -19,6 +19,7 @@ import {
   localeSuffix
 } from "./locales.mjs";
 import { validateReferences, validateTree } from "./tree-data.mjs";
+import { formatRelationshipSummary } from "./relationship-events.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -260,9 +261,7 @@ ${cards}
 function renderRelationship(family, localeData, indent) {
   const label =
     family.partners.length === 2
-      ? family.relationship === "unknown" || family.relationship === undefined
-        ? localeData.strings.relationshipUnknown
-        : localeData.strings[family.relationship]
+      ? formatRelationshipSummary(family, localeData)
       : localeData.strings.parent;
   const childClass = family.children.length > 0 ? " has-children" : "";
   return `${indent}<div class="relationship${childClass}" data-family-id="${escapeAttribute(family.id)}">

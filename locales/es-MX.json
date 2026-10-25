@@ -4,6 +4,7 @@
   "strings": {
     "treeTitle": "Familia de referencia de PlainRoots",
     "personTreeTitle": "{person}",
+    "immediateFamilyTreeTitle": "Familia inmediata de {person}",
     "ancestryTreeTitle": "Ascendencia de {person}",
     "maternalAncestryTreeTitle": "Ascendencia materna de {person}",
     "paternalAncestryTreeTitle": "Ascendencia paterna de {person}",
@@ -14,6 +15,8 @@
     "fullViewDescription": "Todas las personas y todas las relaciones familiares modeladas.",
     "personViewName": "Ficha personal",
     "personViewDescription": "La ficha imprimible detallada de una persona y sus relaciones conocidas.",
+    "immediateFamilyViewName": "Familia inmediata",
+    "immediateFamilyViewDescription": "Una persona, sus parejas, sus hijos directos y las personas que crió, con los cuidadores correspondientes.",
     "ancestryViewName": "Árbol de ascendencia",
     "ancestryViewDescription": "Una persona, su contexto familiar inmediato y sus ramas ancestrales directas.",
     "maternalAncestryViewName": "Árbol de ascendencia materna",
@@ -52,6 +55,8 @@
     "partnered": "En pareja",
     "relationshipUnknown": "Relación desconocida",
     "divorced": "Divorciados",
+    "relationshipEventFormat": "{relationship}: {date}",
+    "relationshipEventSeparator": "; ",
     "parent": "Progenitor",
     "raisedBy": "Criado por",
     "occupation": "Ocupación",
@@ -144,11 +149,7 @@
     "Student": "Estudiante",
     "Unknown": "Desconocido"
   },
-  "deathPlaces": {
-    "Guadalajara, Jalisco, Mexico": "Guadalajara, Jalisco, México",
-    "Seattle, Washington, USA": "Seattle, Washington, EE. UU."
-  },
-  "birthPlaces": {
+  "places": {
     "Austin, Texas, USA": "Austin, Texas, EE. UU.",
     "Chicago, Illinois, USA": "Chicago, Illinois, EE. UU.",
     "Guadalajara, Jalisco, Mexico": "Guadalajara, Jalisco, México",

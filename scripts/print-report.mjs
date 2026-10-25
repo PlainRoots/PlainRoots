@@ -19,7 +19,10 @@ import { resolvePersonPhoto } from "./person-photo.mjs";
 import { resolvePersonStories } from "./person-stories.mjs";
 import { renderPrintStories } from "../templates/print-stories-html.mjs";
 import { alternateNameTypeLabel } from "./alternate-names.mjs";
-import { parsePlainRootsDate } from "./date-values.mjs";
+import {
+  formatLocalizedPlainRootsDate
+} from "./date-values.mjs";
+import { formatRelationshipSummary } from "./relationship-events.mjs";
 import {
   CANONICAL_LOCALE_ID,
   loadLocale,
@@ -269,7 +272,7 @@ function renderPersonRecord(
     renderFact(
       strings.birthplace,
       localizeValue(
-        localeData.birthPlaces,
+        localeData.places,
         person.birthPlace,
         strings.unknown
       ),
@@ -299,7 +302,7 @@ function renderPersonRecord(
       ? renderFact(
           strings.deathplace,
           localizeValue(
-            localeData.deathPlaces,
+            localeData.places,
             person.deathPlace ?? "Unknown",
             strings.unknown
           ),
@@ -377,6 +380,7 @@ function collectRelationships(personId, treeData) {
   const partners = new Set();
   const children = new Set();
   const siblings = new Set();
+  const partnerships = [];
   const guardians = [];
   const raisedChildren = new Set();
 
@@ -388,9 +392,14 @@ function collectRelationships(personId, treeData) {
         .forEach((id) => siblings.add(id));
     }
     if (family.partners.includes(personId)) {
-      family.partners
-        .filter((id) => id !== personId)
-        .forEach((id) => partners.add(id));
+      const otherPartners = family.partners.filter((id) => id !== personId);
+      otherPartners.forEach((id) => partners.add(id));
+      if (otherPartners.length > 0) {
+        partnerships.push({
+          partners: otherPartners,
+          family
+        });
+      }
       family.children.forEach((id) => children.add(id));
     }
   }
@@ -419,6 +428,7 @@ function collectRelationships(personId, treeData) {
   return {
     parents: [...parents],
     partners: [...partners],
+    partnerships,
     children: [...children],
     siblings: [...siblings],
     guardians,
@@ -428,13 +438,23 @@ function collectRelationships(personId, treeData) {
 
 function renderRelationships(relationships, peopleById, localeData) {
   const strings = localeData.strings;
+  const partnershipRows = relationships.partnerships.some(
+    ({ family }) => family.relationshipEvents?.length > 0
+  )
+    ? relationships.partnerships.map(
+        ({ partners, family }) =>
+          `              <li><strong>${escapeHtml(strings.printPartners)}:</strong> ${escapeHtml(namesFor(partners, peopleById))} — ${escapeHtml(formatRelationshipSummary(family, localeData, { includePlaces: true }))}</li>`
+      )
+    : [
+        relationshipRow(
+          strings.printPartners,
+          relationships.partners,
+          peopleById
+        )
+      ];
   const rows = [
     relationshipRow(strings.printParents, relationships.parents, peopleById),
-    relationshipRow(
-      strings.printPartners,
-      relationships.partners,
-      peopleById
-    ),
+    ...partnershipRows,
     relationshipRow(strings.printChildren, relationships.children, peopleById),
     relationshipRow(strings.printSiblings, relationships.siblings, peopleById),
     relationshipRow(
@@ -525,21 +545,7 @@ function formatDate(value, localeData) {
   if (!value || value === "Unknown") {
     return localeData.strings.unknown;
   }
-  const parsed = parsePlainRootsDate(value);
-  if (!parsed || parsed.precision === "year") {
-    return value;
-  }
-  if (parsed.precision === "month") {
-    return new Intl.DateTimeFormat(localeData.languageTag, {
-      month: "long",
-      year: "numeric",
-      timeZone: "UTC"
-    }).format(new Date(Date.UTC(parsed.year, parsed.month - 1, 1)));
-  }
-  return new Intl.DateTimeFormat(localeData.languageTag, {
-    dateStyle: "long",
-    timeZone: "UTC"
-  }).format(new Date(`${value}T00:00:00Z`));
+  return formatLocalizedPlainRootsDate(value, localeData.languageTag);
 }
 
 function lifeStatus(person, localeData) {
