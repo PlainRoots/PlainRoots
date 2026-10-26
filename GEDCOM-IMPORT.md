@@ -102,9 +102,9 @@ Records do not need to appear before records that point to them.
 | First `OCCU` | `occupation` |
 | `FAM.HUSB` and `FAM.WIFE` | Neutral `partners` array |
 | `FAM.CHIL` | `children` array |
-| `MARR` | `relationship: married` |
-| `DIV` | `relationship: divorced` |
-| `EVEN` with `TYPE Unmarried partnership` | `relationship: partnered` |
+| `MARR` | `relationship: married`; supported `DATE` and `PLAC` become a `married` relationship event |
+| `DIV` | `relationship: divorced`; supported `DATE` and `PLAC` become a `divorced` relationship event |
+| `EVEN` with `TYPE Unmarried partnership` | `relationship: partnered`; supported `DATE` and `PLAC` become a `partnered` relationship event |
 | Two-partner `FAM` without a recognized relationship event | `relationship: unknown` |
 | Child-only `FAM` with at least two children | `siblingGroups` proposal |
 | `FAMC` with `PEDI foster` | Guardianship candidate requiring review |
@@ -158,7 +158,15 @@ are resolved.
   event receives `relationship: "unknown"`.
 - A two-partner family with `EVEN` and `TYPE Unmarried partnership` receives
   `relationship: "partnered"`.
+- Supported dates on marriage, divorce, and unmarried-partnership events are
+  staged in `relationshipEvents`, preserving approximate dates with
+  `dateEstimated: true`.
+- A non-empty `PLAC` on a recognized relationship event is staged as `place`.
+- A recognized relationship event without a representable date is staged with
+  `date: "Unknown"` so the known event is not discarded.
 - A one-partner family does not receive an invented relationship status.
+  Relationship events that cannot belong to a proposed two-partner family are
+  retained as unresolved source records rather than producing invalid history.
 - A family without partners and with at least two children becomes a sibling
   group proposal.
 - A family without partners and fewer than two children remains unresolved.
@@ -181,7 +189,7 @@ numbers. Examples include:
 - Source and repository records
 - Multimedia records and links
 - Submitter records
-- Family event dates and places
+- Unsupported family event details, such as notes and source citations
 - Additional occupation details
 - Change dates and application record numbers
 - Custom `_TAG` records

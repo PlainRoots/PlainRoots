@@ -68,7 +68,7 @@ export function convertGedcomDate(value) {
     estimated: Boolean(approximate),
     loss:
       approximate && approximate[1] !== "ABT"
-        ? `GEDCOM date modifier ${approximate[1]} was reduced to PlainRoots birthDateEstimated`
+        ? `GEDCOM date modifier ${approximate[1]} was reduced to PlainRoots' estimated-date marker`
         : null
   };
 }

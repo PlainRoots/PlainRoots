@@ -62,14 +62,25 @@ Use separate approval gates:
 1. Confirm permission to inspect and preserve the narrative and media.
 2. Identify the author, voices, original language, and known date.
 3. For audio, produce a draft verbatim transcript outside the repository and
-   show uncertain or inaudible passages.
-4. Ask the user to approve or correct the original transcript or supplied
-   text.
-5. Show the proposed title, Story ID, files, translations, media metadata,
+   create an annotated review copy that clearly marks every uncertain,
+   inaudible, or editorially reconstructed passage.
+4. Have the user correct the annotated original-language review copy. Confirm
+   that no review markers remain, then ask the user to approve the original
+   transcript or supplied text.
+5. Before translating, identify idioms, period expressions, elliptical
+   phrasing, humor, and cultural language that would lose or change meaning in
+   a literal translation. Show the intended meanings and proposed translation
+   approach for approval.
+6. Confirm whether the approved original should remain a faithful spoken-word
+   transcript, become a lightly edited reading version, or preserve both as
+   separate files. Translate only after this choice and original-text approval.
+7. Prepare the complete translation outside the repository and obtain explicit
+   approval for both the original and every translation.
+8. Show the proposed title, Story ID, files, translations, media metadata,
    authorship provenance, and `person.json` entry.
-6. Ask for approval before creating repository files or changing
+9. Ask for approval before creating repository files or changing
    `person.json`.
-7. Apply only the approved Story and media.
+10. Apply only the approved Story and media.
 
 Permission to transcribe is not permission to translate, copy media into Git,
 register the Story, commit, or push.
@@ -157,17 +168,40 @@ register the Story, commit, or push.
 ## Transcription and translation review
 
 - Mark inaudible audio as `[inaudible]` with a timestamp when practical.
+- Keep the raw machine transcript separate from the user-facing review copy.
+  Preserve both outside the repository while review is in progress.
+- In the review copy, use explicit, searchable, language-appropriate markers
+  such as `[REVISAR: explicación]` or `[REVIEW: explanation]` around every
+  uncertain hearing, spelling, punctuation choice, or editorial
+  reconstruction. Do not merely say that the draft needs review.
+- Include speaker labels and concise authorship, interviewer, language, date,
+  and source-chain context at the top of the review copy.
+- Give the user the review-copy path so they can correct it directly. After
+  they finish, search the entire file for the chosen review marker,
+  `[inaudible]`, and other unresolved bracketed annotations. Do not call the
+  transcript final while any remain.
 - Mark uncertain hearing or spelling explicitly; do not silently choose a
   likely word.
 - Preserve false starts, repetitions, code-switching, and distinctive wording
   unless the user approves an edited transcript.
 - Keep an edited reading version separate from the verbatim original if both
   are requested. Do not replace the original transcript.
+- After the corrected original is free of review markers, perform a separate
+  translation-readiness pass. List wording that would be confusing,
+  misleading, insensitive, or culturally flattened if translated literally,
+  explain the intended meaning, and ask the user to approve or correct each
+  interpretation.
 - Translate meaning and tone without repairing factual contradictions.
 - Preserve names, places, kinship terms, and culturally specific wording for
   review rather than guessing.
+- Preserve the narrator's voice and cultural norms when the user requests it,
+  even when a more domesticated translation would sound more conventional in
+  the target culture. Do not remove bluntness, humor, idioms, or informality
+  merely to avoid a different culture's possible reaction.
 - Identify machine-generated transcription and translation as drafts until
   reviewed.
+- Do not begin the repository translation from an unapproved or still-annotated
+  original; otherwise corrections immediately make the translation stale.
 - Ask a fluent speaker to review each translation, especially when it contains
   dialect, historical terminology, humor, idioms, or mixed languages.
 

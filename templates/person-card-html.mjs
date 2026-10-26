@@ -181,7 +181,7 @@ ${indent}      <span class="surnames">${escapeHtml(person.surnames)}${person.mai
 ${indent}    </h3>
 ${indent}    <dl>
 ${alternateNames ? `${alternateNames}\n` : ""}${indent}      ${renderFact(strings.occupation, localizeValue(locale.occupations, person.occupation, strings.unknown), "", highlightMissing && person.occupation === "Unknown")}
-${indent}      ${renderFact(strings.born, formatLifeEvent(person.birthDate, person.birthPlace, locale.birthPlaces, locale, person.birthDateEstimated), "life-event", highlightMissing && (person.birthDate === "Unknown" || person.birthPlace === "Unknown"))}
+${indent}      ${renderFact(strings.born, formatLifeEvent(person.birthDate, person.birthPlace, locale, person.birthDateEstimated), "life-event", highlightMissing && (person.birthDate === "Unknown" || person.birthPlace === "Unknown"))}
 ${indent}      ${renderLifeStatus(person, locale, highlightMissing)}
 ${familyStatus ? `${indent}      ${familyStatus}\n` : ""}${indent}    </dl>
 ${indent}  </div>
@@ -243,12 +243,7 @@ function renderLifeStatus(person, locale, highlightMissing) {
     const deathPlace = person.deathPlace ?? "Unknown";
     return renderFact(
       strings.died,
-      formatLifeEvent(
-        deathDate,
-        deathPlace,
-        locale.deathPlaces,
-        locale
-      ),
+      formatLifeEvent(deathDate, deathPlace, locale),
       "life-event",
       highlightMissing &&
         (deathDate === "Unknown" || deathPlace === "Unknown")
@@ -327,7 +322,6 @@ function formatCardDate(value, languageTag, unknown) {
 function formatLifeEvent(
   dateValue,
   placeValue,
-  places,
   locale,
   estimated = false
 ) {
@@ -346,7 +340,7 @@ function formatLifeEvent(
     ? `${date} (${locale.strings.estimated})`
     : date;
   const place = localizeValue(
-    places,
+    locale.places,
     placeValue ?? "Unknown",
     locale.strings.unknownLocation
   );

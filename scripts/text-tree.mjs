@@ -1,3 +1,5 @@
+import { formatRelationshipSummary } from "./relationship-events.mjs";
+
 export function renderTextTree(
   treeData,
   peopleById,
@@ -231,10 +233,15 @@ function renderPersonBranch(
       renderedPeople.add(id);
       return formatTextPerson(id, peopleById, localeData, options);
     });
+    const relationship =
+      family.partners.length === 2 &&
+      family.relationshipEvents?.length > 0
+        ? ` (${formatRelationshipSummary(family, localeData)})`
+        : "";
     lines.push(
       familyIndex === 0
-        ? partners.join(" <--> ")
-        : `${localeData.strings.asciiWith} ${otherPartnerIds.map((id) => formatTextPerson(id, peopleById, localeData, options)).join(" <--> ")}`
+        ? `${partners.join(" <--> ")}${relationship}`
+        : `${localeData.strings.asciiWith} ${otherPartnerIds.map((id) => formatTextPerson(id, peopleById, localeData, options)).join(" <--> ")}${relationship}`
     );
     family.children.forEach((childId) => {
       appendBranch(
@@ -286,7 +293,7 @@ function formatTextPerson(personId, peopleById, localeData, options) {
   const birthplace =
     person.birthPlace === "Unknown"
       ? localeData.strings.asciiUnknownBirthplace
-      : localeData.birthPlaces[person.birthPlace] ?? person.birthPlace;
+      : localeData.places[person.birthPlace] ?? person.birthPlace;
   return `${person.name} (${localeData.strings.asciiBirthAbbreviation} ${birthYear}; ${localeData.strings.asciiDeathAbbreviation} ${deathYear}) [${birthplace}]`;
 }
 

@@ -100,10 +100,18 @@ No edites manualmente los archivos HTML generados.
 ## Registros de personas y fotografías
 
 Los registros de personas pueden incluir `deathPlace` junto con `deathDate`.
-Usa `"Unknown"` cuando se desconozca el lugar de fallecimiento y agrega cada
-valor conocido al diccionario `deathPlaces` de todos los recursos regionales.
+Usa `"Unknown"` cuando se desconozca el lugar de fallecimiento. Todos los
+lugares comparten un único diccionario `places` en cada recurso regional:
+traduce cada lugar una sola vez y reutilízalo para nacimientos, fallecimientos
+y eventos de relación. Los campos fuente `birthPlace`, `deathPlace` y `place`
+de los eventos de relación se mantienen separados para identificar el evento.
 Las fichas combinan cada fecha de nacimiento o fallecimiento con su lugar en
 una sola fila localizada de evento de vida.
+
+Al actualizar un archivo existente, combina sus entradas de `birthPlaces`,
+`deathPlaces` y, si existe, `relationshipPlaces` en `places` para cada
+configuración regional. Resuelve explícitamente las traducciones en conflicto
+antes de eliminar los diccionarios anteriores.
 
 Guarda las fechas de las personas como `YYYY-MM-DD`, `YYYY-MM` o `YYYY`,
 conservando la precisión respaldada por la evidencia.
@@ -170,7 +178,31 @@ cuando se omite `relationship`. Usa `"relationship": "married"` o
 `"relationship": "divorced"` solo cuando el estado esté confirmado, y
 `"relationship": "partnered"` para una unión informal o no matrimonial
 confirmada. Los matrimonios conocidos deben guardar siempre
-`"relationship": "married"` de forma explícita. Las etiquetas de grupos de
+`"relationship": "married"` de forma explícita.
+
+Las familias con dos integrantes pueden incluir un historial opcional
+`relationshipEvents`. Este ejemplo ficticio registra un matrimonio conocido y
+un divorcio con fecha aproximada:
+
+```json
+"relationship": "divorced",
+"relationshipEvents": [
+  { "type": "married", "date": "1980-05-10", "place": "Austin, Texas, USA" },
+  { "type": "divorced", "date": "1992", "dateEstimated": true }
+]
+```
+
+Los tipos de evento son `married`, `divorced` y `partnered`. Las fechas aceptan
+`YYYY`, `YYYY-MM`, `YYYY-MM-DD` o `"Unknown"` para un evento confirmado cuya
+fecha se desconoce. Usa `dateEstimated: true` solo para fechas conocidas
+aproximadas y un `place` opcional no vacío solo cuando el lugar esté confirmado.
+El estado actual `relationship` y el historial se mantienen separados para
+representar historiales parciales. Los árboles visuales y los reportes de texto
+muestran las fechas de los eventos, pero omiten sus lugares; los reportes
+imprimibles sí los incluyen. Traduce los lugares mediante los diccionarios
+compartidos `places`.
+
+Las etiquetas de grupos de
 hermanos se derivan de los apellidos registrados, no de los IDs internos de
 familia. Un único grupo de hermanos visible se incorpora directamente a la
 fila de su generación. Las vistas previas PNG enfocadas en una persona usan
@@ -194,8 +226,9 @@ de información sensible antes de compartir el archivo.
 Se exportan personas, nombres, sexo, nacimientos, fallecimientos, ocupaciones,
 familias, hijos, grupos de hermanos con padres desconocidos y relaciones de
 crianza. Las familias `partnered` usan `EVEN` con
-`TYPE Unmarried partnership`; las familias con relación desconocida omiten los
-eventos de matrimonio y unión. Las relaciones de crianza usan un enlace de familia separado con
+`TYPE Unmarried partnership`. Los eventos explícitos conservan sus fechas y
+lugares; una relación actual desconocida no inventa eventos cuando no hay un
+historial registrado. Las relaciones de crianza usan un enlace de familia separado con
 `PEDI foster`, sin cambiar la ascendencia biológica. La edad de inicio y la
 evidencia no tienen una representación directa en GEDCOM 5.5.5 y se informan
 como omitidas. Las historias, notas de investigación, fotografías y nombres
@@ -233,6 +266,26 @@ datos.
 Consulta [Importing GEDCOM for review, en inglés](GEDCOM-IMPORT.md) para ver
 las asignaciones, medidas de seguridad, pérdidas conocidas y el flujo de
 aprobación.
+
+## Vista de familia inmediata
+
+Muestra una persona, sus parejas modeladas, sus hijos directos y las personas
+que crió, con los cuidadores correspondientes sin suponer una relación de
+pareja. Excluye padres, hermanos, nietos, parejas de los hijos y personas criadas
+únicamente por una pareja. Los conectores de crianza se mantienen separados de
+la ascendencia biológica.
+
+```powershell
+npm run generate:immediate-family -- carlos-garcia-lopez
+npm run check:immediate-family -- carlos-garcia-lopez
+npm run render:immediate-family -- carlos-garcia-lopez
+npm run report:immediate-family -- carlos-garcia-lopez
+npm run view:ascii -- --view immediate-family --person carlos-garcia-lopez --locale es-MX
+```
+
+Los comandos generate, check, render y report procesan todas las configuraciones
+regionales activas. La vista también aparece en el menú interactivo de
+`npm start`.
 
 ## Modelo de contribución
 

@@ -4,6 +4,7 @@
   "strings": {
     "treeTitle": "PlainRoots Reference Family",
     "personTreeTitle": "{person}",
+    "immediateFamilyTreeTitle": "Immediate family of {person}",
     "ancestryTreeTitle": "Ancestry of {person}",
     "maternalAncestryTreeTitle": "Maternal ancestry of {person}",
     "paternalAncestryTreeTitle": "Paternal ancestry of {person}",
@@ -14,6 +15,8 @@
     "fullViewDescription": "Everyone and every modeled family relationship.",
     "personViewName": "Person record",
     "personViewDescription": "One person's detailed printable record and known relationships.",
+    "immediateFamilyViewName": "Immediate family",
+    "immediateFamilyViewDescription": "One person, their partners, direct children, and children they raised, with relevant co-caregivers.",
     "ancestryViewName": "Ancestry tree",
     "ancestryViewDescription": "One person, their immediate family context, and direct ancestral branches.",
     "maternalAncestryViewName": "Maternal ancestry tree",
@@ -52,6 +55,8 @@
     "partnered": "Partners",
     "relationshipUnknown": "Relationship unknown",
     "divorced": "Divorced",
+    "relationshipEventFormat": "{relationship}: {date}",
+    "relationshipEventSeparator": "; ",
     "parent": "Parent",
     "raisedBy": "Raised by",
     "occupation": "Occupation",
@@ -144,11 +149,7 @@
     "Student": "Student",
     "Unknown": "Unknown"
   },
-  "deathPlaces": {
-    "Guadalajara, Jalisco, Mexico": "Guadalajara, Jalisco, Mexico",
-    "Seattle, Washington, USA": "Seattle, Washington, USA"
-  },
-  "birthPlaces": {
+  "places": {
     "Austin, Texas, USA": "Austin, Texas, USA",
     "Chicago, Illinois, USA": "Chicago, Illinois, USA",
     "Guadalajara, Jalisco, Mexico": "Guadalajara, Jalisco, Mexico",

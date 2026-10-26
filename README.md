@@ -34,7 +34,7 @@ requests.
 - Generate trees, cards, reports, and prompts in canonical English and every
   additional locale configured in `supported-locales.json`.
 - Keep research notes and provenance alongside the facts they explain.
-- Produce full-tree, ancestry, descendant, blood-relative, printable, and
+- Produce full-tree, immediate-family, ancestry, descendant, blood-relative, printable, and
   terminal-friendly views.
 - Highlight missing information without modifying the normal published views.
 
@@ -96,9 +96,16 @@ not be edited manually.
 ## Person records and photos
 
 Person records may include `deathPlace` alongside `deathDate`. Use `"Unknown"`
-when a death place is unknown, and add every known value to the `deathPlaces`
-dictionary in each locale. Tree cards combine each birth or death date with its
-place in a single localized life-event row.
+when a death place is unknown. All display locations share one `places`
+dictionary in each locale: translate each place once and reuse it for births,
+deaths, and relationship events. The source fields `birthPlace`, `deathPlace`,
+and relationship-event `place` remain separate to identify the event.
+Tree cards combine each birth or death date with its place in a single
+localized life-event row.
+
+When upgrading an existing archive, merge its `birthPlaces`, `deathPlaces`,
+and any `relationshipPlaces` entries into `places` in every locale. Resolve
+conflicting translations explicitly before removing the old dictionaries.
 
 Store person dates as `YYYY-MM-DD`, `YYYY-MM`, or `YYYY`, preserving the
 precision supported by the evidence.
@@ -160,6 +167,26 @@ Set `"relationship": "married"` or `"relationship": "divorced"` only when that
 status is confirmed, and use `"relationship": "partnered"` for a confirmed
 informal or non-marital union. Existing known marriages should always store
 `"relationship": "married"` explicitly.
+
+Two-partner families may include an optional `relationshipEvents` history.
+This fictional example records a known marriage and an approximate divorce:
+
+```json
+"relationship": "divorced",
+"relationshipEvents": [
+  { "type": "married", "date": "1980-05-10", "place": "Austin, Texas, USA" },
+  { "type": "divorced", "date": "1992", "dateEstimated": true }
+]
+```
+
+Event types are `married`, `divorced`, and `partnered`. Dates accept `YYYY`,
+`YYYY-MM`, `YYYY-MM-DD`, or `"Unknown"` for a confirmed event with an unknown
+date. Use `dateEstimated: true` only for known approximate dates and an optional
+non-empty `place` only when confirmed. Keep the current `relationship` separate
+from event history so partial histories remain representable. Charts and text
+reports display event dates but omit event places; printable reports include
+them. Translate event places through the shared `places` dictionaries.
+
 Sibling-group labels are derived from the siblings' recorded surnames rather
 than internal family IDs. A lone visible sibling group is flattened into its
 generation row. Person-focused PNG previews use
@@ -182,8 +209,9 @@ file is shared.
 
 Individuals, names, sex, births, deaths, occupations, families, children,
 unknown-parent sibling groups, and raised-by guardianships are exported.
-Partnered families use `EVEN` with `TYPE Unmarried partnership`; families with
-an unknown relationship omit marriage and partnership events.
+Partnered families use `EVEN` with `TYPE Unmarried partnership`. Explicit
+relationship events preserve their dates and places; an unknown current
+relationship does not invent events when no history is recorded.
 Guardianships use a separate family link with `PEDI foster`, preserving them
 without changing biological parentage. Their starting age and evidence do not
 have direct GEDCOM 5.5.5 representations and are reported as omitted. Stories,
@@ -217,6 +245,25 @@ or merge mode.
 
 See [Importing GEDCOM for review](GEDCOM-IMPORT.md) for mappings, safeguards,
 known loss, and the approval workflow.
+
+## Immediate-family view
+
+Show one person, their modeled partners, direct children, and children they
+raised, including relevant co-caregivers without assuming a partnership.
+Parents, siblings, grandchildren, children's partners, and children raised only
+by a partner are excluded. Raised-by connectors remain distinct from biological
+parentage.
+
+```powershell
+npm run generate:immediate-family -- carlos-garcia-lopez
+npm run check:immediate-family -- carlos-garcia-lopez
+npm run render:immediate-family -- carlos-garcia-lopez
+npm run report:immediate-family -- carlos-garcia-lopez
+npm run view:ascii -- --view immediate-family --person carlos-garcia-lopez --locale es-MX
+```
+
+The generate, check, render, and report commands process every active locale.
+The view is also available in the interactive `npm start` menu.
 
 ## Contribution model
 

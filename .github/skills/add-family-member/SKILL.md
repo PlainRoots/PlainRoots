@@ -92,8 +92,9 @@ media.
    or 30s." After every photo-ingestion operation, provide clickable local
    `file:///` links to each ingested repository image so the user can review
    the exact results.
-10. Add new occupation, birthplace, or death-place values to every file under
-   `locales/`.
+10. Add new occupations to `occupations` and new birth or death locations to
+   the shared `places` dictionary in every file under `locales/`. Reuse an
+   existing place translation regardless of event type.
 11. Add the person to `tree.json` only when they belong in the published tree.
     Use `manage-family-relationships` before adding or changing family links.
 

@@ -51,6 +51,53 @@ export function selectPerson(treeData, personId) {
   };
 }
 
+export function selectImmediateFamily(treeData, personId) {
+  if (!treeData.people.includes(personId)) {
+    throw new Error(`Unknown person "${personId}"`);
+  }
+
+  const families = treeData.families.filter((family) =>
+    family.partners.includes(personId)
+  );
+  const children = [...new Set(families.flatMap((family) => family.children))];
+  const spouses = [
+    ...new Set(
+      families.flatMap((family) =>
+        family.partners.filter((partnerId) => partnerId !== personId)
+      )
+    )
+  ];
+  const guardianships = (treeData.guardianships ?? []).filter(
+    (guardianship) => guardianship.guardians.includes(personId)
+  );
+  const caregivingChildIds = [
+    ...new Set(
+      guardianships
+        .map((guardianship) => guardianship.child)
+        .filter((childId) => !children.includes(childId))
+    )
+  ];
+  const includedPeople = new Set([
+    personId,
+    ...spouses,
+    ...children,
+    ...caregivingChildIds,
+    ...guardianships.flatMap((guardianship) => guardianship.guardians)
+  ]);
+
+  return {
+    ...treeData,
+    focusPersonId: personId,
+    directDescendantIds: children,
+    caregivingChildIds,
+    guardianships,
+    spouseIds: spouses,
+    people: treeData.people.filter((id) => includedPeople.has(id)),
+    families,
+    groupingFamilies: families
+  };
+}
+
 export function selectAncestry(treeData, personId) {
   const ancestry = traceDirectAncestry(treeData, personId);
   const includedPeople = new Set([
@@ -699,6 +746,11 @@ export function calculateViewLevels(treeData) {
   for (const personId of treeData.caregivingPeerIds ?? []) {
     if (levels.has(personId)) {
       levels.set(personId, focusLevel);
+    }
+  }
+  for (const personId of treeData.caregivingChildIds ?? []) {
+    if (levels.has(personId)) {
+      levels.set(personId, Math.max(levels.get(personId), focusLevel + 1));
     }
   }
   return levels;

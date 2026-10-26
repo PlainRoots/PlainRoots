@@ -24,8 +24,8 @@ Keep these operations distinct:
 
 - **Interface localization:** Translate labels, prompts, view names, status
   values, and other application text into locale resource files.
-- **Value localization:** Translate known occupations, birthplaces, and death
-  places in locale dictionaries.
+- **Value localization:** Translate known occupations in `occupations` and
+  all display locations in the shared `places` dictionary.
 - **Narrative translation:** Translate canonical `remarks`, `researchNotes`,
   alternate-name evidence, and project research notes into their dedicated
   translation files.
@@ -47,8 +47,9 @@ or person translation files merely because they use an active locale.
 
 ## Rules
 
-- Keep UI strings, occupation translations, and known birthplace translations
-  in locale resource files.
+- Keep UI strings, occupation translations, and place translations in locale
+  resource files. Use one `places` dictionary for birth, death, and
+  relationship-event locations; reuse each translation across event types.
 - Keep `familyStatus` relationship and children labels in
   `familyRelationships` and `familyChildren`.
 - Add localized titles, menu names, and menu descriptions for every registered
@@ -59,7 +60,8 @@ or person translation files merely because they use an active locale.
 - Do not translate people's names, initials, IDs, or family IDs as application
   localization.
 - Preserve UTF-8 diacritics.
-- Add every new occupation, birthplace, and death place to every active locale.
+- Add every new occupation to `occupations` and every new location to `places`
+  in every active locale. Do not create separate place dictionaries by event.
 - Use natural, region-appropriate translations rather than literal word swaps.
 - Keep placeholders such as `{people}` and `{generations}` unchanged.
 - Use canonical BCP 47 locale IDs everywhere.

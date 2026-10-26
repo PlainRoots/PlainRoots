@@ -274,7 +274,7 @@ test("does not invent relationship status for a single-parent family", () => {
   );
 });
 
-test("inventories family event details that PlainRoots cannot store", () => {
+test("imports family event dates and places", () => {
   const source = gedcom("5.5.5", [
     "0 @I1@ INDI",
     "1 NAME Alex /Rivera/",
@@ -300,7 +300,62 @@ test("inventories family event details that PlainRoots cannot store", () => {
     staging.unresolved.filter(
       (item) => item.reason === "unsupported-family-event-detail"
     ).length,
-    2
+    0
+  );
+  assert.deepEqual(staging.proposedTree.families[0].relationshipEvents, [
+    { type: "married", date: "2000-01-01", place: "Austin, Texas, USA" }
+  ]);
+});
+
+test("keeps one-partner relationship events unresolved instead of proposing invalid data", () => {
+  const source = gedcom("5.5.5", [
+    "0 @I1@ INDI",
+    "1 NAME Parent /Person/",
+    "0 @F1@ FAM",
+    "1 WIFE @I1@",
+    "1 MARR",
+    "2 DATE 1 JAN 2000",
+    "2 PLAC Example city"
+  ]);
+  const staging = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(source)),
+    "one-partner-event.ged"
+  );
+
+  assert.equal(Object.hasOwn(staging.proposedTree.families[0], "relationshipEvents"), false);
+  const unresolved = staging.unresolved.find(
+    (item) => item.reason === "unsupported-family-event-detail"
+  );
+  assert.equal(unresolved.record.tag, "MARR");
+  assert.deepEqual(
+    unresolved.record.children.map(({ tag, value }) => [tag, value]),
+    [["DATE", "1 JAN 2000"], ["PLAC", "Example city"]]
+  );
+});
+
+test("still preserves unsupported details of imported relationship events", () => {
+  const source = gedcom("5.5.5", [
+    "0 @I1@ INDI",
+    "1 NAME First /Person/",
+    "0 @I2@ INDI",
+    "1 NAME Second /Person/",
+    "0 @F1@ FAM",
+    "1 HUSB @I1@",
+    "1 WIFE @I2@",
+    "1 MARR",
+    "2 DATE 2000",
+    "2 NOTE Review this evidence",
+    "2 SOUR @S1@"
+  ]);
+  const staging = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(source)),
+    "event-details.ged"
+  );
+  assert.deepEqual(
+    staging.unresolved
+      .filter((item) => item.reason === "unsupported-family-event-detail")
+      .map((item) => item.record.tag),
+    ["NOTE", "SOUR"]
   );
 });
 
@@ -489,6 +544,109 @@ test("round trips partnered and unknown relationship statuses", () => {
     ),
     false
   );
+});
+
+test("round trips dated relationship events", () => {
+  const people = new Map([
+    ["alex", person("alex", "Alex", "Rivera", "male")],
+    ["sam", person("sam", "Sam", "Morgan", "female")]
+  ]);
+  const events = [
+    { type: "married", date: "1980-05-10", place: "Austin, Texas, USA" },
+    { type: "divorced", date: "1992", dateEstimated: true }
+  ];
+  const exported = serializeGedcom({
+    tree: {
+      title: "Example",
+      people: [...people.keys()],
+      families: [{
+        id: "rivera",
+        partners: ["alex", "sam"],
+        relationship: "divorced",
+        relationshipEvents: events,
+        children: []
+      }]
+    },
+    people,
+    fileName: "relationship-dates-round-trip.ged",
+    createdAt: new Date("2026-09-16T00:00:00Z")
+  });
+  const staged = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(exported.content, "utf8")),
+    "relationship-dates-round-trip.ged"
+  );
+  assert.deepEqual(staged.proposedTree.families[0].relationshipEvents, events);
+});
+
+test("round trips places for every relationship event and date precision", () => {
+  const people = new Map([
+    ["alex", person("alex", "Alex", "Rivera", "male")],
+    ["sam", person("sam", "Sam", "Morgan", "female")]
+  ]);
+  for (const type of ["married", "divorced", "partnered"]) {
+    for (const date of ["1980", "1980-05", "1980-05-10", "Unknown"]) {
+      const event = {
+        type,
+        date,
+        ...(date !== "Unknown" ? { dateEstimated: true } : {}),
+        place: "Example city, Example region"
+      };
+      const exported = serializeGedcom({
+        tree: {
+          title: "Example",
+          people: [...people.keys()],
+          families: [{
+            id: "rivera",
+            partners: [...people.keys()],
+            relationship: "unknown",
+            relationshipEvents: [event],
+            children: []
+          }]
+        },
+        people,
+        fileName: "relationship-places.ged",
+        createdAt: new Date("2026-09-16T00:00:00Z")
+      });
+      const staged = convertGedcomToStaging(
+        parseGedcomBuffer(Buffer.from(exported.content, "utf8")),
+        "relationship-places.ged"
+      );
+      assert.deepEqual(
+        staged.proposedTree.families[0].relationshipEvents,
+        [event],
+        `${type} with date ${date}`
+      );
+      assert.equal(
+        staged.unresolved.some(
+          (item) => item.reason === "unsupported-family-event-detail"
+        ),
+        false
+      );
+    }
+  }
+});
+
+test("preserves confirmed relationship events with unknown dates", () => {
+  const source = gedcom("5.5.5", [
+    "0 @I1@ INDI",
+    "1 NAME Alex /Rivera/",
+    "0 @I2@ INDI",
+    "1 NAME Sam /Morgan/",
+    "0 @F1@ FAM",
+    "1 HUSB @I1@",
+    "1 WIFE @I2@",
+    "1 MARR Y",
+    "1 DIV",
+    "2 PLAC Seattle, Washington, USA"
+  ]);
+  const staging = convertGedcomToStaging(
+    parseGedcomBuffer(Buffer.from(source)),
+    "unknown-relationship-dates.ged"
+  );
+  assert.deepEqual(staging.proposedTree.families[0].relationshipEvents, [
+    { type: "married", date: "Unknown" },
+    { type: "divorced", date: "Unknown", place: "Seattle, Washington, USA" }
+  ]);
 });
 
 test("CLI writes an ignored review package without applying records", async (context) => {

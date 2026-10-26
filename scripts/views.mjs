@@ -3,6 +3,7 @@ import {
   selectBloodRelatives,
   selectDescendants,
   selectFullTree,
+  selectImmediateFamily,
   selectMaternalAncestry,
   selectPaternalAncestry,
   selectPerson,
@@ -28,6 +29,15 @@ export const views = [
     titleKey: "personTreeTitle",
     htmlStem: "index.person",
     selectTree: selectPerson
+  },
+  {
+    id: "immediate-family",
+    nameKey: "immediateFamilyViewName",
+    descriptionKey: "immediateFamilyViewDescription",
+    requiresPerson: true,
+    titleKey: "immediateFamilyTreeTitle",
+    htmlStem: "index.immediate-family",
+    selectTree: selectImmediateFamily
   },
   {
     id: "ancestry",

@@ -48,3 +48,24 @@ export function parsePlainRootsDate(value) {
 export function isValidPlainRootsDate(value) {
   return parsePlainRootsDate(value) !== null;
 }
+
+export function formatLocalizedPlainRootsDate(value, languageTag) {
+  const parsed = parsePlainRootsDate(value);
+  if (!parsed) {
+    return value;
+  }
+  if (parsed.precision === "year") {
+    return value;
+  }
+  if (parsed.precision === "month") {
+    return new Intl.DateTimeFormat(languageTag, {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    }).format(new Date(Date.UTC(parsed.year, parsed.month - 1, 1)));
+  }
+  return new Intl.DateTimeFormat(languageTag, {
+    dateStyle: "long",
+    timeZone: "UTC"
+  }).format(new Date(`${value}T00:00:00Z`));
+}
